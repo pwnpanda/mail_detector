@@ -1,4 +1,5 @@
 from gpiozero import LightSensor
+import datetime
 import serial
 import time
 
@@ -40,7 +41,7 @@ def notification_set(value):
 	timestamp = datetime.datetime.now().strftime("%H:%M:%S %m-%h-%Y")
 	print(value)
 	sent = False
-	while true:
+	while True:
 		# Try to send notification
 		sent = try_send(timestamp)
 		# If sent, reset notification value and break
