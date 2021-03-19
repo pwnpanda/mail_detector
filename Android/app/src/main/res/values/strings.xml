@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name"><u>MailBox</u></string>
+    <string name="icon">App_Icon</string>
+    <string name="timestamp_text">Post was delivered at</string>
+    <string name="timestamp_time"><u>12:12:12</u></string>
+    <string name="timestamp_day">12-12-2012</string>
+    <string name="remove_notification">Remove notification</string>
+</resources>
