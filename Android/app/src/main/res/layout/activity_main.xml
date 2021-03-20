@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,7 +8,7 @@
     tools:context=".MainActivity">
 
     <TextView
-        android:id="@+id/Timestamp_text"
+        android:id="@+id/timestamp_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/timestamp_text"
@@ -26,10 +27,11 @@
         android:text="@string/timestamp_time"
         android:textSize="26sp"
         android:textStyle="bold"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Timestamp_text"
+        app:layout_constraintTop_toBottomOf="@+id/timestamp_text"
         app:layout_constraintVertical_bias="0.100000024" />
 
     <TextView
@@ -39,14 +41,15 @@
         android:gravity="center|center_horizontal|center_vertical"
         android:text="@string/timestamp_day"
         android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@+id/Button"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/timestamp_time"
         app:layout_constraintVertical_bias="0.060000002" />
 
     <Button
-        android:id="@+id/Button"
+        android:id="@+id/button"
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:background="@drawable/round_button"
@@ -61,9 +64,25 @@
         app:backgroundTint="@color/red"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/timestamp_time"
-        app:layout_constraintVertical_bias="0.6"
+        app:layout_constraintVertical_bias="0.598"
         app:strokeColor="#000000" />
+
+    <ImageView
+        android:id="@+id/post_box"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@strings/postbox"
+        android:scaleX="4"
+        android:scaleY="4"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/timestamp_text"
+        app:layout_constraintVertical_bias="0.65"
+        app:srcCompat="@mipmap/post_box_foreground" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

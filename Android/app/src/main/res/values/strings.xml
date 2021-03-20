@@ -5,4 +5,7 @@
     <string name="timestamp_time"><u>12:12:12</u></string>
     <string name="timestamp_day">12-12-2012</string>
     <string name="remove_notification">Remove notification</string>
+    <string name="logo_icon_name">Logo</string>
+    <string name="logs_icon_name">Logs</string>
+    <string name="postbox">postbox</string>
 </resources>
