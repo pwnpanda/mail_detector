@@ -23,6 +23,7 @@ out/
 # release/
 
 # Gradle files
+Android/app/.gradle
 .gradle/
 build/
 

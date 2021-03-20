@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.Mailbox" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="Theme.Mailbox" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/red</item>
         <item name="colorPrimaryVariant">@color/super_red</item>
@@ -10,7 +10,14 @@
         <item name="colorSecondaryVariant">@color/grey</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/charcoal</item>
         <!-- Customize your theme here. -->
+        <item name="android:actionMenuTextColor">@color/charcoal</item>
+    </style>
+    <style name="TextAppearance.AppCompat.Widget.ActionBar.Title" parent="@style/TextAppearance.AppCompat">
+        <item name="android:textSize">28dp</item>
+        <item name="android:textColor">@color/charcoal</item>
+        <item name="android:fontFamily">@font/alegreya_sans</item>
+        <item name="android:textStyle">bold</item>
     </style>
 </resources>
