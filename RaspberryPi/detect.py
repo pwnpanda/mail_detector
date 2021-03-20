@@ -37,19 +37,38 @@ def try_send(timestamp):
 	else:
 		return False
 
-def notification_set(value):
-	timestamp = datetime.datetime.now().strftime("%H:%M:%S %m-%h-%Y")
-	print(value)
+# Stolen: https://stackoverflow.com/a/14247500
+# DEBUG!
+def print_nice_time_delta(stime, etime):
+    delay = datetime.timedelta(seconds=(etime - stime))
+    if (delay.days > 0):
+        out = str(delay).replace(", ", "- ")
+    else:
+        out = "0 days -" + str(delay)
+    outAr = out.split(':')
+    outAr = ["%02d" % (int(float(x))) for x in outAr]
+    out   = ":".join(outAr)
+    return out
+
+def notification_set(light_value, mail_nr):
+	#print(light_value)
+
+	timestamp_raw = datetime.datetime.now()
+	timestamp = timestamp_raw.strftime("%H:%M:%S %m-%h-%Y")
 	sent = False
 	while True:
 		# Try to send notification
-		sent = try_send(timestamp)
+		received = try_send(timestamp)
 		# If sent, reset notification value and break
 		if sent:
+			timestamp_ack = datetime.datetime.now()
+			delta = print_nice_time_delta(timestamp_ack - timestamp)
+			# LOG!
 			return True
 		# else sleep 10 sec
 		else:
 			time.sleep(10)
+
 
 # TODO
 #  Debug
@@ -62,8 +81,10 @@ def notification_set(value):
 if __name__=="__main__":	
 	# Assumes connection on GPIO17
 	ldr = LightSensor(17)
+	unique_post = 1
 	# All values are given as float between 0 (dark) and 1 (light)
 	print(ldr.value)
 	# When it gets dark, send notification (beam broken)
-	when_dark = notification_set(ldr.value)
+	when_dark = notification_set(ldr.value, unique_post)
+	unique_post + = 1
 
