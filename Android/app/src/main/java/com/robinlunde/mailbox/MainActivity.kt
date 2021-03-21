@@ -22,6 +22,12 @@ import kotlin.math.pow
 
 class MainActivity : AppCompatActivity() {
 
+    // TODO
+    // - Save name on first start
+    // - Send data to API
+        // Name - Timestamp of post received (from BT) - Timestamp of pickup
+    // Get data from BT
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

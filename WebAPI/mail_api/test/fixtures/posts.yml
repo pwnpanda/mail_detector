@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  username: MyString
+  delivered: 2021-03-21 03:31:04
+  pickup: 2021-03-21 03:31:04
+
+two:
+  username: MyString
+  delivered: 2021-03-21 03:31:04
+  pickup: 2021-03-21 03:31:04
