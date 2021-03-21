@@ -1,16 +1,16 @@
-class PostsController < ApplicationController
+class Api::PostsController < ApplicationController
 
     # https://medium.com/@oliver.seq/creating-a-rest-api-with-rails-2a07f548e5dc
     # https://codebrains.io/build-todolist-rest-api-ruby-rails/
 
-    # GET /posts
+    # GET /api/posts
     def index
         # Return last 14 days
         @posts = Post.all.limit(14)
         render json: @posts
     end
 
-    # POST /posts
+    # POST /api/posts
     def create
         begin
             # Verify params - if fails, return 400
@@ -34,7 +34,7 @@ class PostsController < ApplicationController
 
     end
     
-    # DELETE /post/:id
+    # DELETE /api/post/:id
     def destroy
         # Verify post exists
         begin
