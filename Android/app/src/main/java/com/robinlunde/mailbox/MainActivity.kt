@@ -13,8 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.fasterxml.jackson.databind.ObjectMapper
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -184,7 +183,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Get results for last 14 days
-    private fun getDataWeb(): Boolean {
+    private fun getDataWeb(): String {
         val client = OkHttpClient()
         val url = URL("https://robinlunde.com/api/posts")
 
@@ -198,15 +197,42 @@ class MainActivity : AppCompatActivity() {
         //Response
         Log.d("HTTP-Get", "Response Body: $responseBody")
         if (response.code == 200) {
-            // Render response
-            renderRecyclerView(responseBody)
             // Create entry for each one in responseBody and display details in view
-            val toast = Toast.makeText(applicationContext, "Timestamp saved!", Toast.LENGTH_LONG)
+            // val toast = Toast.makeText(applicationContext, "Timestamp saved!", Toast.LENGTH_LONG)
             // Show toast
-            toast.show()
-        }
+            // toast.show()
+            return responseBody
+        } else return ""
+    }
 
-        return response.code == 200
+    private fun showLogs(): Boolean {
+        // Show a different view!
+        setContentView(R.layout.activity_log)
+        val res = runBlocking{
+            // Create thread
+            var res = ""
+            val thread = Thread {
+                // Try to send webrequest
+                try {
+                    getDataWeb().also { res = it }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+            thread.start()
+            thread.join()
+            return@runBlocking res
+        }
+        Log.d("test", "res")
+        if (res != "") {
+            renderRecyclerView(res)
+        } else {
+            // Set error message in activity_log!
+            findViewById<RecyclerView>(R.id.post_entries).visibility = View.INVISIBLE
+            var error = findViewById<TextView>(R.id.error_logs)
+            error.visibility = View.VISIBLE
+        }
+        return true
     }
 
     private fun renderRecyclerView(data: String): Boolean {
@@ -219,31 +245,22 @@ class MainActivity : AppCompatActivity() {
         // data to populate the RecyclerView with
         // Convert data to ArrayList
         //Use jackson if we got a JSON
-        val mapperAll = ObjectMapper()
-        val objData = mapperAll.readTree(data)
+        //val mapperAll = ObjectMapper()
+        //val objData = mapperAll.readTree(data)
         // TODO Map to List<String>!
-        objData.get("data").forEachIndexed { index, jsonNode ->
-            println("$index $jsonNode")
-        }
+        // objData.get("data").forEachIndexed { index, jsonNode ->
+        //    println("$index $jsonNode")
+        //}
         // Not needed, but correct format
         // Test only
         var testData = "ab}cd}de}fg"
         val dataParsed: List<String> = testData.split("}")
         //val dataParsed: List<String> = data.split("}")
-        //  Create adapter and ne view                                       This gives position of clicked item
+        //  Create adapter and click handler for recycler view                                       This gives position of clicked item
         postEntries.adapter = PostRecyclerViewAdapter(dataParsed, this){ position: Int ->
             Log.e("List clicked", "Clicked on item at position $position")
         }
 
-        return true
-    }
-
-    private fun showLogs(): Boolean {
-        // Show a different view!
-        setContentView(R.layout.activity_log)
-        GlobalScope.launch {
-            getDataWeb()
-        }
         return true
     }
 }
