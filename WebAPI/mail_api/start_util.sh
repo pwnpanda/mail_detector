@@ -18,6 +18,7 @@ if [ doCheck == 0 ]; then
     echo "Already running!"
 elif [[ ! -f $file_path ]]; then
     rails s -p 12121 -b 127.0.0.1 -e production > /tmp/rails_server.log 2>&1 &
+    echo "Started!"
 else
     python3 /var/www/slackbot/alert.py "\n>*Ruby - API Server Down!*\n*Time:* $(date)"
 fi
