@@ -12,6 +12,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.runBlocking
 import java.lang.Thread.sleep
 import kotlin.math.pow
@@ -196,21 +198,18 @@ class MainActivity() : AppCompatActivity() {
         // data to populate the RecyclerView with
         // Convert data to ArrayList
         //Use jackson if we got a JSON
-        //val mapperAll = ObjectMapper()
-        //val objData = mapperAll.readTree(data)
-        // TODO Map to List<String>!
-        // objData.get("data").forEachIndexed { index, jsonNode ->
-        //    println("$index $jsonNode")
-        //}
+        val mapper = jacksonObjectMapper()
+        val dataParsed: List<SinglePostEntry> = mapper.readValue(data)
+        Log.e("Data", dataParsed.toString())
         // Not needed, but correct format
         // Test only
-        var testData = "ab}cd}de}fg"
-        val dataParsed: List<String> = testData.split("}")
+        //var testData = "ab}cd}de}fg"
+        //val dataParsed: List<String> = testData.split("}")
         //val dataParsed: List<String> = data.split("}")
         //  Create adapter and click handler for recycler view                                       This gives position of clicked item
-        postEntries.adapter = PostRecyclerViewAdapter(dataParsed, this){ position: Int ->
+        /*postEntries.adapter = PostRecyclerViewAdapter(dataParsed, this){ position: Int ->
             Log.e("List clicked", "Clicked on item at position $position")
-        }
+        }*/
 
         return true
     }
