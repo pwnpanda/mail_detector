@@ -12,30 +12,30 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.runBlocking
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
 import java.lang.Thread.sleep
-import java.net.URL
 import kotlin.math.pow
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity() : AppCompatActivity() {
 
     // TODO
     // - Save name on first start
     // - Send data to API
         // Name - Timestamp of post received (from BT) - Timestamp of pickup
     // Get data from BT
-
     private lateinit var linearLayoutManager: LinearLayoutManager
+    private var httpReq: HttpRequestLib? = null
+    fun init(httpRequests: HttpRequestLib){
+        httpReq = httpRequests
+    }
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        val httpRequests = HttpRequestLib(applicationContext)
+        init(httpRequests)
         //val toasted = Toast.makeText(applicationContext, "Hello!", Toast.LENGTH_SHORT)
         // Show toast
         //toasted.show()
@@ -118,7 +118,11 @@ class MainActivity : AppCompatActivity() {
             val thread = Thread {
                 // Try to send webrequest
                 try {
-                    sendDataWeb(timestamp).also { sent = it }
+                    httpReq?.sendDataWeb(timestamp).also {
+                        if (it != null) {
+                            sent = it
+                        }
+                    }
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -148,63 +152,6 @@ class MainActivity : AppCompatActivity() {
         } while (!sent)
     }
 
-    // Send latest data to Server
-    private fun sendDataWeb(timestamp: String): Boolean {
-        val client = OkHttpClient()
-        val url = URL("https://robinlunde.com/api/posts")
-
-        //or using jackson
-        val mapperAll = ObjectMapper()
-        val jacksonObj = mapperAll.createObjectNode()
-        jacksonObj.put("timestamp", timestamp)
-        val jacksonString = jacksonObj.toString()
-
-        val mediaType = "application/json; charset=utf-8".toMediaType()
-        val body = jacksonString.toRequestBody(mediaType)
-
-        val request = Request.Builder()
-            .url(url)
-            .post(body)
-            .build()
-
-        val response = client.newCall(request).execute()
-
-        val responseBody = response.body!!.string()
-        // Log.d("HTTP-Post", "Response code: ${response.code}")
-        //Response
-        Log.d("HTTP-Post", "Response Body: $responseBody")
-        if (response.code == 200) {
-            val toast = Toast.makeText(applicationContext, "Timestamp saved!", Toast.LENGTH_LONG)
-            // Show toast
-            toast.show()
-        }
-
-        return response.code == 200
-    }
-
-    // Get results for last 14 days
-    private fun getDataWeb(): String {
-        val client = OkHttpClient()
-        val url = URL("https://robinlunde.com/api/posts")
-
-        val request = Request.Builder()
-                .url(url)
-                .build()
-        val response = client.newCall(request).execute()
-
-        val responseBody = response.body!!.string()
-        Log.d("HTTP-Get", "Response code: ${response.code}")
-        //Response
-        Log.d("HTTP-Get", "Response Body: $responseBody")
-        if (response.code == 200) {
-            // Create entry for each one in responseBody and display details in view
-            // val toast = Toast.makeText(applicationContext, "Timestamp saved!", Toast.LENGTH_LONG)
-            // Show toast
-            // toast.show()
-            return responseBody
-        } else return ""
-    }
-
     private fun showLogs(): Boolean {
         // Show a different view!
         setContentView(R.layout.activity_log)
@@ -214,7 +161,11 @@ class MainActivity : AppCompatActivity() {
             val thread = Thread {
                 // Try to send webrequest
                 try {
-                    getDataWeb().also { res = it }
+                    httpReq?.getDataWeb().also {
+                        if (it != null) {
+                            res = it
+                        }
+                    }
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }

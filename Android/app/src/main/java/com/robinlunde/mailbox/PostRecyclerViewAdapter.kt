@@ -25,7 +25,7 @@ class PostRecyclerViewAdapter internal constructor(data: List<String>, context: 
         val postData = mData[position]
         holder.myTextView.text = postData
         // Calling the clickListener sent by the constructor
-        holder?.myTextView?.setOnClickListener { clickListener(position) }
+        holder.myTextView.setOnClickListener { clickListener(position) }
     }
 
     // total number of rows
