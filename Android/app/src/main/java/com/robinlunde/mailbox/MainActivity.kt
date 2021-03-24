@@ -27,17 +27,12 @@ class MainActivity() : AppCompatActivity() {
         // Name - Timestamp of post received (from BT) - Timestamp of pickup
     // Get data from BT
     private lateinit var linearLayoutManager: LinearLayoutManager
-    private var httpReq: HttpRequestLib? = null
-    fun init(httpRequests: HttpRequestLib){
-        httpReq = httpRequests
-    }
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val httpRequests = HttpRequestLib(applicationContext)
-        init(httpRequests)
+        Util.init(httpRequests)
         //val toasted = Toast.makeText(applicationContext, "Hello!", Toast.LENGTH_SHORT)
         // Show toast
         //toasted.show()
@@ -55,9 +50,11 @@ class MainActivity() : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.logo -> {
+                //goto fragment, if username is set
                 showStatus()
             }
             R.id.logs -> {
+                //goto fragment, if username is set
                 showLogs()
             }
         }
@@ -188,24 +185,28 @@ class MainActivity() : AppCompatActivity() {
         return true
     }
 
+    // Move to fragment?
     private fun renderRecyclerView(data: String): Boolean {
         // Show a different view!
         setContentView(R.layout.activity_log)
+
+        // data to populate the RecyclerView with
+        // Convert data to ArrayList using jackson
+        val mapper = jacksonObjectMapper()
+        val dataParsed: List<PostEntry> = mapper.readValue(data)
+        Log.e("Data", dataParsed.toString())
+
+        val adapter = PostAdapter()
+        binding.dataParsed.adapter = adapter
+        // --------------------------------
+
         // set up the RecyclerView
         val postEntries = findViewById<RecyclerView>(R.id.post_entries)
         postEntries.layoutManager = LinearLayoutManager(this)
 
-        // data to populate the RecyclerView with
-        // Convert data to ArrayList
-        //Use jackson if we got a JSON
-        val mapper = jacksonObjectMapper()
-        val dataParsed: List<SinglePostEntry> = mapper.readValue(data)
-        Log.e("Data", dataParsed.toString())
-        // Not needed, but correct format
-        // Test only
-        //var testData = "ab}cd}de}fg"
-        //val dataParsed: List<String> = testData.split("}")
-        //val dataParsed: List<String> = data.split("}")
+
+
+
         //  Create adapter and click handler for recycler view                                       This gives position of clicked item
         postEntries.adapter = PostRecyclerViewAdapter(dataParsed, this){ position: Int ->
             Log.e("List clicked", "Clicked on item at position $position")
