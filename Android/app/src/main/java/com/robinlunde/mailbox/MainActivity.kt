@@ -207,9 +207,9 @@ class MainActivity() : AppCompatActivity() {
         //val dataParsed: List<String> = testData.split("}")
         //val dataParsed: List<String> = data.split("}")
         //  Create adapter and click handler for recycler view                                       This gives position of clicked item
-        /*postEntries.adapter = PostRecyclerViewAdapter(dataParsed, this){ position: Int ->
+        postEntries.adapter = PostRecyclerViewAdapter(dataParsed, this){ position: Int ->
             Log.e("List clicked", "Clicked on item at position $position")
-        }*/
+        }
 
         return true
     }
