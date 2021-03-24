@@ -22,7 +22,7 @@
             android:padding="5dp">
 
             <TextView
-                android:id="@+id/post_entry"
+                android:id="@+id/post_user"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
