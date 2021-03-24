@@ -9,4 +9,9 @@
     <string name="logs_icon_name">Logs</string>
     <string name="postbox">postbox</string>
     <string name="delete_button">Delete button</string>
+    <string name="username_guidance">Username: </string>
+    <string name="username">Username</string>
+    <string name="username_button">Continue</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
