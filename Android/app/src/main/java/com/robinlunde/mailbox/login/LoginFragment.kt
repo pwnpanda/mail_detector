@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
 import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.databinding.FragmentLoginBinding
 
@@ -24,6 +25,12 @@ class LoginFragment : Fragment() {
     override fun onCreateView( inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         val binding = DataBindingUtil.inflate<FragmentLoginBinding>(inflater, R.layout.fragment_login, container, false)
+
+        binding.usernameButton.setOnClickListener { view: View ->
+            // No navcontroller set! Find out how to set one! TODO
+            view.findNavController().navigate(R.id.action_loginFragment_to_alertFragment)
+        }
+
         return binding.root
         //val application = requireNotNull(this.activity).application
 
