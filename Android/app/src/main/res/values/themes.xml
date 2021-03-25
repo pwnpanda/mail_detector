@@ -14,10 +14,20 @@
         <!-- Customize your theme here. -->
         <item name="android:actionMenuTextColor">@color/charcoal</item>
     </style>
+
     <style name="TextAppearance.AppCompat.Widget.ActionBar.Title" parent="@style/TextAppearance.AppCompat">
         <item name="android:textSize">28dp</item>
         <item name="android:textColor">@color/charcoal</item>
         <item name="android:fontFamily">@font/alegreya_sans</item>
         <item name="android:textStyle">bold</item>
     </style>
+
+    <style name="Theme.Mailbox.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.Mailbox.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.Mailbox.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

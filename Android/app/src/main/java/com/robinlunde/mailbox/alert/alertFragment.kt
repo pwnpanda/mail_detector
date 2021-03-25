@@ -17,7 +17,7 @@ private const val ARG_PARAM2 = "param2"
  * Use the [BlankFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class BlankFragment : Fragment() {
+class AlertFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -50,11 +50,54 @@ class BlankFragment : Fragment() {
         // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
-            BlankFragment().apply {
+            AlertFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, param1)
                     putString(ARG_PARAM2, param2)
                 }
             }
     }
+    /*
+    private fun trySendDataWeb(timestamp: String) {
+        // Do async thread with network request
+        var sent: Boolean = false
+        var tries: Int = 1
+        do {
+            // Create thread
+            val thread = Thread {
+                // Try to send webrequest
+                try {
+                    Util.httpReq?.sendDataWeb(timestamp).also {
+                        if (it != null) {
+                            sent = it
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+
+            Log.d("Thread", "Sleeping")
+            // 5 seconds
+            var base: Double = 5000.0
+            // Exponentially increase wait time between tries
+            var time: Double = base.pow(tries)
+            // Sleep
+            Thread.sleep(time.toLong())
+            // Log try
+            Log.d("Thread", "Trying transmission $tries / 6")
+            // Start above thread
+            thread.start()
+            // Increase try counter
+            tries++
+            // Check for giving up
+            if (tries >= 7) {
+                sent = true
+                Log.d("Thread", "Tried 6 transmissions but failed - Giving up! ")
+                val toast = Toast.makeText(applicationContext, "Failed to save timestamp! Giving up!", Toast.LENGTH_LONG)
+                // Show toast
+                toast.show()
+            }
+        } while (!sent)
+    }*/
 }
