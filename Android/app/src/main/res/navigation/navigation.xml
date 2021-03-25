@@ -3,26 +3,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation"
-    app:startDestination="@id/mainActivity">
-
-    <activity
-        android:id="@+id/mainActivity"
-        android:name="com.robinlunde.mailbox.MainActivity"
-        android:label="activity_main"
-        app:action="@string/username_button"
-        tools:layout="@layout/activity_main" />
+    app:startDestination="@id/loginFragment">
     <fragment
-        android:id="@+id/blankFragment"
-        android:name="com.robinlunde.mailbox.alert.BlankFragment"
+        android:id="@+id/loginFragment"
+        android:name="com.robinlunde.mailbox.login.LoginFragment"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login" >
+        <action
+            android:id="@+id/action_loginFragment_to_alertFragment"
+            app:destination="@id/alertFragment" />
+        <argument
+            android:name="username"
+            app:argType="string"
+            android:defaultValue="RandomUser" />
+    </fragment>
+    <fragment
+        android:id="@+id/alertFragment"
+        android:name="com.robinlunde.mailbox.alert.AlertFragment"
         android:label="fragment_alert"
         tools:layout="@layout/fragment_alert" >
         <action
-            android:id="@+id/action_blankFragment_to_mainActivity2"
-            app:destination="@id/mainActivity" />
+            android:id="@+id/action_alertFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/blankFragment2"
-        android:name="com.robinlunde.mailbox.overview.BlankFragment"
-        android:label="fragment_overview"
-        tools:layout="@layout/fragment_overview" />
 </navigation>

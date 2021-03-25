@@ -6,44 +6,30 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import java.lang.ClassCastException
 
 private val ITEM_VIEW_TYPE_HEADER = 0
 private val ITEM_VIEW_TYPE_ITEM = 1
-
+/*
 class PostRecyclerViewAdapter internal constructor(data: List<PostEntry>, context: Context, val clickListener: (Int) -> Unit) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val mData: List<PostEntry> = data
     private val mInflater: LayoutInflater = LayoutInflater.from(context)
-    private var mClickListener: ItemClickListener? = null
+    private var mClickListener: PostEntryDiffCallback.PostEntryListener.ItemClickListener? = null
 
-    override fun getItemViewType(position: Int): Int {
-        return when(getItem(position)){
-            is DataItem.Header -> ITEM_VIEW_TYPE_HEADER
-            is DataItem.PostItem -> ITEM_VIEW_TYPE_ITEM
-        }
-    }
 
-    // inflates the row layout from xml when needed
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return when (viewType){
-            ITEM_VIEW_TYPE_HEADER -> TextViewHolder.from(parent)
-            ITEM_VIEW_TYPE_ITEM -> {
-                val view: View = mInflater.inflate(R.layout.recyclerview_row, parent, false)
-                return ViewHolder(view)
-            }
-            else -> throw ClassCastException("Unknown viewType ${viewType}")
-        }
-    }
 
+
+/*
     fun addHeaderAndSubmitList(list: List<DataItem.PostItem>?){
         val items = when (list) -> {
             null -> listOf(DataItem.Header)
             else -> listOf(DataItem.Header) + list.map(DataItem.PostItem(it))
         }
     }
-
+    */
     // binds the data to the TextView in each row
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) -> run {
@@ -64,9 +50,23 @@ class PostRecyclerViewAdapter internal constructor(data: List<PostEntry>, contex
         }
     }
 
-    // total number of rows
-    override fun getItemCount(): Int {
-        return mData.size
+    // inflates the row layout from xml when needed
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when (viewType){
+            ITEM_VIEW_TYPE_HEADER -> TextViewHolder.from(parent)
+            ITEM_VIEW_TYPE_ITEM -> ViewHolder.from(parent) /*{
+                val view: View = mInflater.inflate(R.layout.recyclerview_row, parent, false)
+                return RecyclerView.ViewHolder(view)
+            }*/
+            else -> throw ClassCastException("Unknown viewType ${viewType}")
+        }
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return when(getItem(position)){
+            is DataItem.Header -> ITEM_VIEW_TYPE_HEADER
+            is DataItem.PostItem -> ITEM_VIEW_TYPE_ITEM
+        }
     }
 
     class TextViewHolder(view: View): RecyclerView.ViewHolder(view) {
@@ -79,9 +79,25 @@ class PostRecyclerViewAdapter internal constructor(data: List<PostEntry>, contex
         }
     }
 
+    // FIX TODO
     // stores and recycles views as they are scrolled off screen
-    inner class ViewHolder internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView),
-        View.OnClickListener {
+    class ViewHolder internal constructor(val binding: ListPostEntryBinding) : RecyclerView.ViewHolder(binding.root),
+        fun bind(item: PostEntry, clickListener: PostEntryListener) {
+            // Biggest uncertainty
+            binding.post = item
+            binding.clickListener = clickListener
+            binding.executePendingBindings()
+        }
+
+        companion object {
+            fun from(parent: ViewGroup): ViewHolder {
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val binding = ListPostEntryBinding.inflate(layoutInflater, parent, false)
+                return ViewHolder(binding)
+            }
+        }
+
+        /*View.OnClickListener {
         var myOwnButton: ImageButton = itemView.findViewById(R.id.delete_button)
         var postUser: TextView = itemView.findViewById(R.id.post_user)
         var postDeliveredTime: TextView = itemView.findViewById(R.id.post_deliver_time)
@@ -95,22 +111,28 @@ class PostRecyclerViewAdapter internal constructor(data: List<PostEntry>, contex
 
         init {
             itemView.setOnClickListener(this)
+        }*/
+    }
+
+    /*
+    // total number of rows
+    override fun getItemCount(): Int {
+        return mData.size
+    }
+     */
+
+    class PostEntryDiffCallback: DiffUtil.ItemCallback<DataItem>() {
+        override fun areContentsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
+            return oldItem.id === newItem.id
+        }
+
+        override fun areItemsTheSame(oldItem: DataItem, newItem: DataItem): Boolean {
+            return newItem === oldItem
         }
     }
 
-    // convenience method for getting data at click position
-    fun getItem(id: Int): String {
-        return mData[id].id.toString()
-    }
-
-    // allows clicks events to be caught
-    fun setClickListener(itemClickListener: ItemClickListener?) {
-        mClickListener = itemClickListener
-    }
-
-    // parent activity will implement this method to respond to click events
-    interface ItemClickListener {
-        fun onItemClick(view: View?, position: Int)
+    class PostEntryListener(val clickListener: (postId: Int) -> Unit) {
+        fun onClick(entry: PostEntry) = clickListener(entry.id)
     }
 
     sealed class DataItem(){
@@ -119,8 +141,7 @@ class PostRecyclerViewAdapter internal constructor(data: List<PostEntry>, contex
             override val id = postEntry.id
         }
         object Header: DataItem() {
-            override const val id: Int.MIN_VALUE
+            override val id = Int.MIN_VALUE
         }
     }
-
-}
+}*/

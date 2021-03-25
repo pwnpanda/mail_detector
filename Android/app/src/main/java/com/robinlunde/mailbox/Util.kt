@@ -1,12 +1,11 @@
 package com.robinlunde.mailbox
 
+import android.content.Context
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class Util {
+class Util (context: Context){
     class TextItemViewHolder(val textView: TextView): RecyclerView.ViewHolder(textView)
-    private var httpReq: HttpRequestLib? = null
-    fun init(httpRequests: HttpRequestLib){
-        httpReq = httpRequests
-    }
+    public val httpRequests = HttpRequestLib(context)
+
 }
