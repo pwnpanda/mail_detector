@@ -8,9 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
-import com.robinlunde.mailbox.alert.AlertFragment
 import com.robinlunde.mailbox.databinding.ActivityMainBinding
-import com.robinlunde.mailbox.login.LoginFragment
 
 // TODO
 // - Save name on first start
@@ -19,7 +17,7 @@ import com.robinlunde.mailbox.login.LoginFragment
 // Get data from BT
 //     showAlert();
 
-class MainActivity() : AppCompatActivity(), OnFragmentInteractionListener  {
+class MainActivity() : AppCompatActivity()  {
     private lateinit var drawerLayout: DrawerLayout
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -79,13 +77,5 @@ class MainActivity() : AppCompatActivity(), OnFragmentInteractionListener  {
 
     private fun showStatus() {
         Log.d("Status", "ShowStatus in main")
-    }
-
-    override fun changeFragment(id: Int){
-        if (id == 1) {
-            supportFragmentManager.beginTransaction().replace(R.id.frag_login, LoginFragment()).commit()
-        } else if (id == 2) {
-            supportFragmentManager.beginTransaction().replace(R.id.frag_alert, AlertFragment()).commit()
-        }
     }
 }
