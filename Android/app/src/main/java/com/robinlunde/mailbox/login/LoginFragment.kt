@@ -9,7 +9,6 @@ import android.view.inputmethod.InputMethodManager
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
-import com.robinlunde.mailbox.OnFragmentInteractionListener
 import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.databinding.FragmentLoginBinding
 
@@ -18,7 +17,6 @@ import com.robinlunde.mailbox.databinding.FragmentLoginBinding
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
-private lateinit var myListener : OnFragmentInteractionListener
 
 /**
  * A simple [Fragment] subclass.
@@ -49,14 +47,5 @@ class LoginFragment : Fragment() {
 
         binding.lifecycleOwner = this*/
 
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        try {
-            myListener = activity as OnFragmentInteractionListener
-        } catch (e: ClassCastException) {
-            throw ClassCastException(activity.toString() + " must implement OnFragmentInteractionListener")
-        }
     }
 }
