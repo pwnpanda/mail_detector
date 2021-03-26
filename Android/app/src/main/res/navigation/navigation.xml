@@ -11,14 +11,14 @@
         tools:layout="@layout/fragment_login" >
         <action
             android:id="@+id/action_loginFragment_to_alertFragment"
-            app:destination="@id/alertFragment" />
+            app:destination="@id/AlertFragment" />
         <argument
             android:name="username"
             app:argType="string"
             android:defaultValue="RandomUser" />
     </fragment>
     <fragment
-        android:id="@+id/alertFragment"
+        android:id="@+id/AlertFragment"
         android:name="com.robinlunde.mailbox.alert.AlertFragment"
         android:label="fragment_alert"
         tools:layout="@layout/fragment_alert" >

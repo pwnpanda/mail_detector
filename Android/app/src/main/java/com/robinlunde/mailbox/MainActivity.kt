@@ -6,7 +6,11 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.navigation.findNavController
+import com.robinlunde.mailbox.alert.AlertFragment
 import com.robinlunde.mailbox.databinding.ActivityMainBinding
+import com.robinlunde.mailbox.login.LoginFragment
 
 // TODO
 // - Save name on first start
@@ -15,7 +19,8 @@ import com.robinlunde.mailbox.databinding.ActivityMainBinding
 // Get data from BT
 //     showAlert();
 
-class MainActivity() : AppCompatActivity() {
+class MainActivity() : AppCompatActivity(), OnFragmentInteractionListener  {
+    private lateinit var drawerLayout: DrawerLayout
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -23,9 +28,11 @@ class MainActivity() : AppCompatActivity() {
         //setContentView(R.layout.activity_main)
         val binding =
             DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
-
+        drawerLayout = binding.drawerLayout
         // TODO init httprequests here
-        
+
+        val myFragController = this.findNavController(R.id.fragment_holder)
+
         //val toasted = Toast.makeText(applicationContext, "Hello!", Toast.LENGTH_SHORT)
         // Show toast
         //toasted.show()
@@ -45,6 +52,13 @@ class MainActivity() : AppCompatActivity() {
         return when (item.itemId) {
             R.id.logo -> {
                 //Show status screen
+                // https://developer.android.com/guide/fragments/transactions
+                // startActivity()
+               // val fg = AlertFragment.newInstance("temp", "test")
+                
+                // fragmentTransaction = fragmentManager.beginTransaction()
+                // fragmentManager.commit { setReorderingAllowed(true) replace<AlertFragment>(R.id.) }
+                // fragmentTransaction.addToBackStack()
                 showStatus()
                 // return true so that the menu pop up is opened
                 true
@@ -65,5 +79,13 @@ class MainActivity() : AppCompatActivity() {
 
     private fun showStatus() {
         Log.d("Status", "ShowStatus in main")
+    }
+
+    override fun changeFragment(id: Int){
+        if (id == 1) {
+            supportFragmentManager.beginTransaction().replace(R.id.frag_login, LoginFragment()).commit()
+        } else if (id == 2) {
+            supportFragmentManager.beginTransaction().replace(R.id.frag_alert, AlertFragment()).commit()
+        }
     }
 }
