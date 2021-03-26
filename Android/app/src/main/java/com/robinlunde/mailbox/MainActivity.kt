@@ -23,7 +23,6 @@ class MainActivity() : AppCompatActivity()  {
 
         super.onCreate(savedInstanceState)
 
-        //setContentView(R.layout.activity_main)
         val binding =
             DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
         drawerLayout = binding.drawerLayout
@@ -73,6 +72,7 @@ class MainActivity() : AppCompatActivity()  {
 
     private fun showLogs() {
         Log.d("Logs", "ShowLogs in main")
+        //findNavController().navigate(R.id.)
     }
 
     private fun showStatus() {

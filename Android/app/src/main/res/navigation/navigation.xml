@@ -23,7 +23,18 @@
         android:label="fragment_alert"
         tools:layout="@layout/fragment_alert" >
         <action
-            android:id="@+id/action_alertFragment_to_loginFragment"
-            app:destination="@id/loginFragment" />
+            android:id="@+id/action_AlertFragment_to_logviewFragment"
+            app:destination="@id/logviewFragment" />
+        <action
+            android:id="@+id/action_AlertFragment_to_logviewFragment2"
+            app:destination="@id/logviewFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/logviewFragment"
+        android:name="com.robinlunde.mailbox.logview.LogviewFragment"
+        android:label="LogviewFragment" >
+        <action
+            android:id="@+id/action_logviewFragment_to_AlertFragment"
+            app:destination="@id/AlertFragment" />
     </fragment>
 </navigation>

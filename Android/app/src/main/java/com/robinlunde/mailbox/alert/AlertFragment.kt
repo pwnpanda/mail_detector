@@ -4,10 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import com.robinlunde.mailbox.R
+import com.robinlunde.mailbox.databinding.FragmentAlertBinding
 
-// TODO: Rename parameter arguments, choose names that match
+// TODO: Rename parameter arguments, choose names that matchT
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
@@ -30,12 +34,17 @@ class AlertFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_alert, container, false)
+    override fun onCreateView( inflater: LayoutInflater, container: ViewGroup?,  savedInstanceState: Bundle? ): View? {
+        val binding = DataBindingUtil.inflate<FragmentAlertBinding>(inflater, R.layout.fragment_alert, container, false)
+        binding.clearNotifyBtn.setOnClickListener{ view: View ->
+            // TODO - Move to generic function!
+            binding.clearNotifyBtn.visibility = View.INVISIBLE
+            container!!.rootView.findViewById<ImageView>(R.id.post_box).visibility = View.VISIBLE
+            container!!.rootView.findViewById<TextView>(R.id.timestamp_text).text = "No new post detected!"
+            container!!.rootView.findViewById<TextView>(R.id.timestamp_day).visibility = View.INVISIBLE
+            container!!.rootView.findViewById<TextView>(R.id.timestamp_time).text = "Have a nice day!"
+        }
+        return binding.root
     }
 
     companion object {
