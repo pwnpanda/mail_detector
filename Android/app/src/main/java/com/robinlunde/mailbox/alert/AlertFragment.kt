@@ -36,13 +36,20 @@ class AlertFragment : Fragment() {
 
     override fun onCreateView( inflater: LayoutInflater, container: ViewGroup?,  savedInstanceState: Bundle? ): View? {
         val binding = DataBindingUtil.inflate<FragmentAlertBinding>(inflater, R.layout.fragment_alert, container, false)
+
+        // Get username from last intent
+        val args = AlertFragmentArgs.fromBundle(requireArguments())
+        val username = args.username
+        //Log.d("Username in Alert", username)
+
+        // Sense button presses
         binding.clearNotifyBtn.setOnClickListener{ view: View ->
             // TODO - Move to generic function!
             binding.clearNotifyBtn.visibility = View.INVISIBLE
             container!!.rootView.findViewById<ImageView>(R.id.post_box).visibility = View.VISIBLE
-            container!!.rootView.findViewById<TextView>(R.id.timestamp_text).text = "No new post detected!"
-            container!!.rootView.findViewById<TextView>(R.id.timestamp_day).visibility = View.INVISIBLE
-            container!!.rootView.findViewById<TextView>(R.id.timestamp_time).text = "Have a nice day!"
+            container.rootView.findViewById<TextView>(R.id.timestamp_text).text = "No new post detected!"
+            container.rootView.findViewById<TextView>(R.id.timestamp_day).visibility = View.INVISIBLE
+            container.rootView.findViewById<TextView>(R.id.timestamp_time).text = "Have a nice day!"
         }
         return binding.root
     }

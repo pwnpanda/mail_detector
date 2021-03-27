@@ -12,10 +12,6 @@
         <action
             android:id="@+id/action_loginFragment_to_alertFragment"
             app:destination="@id/AlertFragment" />
-        <argument
-            android:name="username"
-            app:argType="string"
-            android:defaultValue="RandomUser" />
     </fragment>
     <fragment
         android:id="@+id/AlertFragment"
@@ -25,9 +21,9 @@
         <action
             android:id="@+id/action_AlertFragment_to_logviewFragment"
             app:destination="@id/logviewFragment" />
-        <action
-            android:id="@+id/action_AlertFragment_to_logviewFragment2"
-            app:destination="@id/logviewFragment" />
+        <argument
+            android:name="username"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/logviewFragment"
