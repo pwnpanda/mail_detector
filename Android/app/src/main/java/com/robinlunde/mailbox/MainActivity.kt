@@ -19,6 +19,7 @@ import com.robinlunde.mailbox.databinding.ActivityMainBinding
 
 class MainActivity() : AppCompatActivity()  {
     private lateinit var drawerLayout: DrawerLayout
+    //private lateinit var prefs: SharedPreferences - Do I need?
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -26,6 +27,9 @@ class MainActivity() : AppCompatActivity()  {
         val binding =
             DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
         drawerLayout = binding.drawerLayout
+        // DO i need?
+        //prefs = this.getPreferences(Context.MODE_PRIVATE)
+
         // TODO init httprequests here
 
         val myFragController = this.findNavController(R.id.fragment_holder)

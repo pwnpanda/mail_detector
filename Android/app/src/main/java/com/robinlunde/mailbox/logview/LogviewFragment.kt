@@ -34,6 +34,7 @@ class LogviewFragment: Fragment() {
 
     override fun onCreateView( inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = DataBindingUtil.inflate<FragmentLogviewBinding>(inflater, R.layout.fragment_logview, container, false)
+        //binding.set(PostEntry)
         return binding.root
     }
 
