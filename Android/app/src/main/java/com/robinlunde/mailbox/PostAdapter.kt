@@ -1,39 +1,44 @@
 package com.robinlunde.mailbox
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
+import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
-/*
-class PostAdapter: RecyclerView.Adapter<Util.TextItemViewHolder>()  {
-    var data = listOf<PostEntry>()
-    set(value) {
-        field = value
-        notifyDataSetChanged()
-    }
+// TODO Add headers
+// TODO add clickListener for delete button
+class PostAdapter(val data: MutableList<PostLogEntry>): RecyclerView.Adapter<Util.LogItemViewHolder>()  {
 
     override fun getItemCount() = data.size
 
-    override fun onBindViewHolder(holder: Util.TextItemViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: Util.LogItemViewHolder, position: Int) {
         val item = data[position]
-        holder.textView.text = item.username
+        holder.constraintLayout.findViewById<TextView>(R.id.post_user).text = item.username
+        holder.constraintLayout.findViewById<TextView>(R.id.post_deliver_time).text = item.deliveredTime
+        holder.constraintLayout.findViewById<TextView>(R.id.post_deliver_date).text = item.deliveredDate
+        holder.constraintLayout.findViewById<TextView>(R.id.post_pickup_time).text = item.pickupTime
+        holder.constraintLayout.findViewById<TextView>(R.id.post_pickup_date).text = item.pickupDate
     }
+    /* TODO make sure we have data, else show error!
+    * if (res != "") {
+    *    renderRecyclerView(res)
+    * } else {
+    *   // Set error message in activity_log!
+    *    findViewById<RecyclerView>(R.id.post_entries).visibility = View.INVISIBLE
+    *    var error = findViewById<TextView>(R.id.error_logs)
+    *    error.visibility = View.VISIBLE
+    * }
+    *
+    */
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Util.TextItemViewHolder {
-        /*val layoutInflater: LayoutInflater()
-        val view = layoutInflater.inflate(R.layout.recyclerview_row, parent, false) as TextView
-        return Util.TextItemViewHolder(view)*/
-        return super.createViewHolder(parent,viewType)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Util.LogItemViewHolder {
+        val layoutInflater = LayoutInflater.from(parent.context)
+        val view = layoutInflater.inflate(R.layout.recyclerview_row, parent, false) as ConstraintLayout
+        return Util.LogItemViewHolder(view)
     }
 }
-*/
+
 
 private val ITEM_VIEW_TYPE_HEADER = 0
 private val ITEM_VIEW_TYPE_ITEM = 1

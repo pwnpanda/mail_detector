@@ -1,19 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <RelativeLayout
-        tools:layout="@layout/fragment_logview"
-        tools:context=".logview.LogviewFragment"
-        android:layout_height="match_parent"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/frag_logview"
         android:layout_width="match_parent"
-        android:id="@+id/post_layout">
+        android:layout_height="match_parent"
+        tools:context=".logview.LogviewFragment"
+        tools:layout="@layout/fragment_logview">
+
+        <TextView
+            android:id="@+id/post_screen_title1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:gravity="center|center_horizontal|center_vertical"
+            android:textSize="30sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/post_screen_title2"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.02"
+            tools:text="User" />
+
+        <TextView
+            android:id="@+id/post_screen_title2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:gravity="center|center_horizontal|center_vertical"
+            android:textSize="30sp"
+            app:layout_constraintEnd_toStartOf="@+id/post_screen_title3"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/post_screen_title1"
+            app:layout_constraintTop_toTopOf="@+id/post_screen_title1"
+            tools:text="Delivered" />
+
+        <TextView
+            android:id="@+id/post_screen_title3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:gravity="center|center_horizontal|center_vertical"
+            android:textSize="30sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/post_screen_title2"
+            app:layout_constraintTop_toTopOf="@+id/post_screen_title2"
+            tools:text="Picked Up" />
 
         <androidx.recyclerview.widget.RecyclerView
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             android:id="@+id/post_entries"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="40dp" />
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/post_screen_title2" />
 
         <TextView
             android:id="@+id/error_logs"
@@ -29,7 +89,11 @@
             android:textColor="@color/super_red"
             android:textSize="30sp"
             android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/post_entries"
+            app:layout_constraintEnd_toEndOf="@+id/post_entries"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             tools:text="Error: No content received" />
-    </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>
