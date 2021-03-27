@@ -1,61 +1,28 @@
 package com.robinlunde.mailbox
 
 import android.content.Context
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import com.fasterxml.jackson.databind.ObjectMapper
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.net.URL
+import java.time.LocalDateTime
 
-class HttpRequestLib(context: Context) {
+class HttpRequestLib (context: Context) {
 
     var context: Context = context
         set(value) { field = value.applicationContext }
 
     private val client = OkHttpClient()
-    private val url = URL("https://robinlunde.com/api/posts")
-
-    // Send latest data to Server
-    fun sendDataWeb(timestamp: String): Boolean {
-
-
-        //or using jackson
-        val mapperAll = ObjectMapper()
-        val jacksonObj = mapperAll.createObjectNode()
-        jacksonObj.put("timestamp", timestamp)
-        val jacksonString = jacksonObj.toString()
-
-        val mediaType = "application/json; charset=utf-8".toMediaType()
-        val body = jacksonString.toRequestBody(mediaType)
-
-        val request = Request.Builder()
-                .url(url)
-                .post(body)
-                .build()
-
-        val response = client.newCall(request).execute()
-
-        val responseBody = response.body!!.string()
-        // Log.d("HTTP-Post", "Response code: ${response.code}")
-        //Response
-        Log.d("HTTP-Post", "Response Body: $responseBody")
-        if (response.code == 200) {
-            val toast = Toast.makeText(context, "Timestamp saved!", Toast.LENGTH_LONG)
-            // Show toast
-            toast.show()
-        }
-
-        return response.code == 200
-    }
+    private var url : URL = URL(context.getString(R.string.normal_url))
 
     // Get results for last 14 days
     fun getDataWeb(): String {
-        val client = OkHttpClient()
-        val url = URL("https://robinlunde.com/api/posts")
-
         val request = Request.Builder()
                 .url(url)
                 .build()
@@ -65,12 +32,65 @@ class HttpRequestLib(context: Context) {
         Log.d("HTTP-Get", "Response code: ${response.code}")
         //Response
         Log.d("HTTP-Get", "Response Body: $responseBody")
+        return if (response.code == 200) {
+            responseBody
+        } else ""
+    }
+
+    // Send latest data to Server
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun sendDataWeb(timestamp: String): Boolean {
+
+        val pickupTime = LocalDateTime.now()
+        //Using jackson to get string to JSON
+        val mapperAll = ObjectMapper()
+        val jacksonObj = mapperAll.createObjectNode()
+        jacksonObj.put("delivered", timestamp)
+        jacksonObj.put("username", MailboxApp.getUsername())
+        jacksonObj.put("pickup", pickupTime.toString())
+        Log.d("Jackson object", jacksonObj.nodeType.toString())
+        // TODO remove this, since it seems not needed
+        val jacksonString = jacksonObj.toString()
+
+        val mediaType = "application/json; charset=utf-8".toMediaType()
+        // TODO remove this, since it seems not needed, see above
+        val body = jacksonString.toRequestBody(mediaType)
+
+        val request = Request.Builder()
+                .url(url)
+                //.post(jacksonObj)
+                .post(body)
+                .build()
+
+        val response = client.newCall(request).execute()
+        val responseBody = response.body!!.string()
+        //Response
+        Log.d("HTTP-Post", "Response Body: $responseBody")
         if (response.code == 200) {
-            // Create entry for each one in responseBody and display details in view
-            // val toast = Toast.makeText(applicationContext, "Timestamp saved!", Toast.LENGTH_LONG)
+            val toast = Toast.makeText(context, "Timestamp saved!", Toast.LENGTH_LONG)
             // Show toast
-            // toast.show()
-            return responseBody
-        } else return ""
+            toast.show()
+        }
+
+        // TODO check return code for create
+        return response.code == 200
+    }
+
+    // delete entry
+    fun deleteLog(id: Int): Boolean {
+        val delUrl = URL("${R.string.base_url}/$id")
+        val request = Request.Builder()
+                .url(delUrl)
+                .delete()
+                .build()
+        val response = client.newCall(request).execute()
+
+        val responseBody = response.body!!.string()
+        //Response
+        Log.d("HTTP-Get", "Response code: ${response.code}")
+        Log.d("HTTP-Get", "Response Body: $responseBody")
+
+        // TODO check return code for delete
+        return response.code == 200
     }
 }

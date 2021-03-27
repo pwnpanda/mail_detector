@@ -1,15 +1,5 @@
 package com.robinlunde.mailbox
 
-import android.content.Context
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.TextView
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
-import java.lang.ClassCastException
-
 private val ITEM_VIEW_TYPE_HEADER = 0
 private val ITEM_VIEW_TYPE_ITEM = 1
 /*
@@ -79,7 +69,6 @@ class PostRecyclerViewAdapter internal constructor(data: List<PostEntry>, contex
         }
     }
 
-    // FIX TODO
     // stores and recycles views as they are scrolled off screen
     class ViewHolder internal constructor(val binding: ListPostEntryBinding) : RecyclerView.ViewHolder(binding.root),
         fun bind(item: PostEntry, clickListener: PostEntryListener) {

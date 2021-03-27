@@ -12,6 +12,9 @@
         <action
             android:id="@+id/action_loginFragment_to_alertFragment"
             app:destination="@id/AlertFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_logviewFragment"
+            app:destination="@id/logviewFragment" />
     </fragment>
     <fragment
         android:id="@+id/AlertFragment"
