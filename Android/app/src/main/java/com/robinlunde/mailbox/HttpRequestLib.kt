@@ -13,19 +13,21 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.net.URL
 import java.time.LocalDateTime
 
-class HttpRequestLib (context: Context) {
+class HttpRequestLib(context: Context) {
 
     var context: Context = context
-        set(value) { field = value.applicationContext }
+        set(value) {
+            field = value.applicationContext
+        }
 
     private val client = OkHttpClient()
-    private var url : URL = URL(context.getString(R.string.normal_url))
+    private var url: URL = URL(context.getString(R.string.normal_url))
 
     // Get results for last 14 days
     fun getDataWeb(): String {
         val request = Request.Builder()
-                .url(url)
-                .build()
+            .url(url)
+            .build()
         val response = client.newCall(request).execute()
 
         val responseBody = response.body!!.string()
@@ -54,9 +56,9 @@ class HttpRequestLib (context: Context) {
         val body = jacksonObj.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
-                .url(url)
-                .post(body)
-                .build()
+            .url(url)
+            .post(body)
+            .build()
 
         val response = client.newCall(request).execute()
         val responseBody = response.body!!.string()
@@ -74,9 +76,9 @@ class HttpRequestLib (context: Context) {
     fun deleteLog(id: Int): Boolean {
         val newUrl = URL("$url/$id")
         val request = Request.Builder()
-                .url(newUrl)
-                .delete()
-                .build()
+            .url(newUrl)
+            .delete()
+            .build()
         val response = client.newCall(request).execute()
 
         val responseBody = response.body!!.string()

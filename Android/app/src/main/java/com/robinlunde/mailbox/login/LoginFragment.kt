@@ -21,29 +21,43 @@ class LoginFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Enable menu buttons in this fragment
-        setHasOptionsMenu(true);
+        setHasOptionsMenu(true)
     }
 
-    override fun onCreateView( inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val binding = DataBindingUtil.inflate<FragmentLoginBinding>(inflater, R.layout.fragment_login, container, false)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val binding = DataBindingUtil.inflate<FragmentLoginBinding>(
+            inflater,
+            R.layout.fragment_login,
+            container,
+            false
+        )
         val username = MailboxApp.getUsername()
         if (username != "") {
             // Move past login screen if username is registered
-            findNavController(this).navigate(LoginFragmentDirections.actionLoginFragmentToAlertFragment(username))
+            findNavController(this).navigate(
+                LoginFragmentDirections.actionLoginFragmentToAlertFragment()
+            )
             return binding.root
         }
 
         binding.usernameButton.setOnClickListener { view: View ->
             // Hide keyboard
-            val imm: InputMethodManager = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            val imm: InputMethodManager =
+                activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(view.windowToken, 0)
 
             // Get username from field
-            val username = container?.rootView?.findViewById<TextInputEditText>(R.id.username_input)?.text.toString()
+            val newUsername: String =
+                container?.rootView?.findViewById<TextInputEditText>(R.id.username_input)?.text.toString()
             // store username for later
-            MailboxApp.setUsername(username)
+            MailboxApp.setUsername(newUsername)
             // Move - Send with username
-            view.findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToAlertFragment(username))
+            view.findNavController()
+                .navigate(LoginFragmentDirections.actionLoginFragmentToAlertFragment())
         }
 
         return binding.root
@@ -53,9 +67,9 @@ class LoginFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.logo -> {
-                // get Username
-                val username = MailboxApp.getUsername()
-                findNavController(this).navigate(LoginFragmentDirections.actionLoginFragmentToAlertFragment(username))
+                findNavController(this).navigate(
+                    LoginFragmentDirections.actionLoginFragmentToAlertFragment()
+                )
                 MailboxApp.getUtil().logButtonPress("Login - logo")
                 true
             }
