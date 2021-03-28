@@ -35,12 +35,20 @@ class Util internal constructor(context: Context){
     @RequiresApi(Build.VERSION_CODES.O)
     fun tryRequest(type: String, timestamp: String?, id: Int?): Boolean {
         // Do async thread with network request
+        Log.d("TryToRequest", "Type: $type Timestamp: $timestamp Id: $id")
         var sent = false
         var tries = 1
         do {
+            // 5 seconds
+            val base: Double = 5000.0
+            // Exponentially increase wait time between tries
+            val time: Double = base.pow(n = tries)
+
             val thread = Thread {
                 // Try to send web request
                 try {
+                    Log.d("Thread", "Sleeping")
+                    Thread.sleep(time.toLong())
                     when(type) {
                         MailboxApp.getInstance().getString(R.string.sendLogsMethod) -> {
                             sendLog(timestamp!!).also { sent = it }
@@ -54,20 +62,22 @@ class Util internal constructor(context: Context){
                     e.printStackTrace()
                 }
             }
-            Log.d("Thread", "Sleeping")
-            // 5 seconds
-            val base: Double = 5000.0
-            // Exponentially increase wait time between tries
-            val time: Double = base.pow(n = tries)
-            Thread.sleep(time.toLong())
             Log.d("Thread", "Trying transmission $tries / 6")
             thread.start()
+            thread.join()
             tries++
             // Check for giving up
             if (tries >= 7 || sent) {
-                Log.d("Thread", "Tried 6 transmissions but failed - Giving up! ")
-                val toast = Toast.makeText(MailboxApp.getInstance().applicationContext, "Failed to save timestamp! Giving up!", Toast.LENGTH_LONG)
-                toast.show()
+                if (tries >= 7){
+                    Log.d("Thread", "Tried 6 transmissions but failed - Giving up! ")
+                    val toast = Toast.makeText(MailboxApp.getInstance().applicationContext, "Failed to save timestamp! Giving up!", Toast.LENGTH_LONG)
+                    toast.show()
+                } else {
+                    Log.d("Thread", "Transmission success for type: $type!")
+                    val toast = Toast.makeText(MailboxApp.getInstance().applicationContext, "$type request has completed successfully!", Toast.LENGTH_LONG)
+                    toast.show()
+                }
+
                 break
             }
         } while (!sent)
@@ -84,18 +94,13 @@ class Util internal constructor(context: Context){
         val res = runBlocking{
             // Create thread
             var tmpRes = false
-            val thread = Thread {
-                // Try to send webrequest
-                try {
-                    httpRequests.sendDataWeb(timestamp).also {
-                        tmpRes = it
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
+            try {
+                httpRequests.sendDataWeb(timestamp).also {
+                    tmpRes = it
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-            thread.start()
-            thread.join()
             return@runBlocking tmpRes
         }
         Log.d("HTTP-Post", res.toString())
@@ -135,19 +140,12 @@ class Util internal constructor(context: Context){
         val res = runBlocking{
             // Create thread
             var tmpRes = false
-            val thread = Thread {
-                // Try to send webrequest
-                try {
-                    tmpRes = true
-                    //httpRequests.deleteLog(id).also {
-                        //tmpRes = it
-                    //}
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
+            // Try to send webrequest
+            try {
+                httpRequests.deleteLog(id).also { tmpRes = it }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-            thread.start()
-            thread.join()
             return@runBlocking tmpRes
         }
         Log.d("HTTP-Del", res.toString())
