@@ -14,14 +14,16 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.runBlocking
 import kotlin.math.pow
 
-class Util internal constructor(context: Context){
-    class LogItemViewHolder(val constraintLayout: ConstraintLayout): RecyclerView.ViewHolder(constraintLayout)
+class Util internal constructor(context: Context) {
+    class LogItemViewHolder(val constraintLayout: ConstraintLayout) :
+        RecyclerView.ViewHolder(constraintLayout)
+
     private val httpRequests = HttpRequestLib(context)
 
     init {
         // on init
         val myHandler = Handler(Looper.getMainLooper())
-        myHandler.postDelayed(object: Runnable{
+        myHandler.postDelayed(object : Runnable {
             override fun run() {
                 val data = getLogs()
                 MailboxApp.setPostEntries(data)
@@ -40,7 +42,7 @@ class Util internal constructor(context: Context){
         var tries = 1
         do {
             // 5 seconds
-            val base: Double = 5000.0
+            val base = 5000.0
             // Exponentially increase wait time between tries
             val time: Double = base.pow(n = tries)
 
@@ -49,7 +51,7 @@ class Util internal constructor(context: Context){
                 try {
                     Log.d("Thread", "Sleeping")
                     Thread.sleep(time.toLong())
-                    when(type) {
+                    when (type) {
                         MailboxApp.getInstance().getString(R.string.sendLogsMethod) -> {
                             sendLog(timestamp!!).also { sent = it }
                         }
@@ -68,13 +70,21 @@ class Util internal constructor(context: Context){
             tries++
             // Check for giving up
             if (tries >= 7 || sent) {
-                if (tries >= 7){
+                if (tries >= 7) {
                     Log.d("Thread", "Tried 6 transmissions but failed - Giving up! ")
-                    val toast = Toast.makeText(MailboxApp.getInstance().applicationContext, "Failed to save timestamp! Giving up!", Toast.LENGTH_LONG)
+                    val toast = Toast.makeText(
+                        MailboxApp.getInstance().applicationContext,
+                        "Failed to save timestamp! Giving up!",
+                        Toast.LENGTH_LONG
+                    )
                     toast.show()
                 } else {
                     Log.d("Thread", "Transmission success for type: $type!")
-                    val toast = Toast.makeText(MailboxApp.getInstance().applicationContext, "$type request has completed successfully!", Toast.LENGTH_LONG)
+                    val toast = Toast.makeText(
+                        MailboxApp.getInstance().applicationContext,
+                        "$type request has completed successfully!",
+                        Toast.LENGTH_LONG
+                    )
                     toast.show()
                 }
 
@@ -82,7 +92,7 @@ class Util internal constructor(context: Context){
             }
         } while (!sent)
 
-        if(sent) {
+        if (sent) {
             MailboxApp.setPostEntries(getLogs())
         }
 
@@ -91,7 +101,7 @@ class Util internal constructor(context: Context){
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun sendLog(timestamp: String): Boolean {
-        val res = runBlocking{
+        val res = runBlocking {
             // Create thread
             var tmpRes = false
             try {
@@ -107,8 +117,8 @@ class Util internal constructor(context: Context){
         return res
     }
 
-    fun getLogs(): MutableList<PostLogEntry>{
-        val res = runBlocking{
+    fun getLogs(): MutableList<PostLogEntry> {
+        val res = runBlocking {
             // Create thread
             var tmpRes = ""
             val thread = Thread {
@@ -137,7 +147,7 @@ class Util internal constructor(context: Context){
     }
 
     private fun delLog(id: Int): Boolean {
-        val res = runBlocking{
+        val res = runBlocking {
             // Create thread
             var tmpRes = false
             // Try to send webrequest

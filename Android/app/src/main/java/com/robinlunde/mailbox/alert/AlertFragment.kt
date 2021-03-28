@@ -24,22 +24,27 @@ class AlertFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Enable menu buttons in this fragment
-        setHasOptionsMenu(true);
+        setHasOptionsMenu(true)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle? ): View? {
-        val binding = DataBindingUtil.inflate<FragmentAlertBinding>(inflater, R.layout.fragment_alert, container, false)
-        // Get username from last intent
-        val args = AlertFragmentArgs.fromBundle(requireArguments())
-        val username = args.username
-        //Log.d("Username in Alert", username)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val binding = DataBindingUtil.inflate<FragmentAlertBinding>(
+            inflater,
+            R.layout.fragment_alert,
+            container,
+            false
+        )
         // TODO need data signalling about new post
         // Observable.onChange(setNotificationValue(timestamp))
         // TODO remove - only temporary
         val timeStamp = "12.12.12"
         // Sense button presses
-        binding.clearNotifyBtn.setOnClickListener{ view: View ->
+        binding.clearNotifyBtn.setOnClickListener { view: View ->
             Toast.makeText(context, "Trying to register post pickup!", Toast.LENGTH_SHORT).show()
             // val res = util.sendBTPostPickupAck()
             // if (res) {
@@ -61,7 +66,8 @@ class AlertFragment : Fragment() {
 
             R.id.logs -> {
                 // go to logview
-                NavHostFragment.findNavController(this).navigate(AlertFragmentDirections.actionAlertFragmentToLogviewFragment())
+                NavHostFragment.findNavController(this)
+                    .navigate(AlertFragmentDirections.actionAlertFragmentToLogviewFragment())
                 util.logButtonPress("Alert - logs")
                 true
             }
@@ -72,14 +78,21 @@ class AlertFragment : Fragment() {
 
     // Remove data and set basecase
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun setNoResults(container: ViewGroup?, binding: FragmentAlertBinding, timeStamp: String): Boolean {
+    private fun setNoResults(
+        container: ViewGroup?,
+        binding: FragmentAlertBinding,
+        timeStamp: String
+    ): Boolean {
         // Clear fragment data
         binding.clearNotifyBtn.visibility = View.INVISIBLE
         container!!.rootView.findViewById<ImageView>(R.id.post_box).visibility = View.VISIBLE
-        container.rootView.findViewById<TextView>(R.id.timestamp_text).text = getString(R.string.no_new_post_message)
-        container.rootView.findViewById<TextView>(R.id.timestamp_time).text = getString(R.string.nice_day_message)
+        container.rootView.findViewById<TextView>(R.id.timestamp_text).text =
+            getString(R.string.no_new_post_message)
+        container.rootView.findViewById<TextView>(R.id.timestamp_time).text =
+            getString(R.string.nice_day_message)
         // Try to log to web
-        val request: Boolean = util.tryRequest(getString(R.string.deleteLogsMethod), timeStamp, null)
+        val request: Boolean =
+            util.tryRequest(getString(R.string.deleteLogsMethod), timeStamp, null)
         if (!request) {
             Toast.makeText(context, "Could not register post pickup over Web!", Toast.LENGTH_SHORT)
                 .show()
@@ -90,11 +103,18 @@ class AlertFragment : Fragment() {
     }
 
     // Update data and set relevant information
-    private fun setNotificationValue(timeStamp: String, binding: FragmentAlertBinding, container: ViewGroup?){
+    private fun setNotificationValue(
+        timeStamp: String,
+        binding: FragmentAlertBinding,
+        container: ViewGroup?
+    ) {
         binding.clearNotifyBtn.visibility = View.VISIBLE
         container!!.rootView.findViewById<ImageView>(R.id.post_box).visibility = View.INVISIBLE
-        container.rootView.findViewById<TextView>(R.id.timestamp_text).text = getString(R.string.timestamp_text)
-        container.rootView.findViewById<TextView>(R.id.timestamp_time).text =  util.getMyTime(timeStamp)
-        container.rootView.findViewById<TextView>(R.id.timestamp_day).text = util.getMyDate(timeStamp)
+        container.rootView.findViewById<TextView>(R.id.timestamp_text).text =
+            getString(R.string.timestamp_text)
+        container.rootView.findViewById<TextView>(R.id.timestamp_time).text =
+            util.getMyTime(timeStamp)
+        container.rootView.findViewById<TextView>(R.id.timestamp_day).text =
+            util.getMyDate(timeStamp)
     }
 }

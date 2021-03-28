@@ -17,7 +17,8 @@ import androidx.core.graphics.red
 import androidx.core.graphics.toColor
 import androidx.recyclerview.widget.RecyclerView
 
-class PostAdapter(private val postLogEntries: MutableList<PostLogEntry>): RecyclerView.Adapter<Util.LogItemViewHolder>()  {
+class PostAdapter(private val postLogEntries: MutableList<PostLogEntry>) :
+    RecyclerView.Adapter<Util.LogItemViewHolder>() {
 
     override fun getItemCount() = postLogEntries.size
 
@@ -61,19 +62,22 @@ class PostAdapter(private val postLogEntries: MutableList<PostLogEntry>): Recycl
                     MailboxApp.getUtil().tryRequest(
                         MailboxApp.getInstance().getString(R.string.deleteLogsMethod),
                         null,
-                        postLogEntry.id.toInt()
+                        postLogEntry.id
                     )
                 }
-        // If there is no data found, show error
+            // If there is no data found, show error
         } else {
-            holder.constraintLayout.findViewById<RecyclerView>(R.id.post_entries).visibility = View.INVISIBLE
-            holder.constraintLayout.findViewById<TextView>(R.id.error_logs).visibility = View.INVISIBLE
+            holder.constraintLayout.findViewById<RecyclerView>(R.id.post_entries).visibility =
+                View.INVISIBLE
+            holder.constraintLayout.findViewById<TextView>(R.id.error_logs).visibility =
+                View.INVISIBLE
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Util.LogItemViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
-        val view = layoutInflater.inflate(R.layout.recyclerview_row, parent, false) as ConstraintLayout
+        val view =
+            layoutInflater.inflate(R.layout.recyclerview_row, parent, false) as ConstraintLayout
         return Util.LogItemViewHolder(view)
     }
 }

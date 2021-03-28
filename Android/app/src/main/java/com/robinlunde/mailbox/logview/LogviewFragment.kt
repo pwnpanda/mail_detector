@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.robinlunde.mailbox.*
 import com.robinlunde.mailbox.databinding.FragmentLogviewBinding
 
-class LogviewFragment: Fragment() {
+class LogviewFragment : Fragment() {
     private val model: PostViewModel by viewModels()
     private val util = MailboxApp.getUtil()
     private lateinit var binding: FragmentLogviewBinding
@@ -25,11 +25,11 @@ class LogviewFragment: Fragment() {
         // store model
         MailboxApp.setModel(model)
         // Enable menu buttons in this fragment
-        setHasOptionsMenu(true);
+        setHasOptionsMenu(true)
 
         // Update UI if new data
-        val postObserver = Observer<MutableList<PostLogEntry>> {
-            newData -> Log.d("Observer", newData.toString())//do something with new data
+        val postObserver = Observer<MutableList<PostLogEntry>> { newData ->
+            Log.d("Observer", newData.toString())//do something with new data
             // Update correct view with new data
             binding.postEntries.adapter = PostAdapter(newData)
             binding.postEntries.layoutManager = LinearLayoutManager(context)
@@ -40,8 +40,17 @@ class LogviewFragment: Fragment() {
     }
 
 
-    override fun onCreateView( inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val binding = DataBindingUtil.inflate<FragmentLogviewBinding>(inflater, R.layout.fragment_logview, container, false)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val binding = DataBindingUtil.inflate<FragmentLogviewBinding>(
+            inflater,
+            R.layout.fragment_logview,
+            container,
+            false
+        )
         this.binding = binding
         val adapter = model.getPostEntries().value?.let { PostAdapter(it) }
         binding.postEntries.adapter = adapter
@@ -54,8 +63,9 @@ class LogviewFragment: Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.logo -> {
-                val username = MailboxApp.getUsername()
-                findNavController(this).navigate(LogviewFragmentDirections.actionLogviewFragmentToAlertFragment(username))
+                findNavController(this).navigate(
+                    LogviewFragmentDirections.actionLogviewFragmentToAlertFragment()
+                )
                 util.logButtonPress("Logview - logo")
                 true
             }

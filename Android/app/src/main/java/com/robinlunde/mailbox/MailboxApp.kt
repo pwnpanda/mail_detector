@@ -4,18 +4,18 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 
-class MailboxApp: Application() {
+class MailboxApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
         mailboxApp = this
         prefs = this.getSharedPreferences(getString(R.string.username_pref), Context.MODE_PRIVATE)
-        username = prefs.getString(getString(R.string.username_pref),"").toString()
+        username = prefs.getString(getString(R.string.username_pref), "").toString()
         util = Util(applicationContext)
         postLogEntryList = util.getLogs()
     }
 
-    companion object{
+    companion object {
         private lateinit var util: Util
         private lateinit var postLogEntryList: MutableList<PostLogEntry>
         private lateinit var mailboxApp: MailboxApp
@@ -30,13 +30,16 @@ class MailboxApp: Application() {
         fun setUsername(newUsername: String) {
             username = newUsername
             // Store username for later, in sharedPrefs
-            with (prefs.edit()) {
-                putString(getInstance().applicationContext.getString(R.string.username_pref), username)
+            with(prefs.edit()) {
+                putString(
+                    getInstance().applicationContext.getString(R.string.username_pref),
+                    username
+                )
                 apply()
             }
         }
 
-        fun getPrefs(): SharedPreferences{
+        fun getPrefs(): SharedPreferences {
             return prefs
         }
 
@@ -60,7 +63,7 @@ class MailboxApp: Application() {
             return util
         }
 
-        fun setModel(myModel: PostViewModel){
+        fun setModel(myModel: PostViewModel) {
             model = myModel
         }
     }

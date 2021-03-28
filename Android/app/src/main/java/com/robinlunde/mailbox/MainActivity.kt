@@ -12,7 +12,7 @@ import com.robinlunde.mailbox.databinding.ActivityMainBinding
 // Name - Timestamp of post received (from BT) - Timestamp of pickup
 // Get data from BT
 
-class MainActivity() : AppCompatActivity()  {
+class MainActivity() : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
 
 
