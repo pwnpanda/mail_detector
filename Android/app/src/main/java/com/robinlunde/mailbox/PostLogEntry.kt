@@ -21,6 +21,5 @@ data class PostLogEntry( val id: Int, val username: String, val delivered: Strin
                 return "PostLogEntry: ID: $id, Username: $username, " +
                         "Delivered: $delivered, DeliveredTime: $deliveredTime, DeliveredDate: $deliveredDate, " +
                         "Pickup: $pickup, PickupTime: $pickupTime, PickupDate: $pickupDate"
-                //return super.toString()
         }
 }

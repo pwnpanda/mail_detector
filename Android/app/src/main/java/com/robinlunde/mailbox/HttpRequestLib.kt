@@ -83,8 +83,8 @@ class HttpRequestLib (context: Context) {
 
         val responseBody = response.body!!.string()
         //Response
-        Log.d("HTTP-Get", "Response code: ${response.code}")
-        Log.d("HTTP-Get", "Response Body: $responseBody")
+        Log.d("HTTP-Delete", "Response code: ${response.code}")
+        Log.d("HTTP-Delete", "Response Body: $responseBody")
 
         // TODO check return code for delete
         return response.code == 200
