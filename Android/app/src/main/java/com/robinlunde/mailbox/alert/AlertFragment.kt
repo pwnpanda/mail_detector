@@ -39,7 +39,7 @@ class AlertFragment : Fragment() {
             container,
             false
         )
-        // TODO need data signalling about new post
+        // TODO need data signalling about new post / other way to update
         // Observable.onChange(setNotificationValue(timestamp))
         // TODO remove - only temporary
         val timeStamp = "12.12.12"
