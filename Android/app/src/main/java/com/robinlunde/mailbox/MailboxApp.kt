@@ -45,24 +45,18 @@ class MailboxApp: Application() {
         }
 
         fun getPostEntries(): MutableList<PostLogEntry> {
-            //update Logview fragment
+            //update mutable data ONLY!
+            postLogEntryList = util.getLogs()
             return postLogEntryList
         }
 
         fun setPostEntries(updatedPostLogEntryList: MutableList<PostLogEntry>) {
             postLogEntryList = updatedPostLogEntryList
-            model.postEntries.value = postLogEntryList
+            //model.setPostEntries(postLogEntryList)
         }
 
         fun getUtil(): Util {
             return util
-        }
-
-        fun setPostViewModel(postViewModel: PostViewModel){
-            model = postViewModel
-        }
-        fun getPostViewModel(): PostViewModel{
-            return model
         }
     }
 }

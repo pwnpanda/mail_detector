@@ -16,17 +16,6 @@ import com.robinlunde.mailbox.MailboxApp
 import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.databinding.FragmentLoginBinding
 
-
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [LoginFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class LoginFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,7 +28,7 @@ class LoginFragment : Fragment() {
         val binding = DataBindingUtil.inflate<FragmentLoginBinding>(inflater, R.layout.fragment_login, container, false)
         val username = MailboxApp.getUsername()
         if (username != "") {
-            // TODO Need to do this, but it throws error due to onCreateView not finishing
+            // Move past login screen if username is registered
             findNavController(this).navigate(LoginFragmentDirections.actionLoginFragmentToAlertFragment(username))
             return binding.root
         }
