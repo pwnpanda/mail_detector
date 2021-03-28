@@ -1,24 +1,44 @@
 package com.robinlunde.mailbox
 
+
+import android.graphics.Color
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.blue
+import androidx.core.graphics.green
+import androidx.core.graphics.red
+import androidx.core.graphics.toColor
 import androidx.recyclerview.widget.RecyclerView
 
-// TODO Add headers
-// TODO add clickListener for delete button
 class PostAdapter(val data: MutableList<PostLogEntry>): RecyclerView.Adapter<Util.LogItemViewHolder>()  {
 
     override fun getItemCount() = data.size
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: Util.LogItemViewHolder, position: Int) {
         val item = data[position]
+        // If post belongs to this user, mark it as slightly red
+        if (MailboxApp.getUsername().equals(item.username, ignoreCase = true)){
+            val color = ContextCompat.getColor(MailboxApp.getInstance(), R.color.light_red).toColor().toArgb()
+            holder.constraintLayout.setBackgroundColor(Color.argb(25, color.red, color.blue, color.green))
+        }
         holder.constraintLayout.findViewById<TextView>(R.id.post_user).text = item.username
         holder.constraintLayout.findViewById<TextView>(R.id.post_deliver_time).text = item.deliveredTime
         holder.constraintLayout.findViewById<TextView>(R.id.post_deliver_date).text = item.deliveredDate
         holder.constraintLayout.findViewById<TextView>(R.id.post_pickup_time).text = item.pickupTime
         holder.constraintLayout.findViewById<TextView>(R.id.post_pickup_date).text = item.pickupDate
+
+        holder.constraintLayout.findViewById<ImageButton>(R.id.delete_button).setOnClickListener{
+            //Log.e("DeletePress", "Pressed for ID ${item.id}")
+            // Delete the log with ID id
+            MailboxApp.getUtil().tryRequest(MailboxApp.getInstance().getString(R.string.deleteLogsMethod), null, item.id.toInt())
+        }
     }
     /* TODO make sure we have data, else show error!
     * if (res != "") {

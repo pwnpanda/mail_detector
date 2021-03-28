@@ -1,12 +1,14 @@
 package com.robinlunde.mailbox
 
-import android.app.Application
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 
-class PostViewModel (dataSource: List<PostLogEntry>, application: Application) {
-    // Reference to current entry
-    private val currentPost = MutableLiveData<PostLogEntry?>()
-    // Reference to all entries
-    val postEntries = dataSource
+class PostViewModel (savedStateHandle: SavedStateHandle) : ViewModel() {
 
+    val postId : Int = savedStateHandle["id"] ?: throw IllegalArgumentException("Missing post ID")
+
+    val postEntries: MutableLiveData<MutableList<PostLogEntry>> by lazy {
+        MutableLiveData<MutableList<PostLogEntry>>()
+    }
 }
