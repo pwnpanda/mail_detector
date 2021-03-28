@@ -34,7 +34,7 @@ class Api::PostsController < ApplicationController
 
     end
     
-    # DELETE /api/post/:id
+    # DELETE /api/posts/:id
     def destroy
         # Verify post exists
         begin

@@ -48,17 +48,13 @@ class HttpRequestLib (context: Context) {
         jacksonObj.put("delivered", timestamp)
         jacksonObj.put("username", MailboxApp.getUsername())
         jacksonObj.put("pickup", pickupTime.toString())
-        Log.d("Jackson object", jacksonObj.nodeType.toString())
-        // TODO remove this, since it seems not needed
-        val jacksonString = jacksonObj.toString()
 
         val mediaType = "application/json; charset=utf-8".toMediaType()
         // TODO remove this, since it seems not needed, see above
-        val body = jacksonString.toRequestBody(mediaType)
+        val body = jacksonObj.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
                 .url(url)
-                //.post(jacksonObj)
                 .post(body)
                 .build()
 
@@ -78,9 +74,9 @@ class HttpRequestLib (context: Context) {
 
     // delete entry
     fun deleteLog(id: Int): Boolean {
-        val delUrl = URL("${R.string.base_url}/$id")
+        val newUrl = URL("$url/$id")
         val request = Request.Builder()
-                .url(delUrl)
+                .url(newUrl)
                 .delete()
                 .build()
         val response = client.newCall(request).execute()

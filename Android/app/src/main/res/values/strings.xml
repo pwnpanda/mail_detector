@@ -2,8 +2,6 @@
     <string name="app_name"><u>MailBox</u></string>
     <string name="icon">App_Icon</string>
     <string name="timestamp_text">Post was delivered at</string>
-    <string name="timestamp_time"><u>12:12:12</u></string>
-    <string name="timestamp_day">12-12-2012</string>
     <string name="remove_notification">Remove notification</string>
     <string name="logo_icon_name">Logo</string>
     <string name="logs_icon_name">Logs</string>
@@ -13,11 +11,12 @@
     <string name="username">Username</string>
     <string name="username_button">Continue</string>
     <string name="username_pref">username</string>
-    <string name="base_url">https://robinlunde.com/api/post</string>
     <string name="normal_url">https://robinlunde.com/api/posts</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="title_activity_post">PostActivity</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
+    <string name="sendLogsMethod">sendLog</string>
+    <string name="deleteLogsMethod">deleteLog</string>
+    <string name="user_header">User</string>
+    <string name="delivered_header">Delivered</string>
+    <string name="pickup_header">Picked up</string>
+    <string name="no_new_post_message">No new post detected!</string>
+    <string name="nice_day_message">Have a nice day!</string>
 </resources>

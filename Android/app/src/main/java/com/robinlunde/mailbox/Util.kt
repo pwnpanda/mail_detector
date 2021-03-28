@@ -23,7 +23,8 @@ class Util internal constructor(context: Context){
         val myHandler = Handler(Looper.getMainLooper())
         myHandler.postDelayed(object: Runnable{
             override fun run() {
-                getLogs()
+                val data = getLogs()
+                MailboxApp.setPostEntries(data)
                 //1 second * 60 * 30 = 30 min
                 myHandler.postDelayed(this, 1000 * 60 * 30)
             }
@@ -32,19 +33,19 @@ class Util internal constructor(context: Context){
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun trySend(type: String, timestamp: String?, id: Int?): Boolean {
+    fun tryRequest(type: String, timestamp: String?, id: Int?): Boolean {
         // Do async thread with network request
         var sent = false
         var tries = 1
         do {
             val thread = Thread {
-                // Try to send webrequest
+                // Try to send web request
                 try {
                     when(type) {
-                        "sendLog" -> {
+                        MailboxApp.getInstance().getString(R.string.sendLogsMethod) -> {
                             sendLog(timestamp!!).also { sent = it }
                         }
-                        "delLog" -> {
+                        MailboxApp.getInstance().getString(R.string.deleteLogsMethod) -> {
                             delLog(id!!).also { sent = it }
                         }
                         else -> throw java.lang.Exception("Unknown http method!")
@@ -70,6 +71,10 @@ class Util internal constructor(context: Context){
                 break
             }
         } while (!sent)
+
+        if(sent) {
+            MailboxApp.setPostEntries(getLogs())
+        }
 
         return sent
     }
@@ -102,7 +107,7 @@ class Util internal constructor(context: Context){
             // Create thread
             var tmpRes = ""
             val thread = Thread {
-                // Try to send webrequest
+                // Try to send web request
                 try {
                     httpRequests.getDataWeb().also {
                         tmpRes = it
@@ -126,16 +131,17 @@ class Util internal constructor(context: Context){
         return dataParsed
     }
 
-    fun delLog(id: Int): Boolean {
+    private fun delLog(id: Int): Boolean {
         val res = runBlocking{
             // Create thread
             var tmpRes = false
             val thread = Thread {
                 // Try to send webrequest
                 try {
-                    httpRequests.deleteLog(id).also {
-                        tmpRes = it
-                    }
+                    tmpRes = true
+                    //httpRequests.deleteLog(id).also {
+                        //tmpRes = it
+                    //}
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -146,5 +152,17 @@ class Util internal constructor(context: Context){
         }
         Log.d("HTTP-Del", res.toString())
         return res
+    }
+
+    fun getMyDate(str: String): String {
+        return str.split("T")[0]
+    }
+
+    fun getMyTime(str: String): String {
+        return str.split("T")[1].subSequence(0, 8).toString()
+    }
+
+    fun logButtonPress(msg: String) {
+        Log.d("MenuButtonPressed", msg)
     }
 }
