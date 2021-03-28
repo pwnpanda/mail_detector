@@ -6,9 +6,22 @@ import androidx.lifecycle.ViewModel
 
 class PostViewModel (savedStateHandle: SavedStateHandle) : ViewModel() {
 
-    val postId : Int = savedStateHandle["id"] ?: throw IllegalArgumentException("Missing post ID")
-
-    val postEntries: MutableLiveData<MutableList<PostLogEntry>> by lazy {
+    val mutablePostEntries: MutableLiveData<MutableList<PostLogEntry>> by lazy {
         MutableLiveData<MutableList<PostLogEntry>>()
     }
+    private var postEntries: MutableList<PostLogEntry> = MailboxApp.getPostEntries()
+
+    init {
+        mutablePostEntries.value = postEntries
+    }
+
+    fun getPostEntries(): MutableLiveData<MutableList<PostLogEntry>> {
+        return mutablePostEntries
+    }
+/*
+    fun setPostEntries(data: MutableList<PostLogEntry>){
+        postEntries = data
+        mutablePostEntries.value = postEntries
+    }
+*/
 }
