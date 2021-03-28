@@ -31,10 +31,9 @@ class LogviewFragment: Fragment() {
         val postObserver = Observer<MutableList<PostLogEntry>> {
             newData -> Log.d("Observer", newData.toString())//do something with new data
             // Update correct view with new data
-            // new
             binding.postEntries.adapter = PostAdapter(newData)
-            //new
             binding.postEntries.layoutManager = LinearLayoutManager(context)
+            // Tel view it has changed
             binding.postEntries.adapter?.notifyDataSetChanged()
         }
         model.mutablePostEntries.observe(this, postObserver)
