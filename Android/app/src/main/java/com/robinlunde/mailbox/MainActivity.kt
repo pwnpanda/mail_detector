@@ -23,11 +23,6 @@ class MainActivity() : AppCompatActivity()  {
         val binding =
             DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
         drawerLayout = binding.drawerLayout
-
-
-        //val toasted = Toast.makeText(applicationContext, "Hello!", Toast.LENGTH_SHORT)
-        // Show toast
-        //toasted.show()
     }
 
     // create and inflate menu here
