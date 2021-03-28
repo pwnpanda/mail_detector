@@ -20,10 +20,11 @@ class PostViewModel (savedStateHandle: SavedStateHandle) : ViewModel() {
     fun getPostEntries(): MutableLiveData<MutableList<PostLogEntry>> {
         return mutablePostEntries
     }
-/*
+    // Working without below function
+
     fun setPostEntries(data: MutableList<PostLogEntry>){
         postEntries = data
         mutablePostEntries.value = postEntries
     }
-*/
+
 }
