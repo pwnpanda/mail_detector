@@ -50,7 +50,7 @@ class HttpRequestLib (context: Context) {
         jacksonObj.put("pickup", pickupTime.toString())
 
         val mediaType = "application/json; charset=utf-8".toMediaType()
-        // TODO remove this, since it seems not needed, see above
+        // TODO check if this works or if it needs to be jacksonObj to string separately
         val body = jacksonObj.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
@@ -67,8 +67,6 @@ class HttpRequestLib (context: Context) {
             // Show toast
             toast.show()
         }
-
-        // TODO check return code for create
         return response.code == 200
     }
 
