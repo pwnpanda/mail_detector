@@ -1,45 +1,67 @@
 package com.robinlunde.mailbox
 
 import android.content.Context
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import com.fasterxml.jackson.databind.ObjectMapper
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.net.URL
+import java.time.LocalDateTime
 
 class HttpRequestLib(context: Context) {
 
     var context: Context = context
-        set(value) { field = value.applicationContext }
+        set(value) {
+            field = value.applicationContext
+        }
 
     private val client = OkHttpClient()
-    private val url = URL("https://robinlunde.com/api/posts")
+    private var url: URL = URL(context.getString(R.string.normal_url))
 
-    // Send latest data to Server
-    fun sendDataWeb(timestamp: String): Boolean {
-
-
-        //or using jackson
-        val mapperAll = ObjectMapper()
-        val jacksonObj = mapperAll.createObjectNode()
-        jacksonObj.put("timestamp", timestamp)
-        val jacksonString = jacksonObj.toString()
-
-        val mediaType = "application/json; charset=utf-8".toMediaType()
-        val body = jacksonString.toRequestBody(mediaType)
-
+    // Get results for last 14 days
+    fun getDataWeb(): String {
         val request = Request.Builder()
-                .url(url)
-                .post(body)
-                .build()
-
+            .url(url)
+            .build()
         val response = client.newCall(request).execute()
 
         val responseBody = response.body!!.string()
-        // Log.d("HTTP-Post", "Response code: ${response.code}")
+        Log.d("HTTP-Get", "Response code: ${response.code}")
+        //Response
+        Log.d("HTTP-Get", "Response Body: $responseBody")
+        return if (response.code == 200) {
+            responseBody
+        } else ""
+    }
+
+    // Send latest data to Server
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun sendDataWeb(timestamp: String): Boolean {
+
+        val pickupTime = LocalDateTime.now()
+        //Using jackson to get string to JSON
+        val mapperAll = ObjectMapper()
+        val jacksonObj = mapperAll.createObjectNode()
+        jacksonObj.put("delivered", timestamp)
+        jacksonObj.put("username", MailboxApp.getUsername())
+        jacksonObj.put("pickup", pickupTime.toString())
+
+        val mediaType = "application/json; charset=utf-8".toMediaType()
+        // TODO check if this works or if it needs to be jacksonObj to string separately
+        val body = jacksonObj.toString().toRequestBody(mediaType)
+
+        val request = Request.Builder()
+            .url(url)
+            .post(body)
+            .build()
+
+        val response = client.newCall(request).execute()
+        val responseBody = response.body!!.string()
         //Response
         Log.d("HTTP-Post", "Response Body: $responseBody")
         if (response.code == 200) {
@@ -47,30 +69,23 @@ class HttpRequestLib(context: Context) {
             // Show toast
             toast.show()
         }
-
         return response.code == 200
     }
 
-    // Get results for last 14 days
-    fun getDataWeb(): String {
-        val client = OkHttpClient()
-        val url = URL("https://robinlunde.com/api/posts")
-
+    // delete entry
+    fun deleteLog(id: Int): Boolean {
+        val newUrl = URL("$url/$id")
         val request = Request.Builder()
-                .url(url)
-                .build()
+            .url(newUrl)
+            .delete()
+            .build()
         val response = client.newCall(request).execute()
 
         val responseBody = response.body!!.string()
-        Log.d("HTTP-Get", "Response code: ${response.code}")
         //Response
-        Log.d("HTTP-Get", "Response Body: $responseBody")
-        if (response.code == 200) {
-            // Create entry for each one in responseBody and display details in view
-            // val toast = Toast.makeText(applicationContext, "Timestamp saved!", Toast.LENGTH_LONG)
-            // Show toast
-            // toast.show()
-            return responseBody
-        } else return ""
+        Log.d("HTTP-Delete", "Response code: ${response.code}")
+        Log.d("HTTP-Delete", "Response Body: $responseBody")
+
+        return response.code == 200
     }
 }
