@@ -50,9 +50,9 @@ class MailboxApp: Application() {
             return postLogEntryList
         }
 
+        // Update data in view
         fun setPostEntries(updatedPostLogEntryList: MutableList<PostLogEntry>) {
             postLogEntryList = updatedPostLogEntryList
-            // Working without below line
             model.setPostEntries(postLogEntryList)
         }
 
