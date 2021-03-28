@@ -86,7 +86,6 @@ class HttpRequestLib (context: Context) {
         Log.d("HTTP-Delete", "Response code: ${response.code}")
         Log.d("HTTP-Delete", "Response Body: $responseBody")
 
-        // TODO check return code for delete
         return response.code == 200
     }
 }

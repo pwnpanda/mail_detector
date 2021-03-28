@@ -4,6 +4,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 
+// https://medium.com/@atifmukhtar/recycler-view-with-mvvm-livedata-a1fd062d2280
+//
 class PostViewModel (savedStateHandle: SavedStateHandle) : ViewModel() {
 
     val mutablePostEntries: MutableLiveData<MutableList<PostLogEntry>> by lazy {
