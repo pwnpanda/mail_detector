@@ -8,7 +8,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/frag_login"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="?attr/colorSecondary">
 
         <ImageView
             android:id="@+id/logo_mainactiv"
@@ -45,6 +46,10 @@
             android:id="@+id/username_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="?attr/colorOnSecondary"
+            android:hapticFeedbackEnabled="true"
+            android:shadowDx="1.0"
+            android:shadowRadius="1"
             android:text="@string/username_button"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
