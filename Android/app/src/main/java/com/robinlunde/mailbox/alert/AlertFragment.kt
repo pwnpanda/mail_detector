@@ -15,10 +15,11 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.NavHostFragment
 import com.robinlunde.mailbox.MailboxApp
 import com.robinlunde.mailbox.R
+import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.databinding.FragmentAlertBinding
 
 class AlertFragment : Fragment() {
-    val util = MailboxApp.getUtil()
+    private lateinit var util: Util
     // private lateinit val timeStamp: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,6 +58,7 @@ class AlertFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        util = MailboxApp.getUtil()
         return when (item.itemId) {
             R.id.logo -> {
                 // Do nothing, we are in correct view

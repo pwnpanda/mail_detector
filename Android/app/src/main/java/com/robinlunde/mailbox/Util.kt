@@ -14,24 +14,25 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.runBlocking
 import kotlin.math.pow
 
-class Util internal constructor(context: Context) {
+class Util (context: Context) {
     class LogItemViewHolder(val constraintLayout: ConstraintLayout) :
         RecyclerView.ViewHolder(constraintLayout)
 
     private val httpRequests = HttpRequestLib(context)
 
-    init {
+    fun startDataRenewer(){
+        Log.e("Debug", "Util initiated")
         // on init
         val myHandler = Handler(Looper.getMainLooper())
         myHandler.postDelayed(object : Runnable {
             override fun run() {
                 val data = getLogs()
                 MailboxApp.setPostEntries(data)
-                //1 second * 60 * 30 = 30 min
+                                            //1 second * 60 * 30 = 30 min
                 myHandler.postDelayed(this, 1000 * 60 * 30)
             }
-            //1 second * 60 * 30 = 30 min
-        }, 1000 * 60 * 30)
+            //1 second
+        }, 1000 )
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

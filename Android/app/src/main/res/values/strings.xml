@@ -19,4 +19,7 @@
     <string name="pickup_header">Picked up</string>
     <string name="no_new_post_message">No new post detected!</string>
     <string name="nice_day_message">Have a nice day!</string>
+    <string name="channel_name">Mail_Alert_Channel</string>
+    <string name="channel_description">Channel for alerting users of new mail</string>
+    <string name="channel_id">MailboxChannel</string>
 </resources>

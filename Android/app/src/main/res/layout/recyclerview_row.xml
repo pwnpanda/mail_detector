@@ -109,6 +109,7 @@
         android:layout_width="56dp"
         android:layout_height="51dp"
         android:layout_weight="1"
+        android:background="?attr/colorOnSecondary"
         android:contentDescription="@string/delete_button"
         android:hapticFeedbackEnabled="true"
         android:src="@android:drawable/ic_menu_delete"
