@@ -1,6 +1,5 @@
 package com.robinlunde.mailbox
 
-import android.content.Context
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -14,14 +13,14 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.runBlocking
 import kotlin.math.pow
 
-class Util (context: Context) {
+class Util () {
     class LogItemViewHolder(val constraintLayout: ConstraintLayout) :
         RecyclerView.ViewHolder(constraintLayout)
 
-    private val httpRequests = HttpRequestLib(context)
+    private val httpRequests = HttpRequestLib()
 
     fun startDataRenewer(){
-        Log.e("Debug", "Util initiated")
+        //Log.e("Debug", "Util initiated")
         // on init
         val myHandler = Handler(Looper.getMainLooper())
         myHandler.postDelayed(object : Runnable {
@@ -40,7 +39,7 @@ class Util (context: Context) {
         // Do async thread with network request
         Log.d("TryToRequest", "Type: $type Timestamp: $timestamp Id: $id")
         var sent = false
-        var tries = 1
+        var tries = 0
         do {
             // 5 seconds
             val base = 5000.0
@@ -54,9 +53,17 @@ class Util (context: Context) {
                     Thread.sleep(time.toLong())
                     when (type) {
                         MailboxApp.getInstance().getString(R.string.sendLogsMethod) -> {
+                            if(timestamp == null) {
+                                Log.d("Error", "Timestamp is null when trying to add new post log entry")
+                                throw NullPointerException()
+                            }
                             sendLog(timestamp!!).also { sent = it }
                         }
                         MailboxApp.getInstance().getString(R.string.deleteLogsMethod) -> {
+                            if(id == null) {
+                                Log.d("Error", "Id is null when trying to delete log entry")
+                                throw NullPointerException()
+                            }
                             delLog(id!!).also { sent = it }
                         }
                         else -> throw java.lang.Exception("Unknown http method!")

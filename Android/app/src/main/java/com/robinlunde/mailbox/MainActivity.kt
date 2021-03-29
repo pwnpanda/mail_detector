@@ -8,9 +8,11 @@ import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import com.robinlunde.mailbox.databinding.ActivityMainBinding
 
+
 // TODO
 // Name - Timestamp of post received (from BT) - Timestamp of pickup
-// Get data from BT
+// Get data from BT then call
+// MailboxApp.pushNotification(timeStamp)
 
 class MainActivity() : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout

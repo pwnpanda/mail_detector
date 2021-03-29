@@ -7,14 +7,14 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 
 class MailboxApp : Application() {
-    private lateinit var myNotificationManager: MyNotificationManager
 
     override fun onCreate() {
         super.onCreate()
         mailboxApp = this
-        util = Util(applicationContext)
+        util = Util()
         prefs = this.getSharedPreferences(getString(R.string.username_pref), Context.MODE_PRIVATE)
         username = prefs.getString(getString(R.string.username_pref), "").toString()
         util.startDataRenewer()
@@ -44,7 +44,7 @@ class MailboxApp : Application() {
         private lateinit var prefs: SharedPreferences
         private lateinit var model: PostViewModel
         private lateinit var myNotificationManager: MyNotificationManager
-        private lateinit var pushNotificationIds: MutableList<Int>
+        private var pushNotificationIds: MutableList<Int> = mutableListOf<Int>()
 
 
         fun getUsername(): String {
@@ -97,6 +97,7 @@ class MailboxApp : Application() {
             return pushNotificationIds
         }
 
+        @RequiresApi(Build.VERSION_CODES.O)
         fun pushNotification(timestamp: String){
             val pushId = myNotificationManager.createPush(timestamp)
             pushNotificationIds.add(pushId)
