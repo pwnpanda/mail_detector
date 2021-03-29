@@ -2,6 +2,8 @@ package com.robinlunde.mailbox
 
 import android.content.Context
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -13,12 +15,9 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.net.URL
 import java.time.LocalDateTime
 
-class HttpRequestLib(context: Context) {
 
-    var context: Context = context
-        set(value) {
-            field = value.applicationContext
-        }
+class HttpRequestLib() {
+    var context: Context = MailboxApp.getInstance()
 
     private val client = OkHttpClient()
     private var url: URL = URL(context.getString(R.string.normal_url))
@@ -52,7 +51,6 @@ class HttpRequestLib(context: Context) {
         jacksonObj.put("pickup", pickupTime.toString())
 
         val mediaType = "application/json; charset=utf-8".toMediaType()
-        // TODO check if this works or if it needs to be jacksonObj to string separately
         val body = jacksonObj.toString().toRequestBody(mediaType)
 
         val request = Request.Builder()
@@ -65,9 +63,16 @@ class HttpRequestLib(context: Context) {
         //Response
         Log.d("HTTP-Post", "Response Body: $responseBody")
         if (response.code == 200) {
-            val toast = Toast.makeText(context, "Timestamp saved!", Toast.LENGTH_LONG)
-            // Show toast
-            toast.show()
+            val handler = Handler(Looper.getMainLooper())
+
+            handler.post(Runnable {
+                val toast = Toast.makeText(
+                    MailboxApp.getInstance(),
+                    "Timestamp saved!",
+                    Toast.LENGTH_LONG
+                ).show()
+            })
+
         }
         return response.code == 200
     }

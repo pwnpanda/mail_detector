@@ -26,6 +26,7 @@ class AlertFragment : Fragment() {
         super.onCreate(savedInstanceState)
         // Enable menu buttons in this fragment
         setHasOptionsMenu(true)
+        util = MailboxApp.getUtil()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -58,7 +59,8 @@ class AlertFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        util = MailboxApp.getUtil()
+        //WOrking
+        //util = MailboxApp.getUtil()
         return when (item.itemId) {
             R.id.logo -> {
                 // Do nothing, we are in correct view
@@ -94,7 +96,7 @@ class AlertFragment : Fragment() {
             getString(R.string.nice_day_message)
         // Try to log to web
         val request: Boolean =
-            util.tryRequest(getString(R.string.deleteLogsMethod), timeStamp, null)
+            util.tryRequest(getString(R.string.sendLogsMethod), timeStamp, null)
         if (!request) {
             Toast.makeText(context, "Could not register post pickup over Web!", Toast.LENGTH_SHORT)
                 .show()

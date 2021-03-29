@@ -5,11 +5,13 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
+import android.graphics.drawable.AdaptiveIconDrawable
 import android.os.Build
 import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.toBitmap
 
 class MyNotificationManager {
     // Register the channel with the system
@@ -20,18 +22,20 @@ class MyNotificationManager {
         fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT)
     private var count: Int = 0
 
+
+    @RequiresApi(Build.VERSION_CODES.O)
     fun createPush(
         timeStamp: String,
         //@DrawableRes smallIcon: Int = R.drawable.ic_stat_mailbox,
-        //@DrawableRes largeIcon: Int = R.mipmap.icon_mailbox
         @DrawableRes smallIcon: Int = R.mipmap.ic_launcher,
-        @DrawableRes largeIcon: Int = R.mipmap.ic_launcher
     ) : Int {
+        // TODO replace with logo - icon_mailbox
+        val largeIcon = (ResourcesCompat.getDrawable(MailboxApp.getInstance().resources, R.mipmap.ic_launcher, null) as AdaptiveIconDrawable).toBitmap()
         val builder = NotificationCompat.Builder(MailboxApp.getInstance(), MailboxApp.getInstance().getString(R.string.channel_id))
             // Set small icon
             .setSmallIcon(smallIcon)
             // Set big icon
-            .setLargeIcon(BitmapFactory.decodeResource(MailboxApp.getInstance().resources, largeIcon))
+            .setLargeIcon(largeIcon)
             .setContentTitle("The mailman has been here!")
             .setContentText("The mailman delivered the mail at: $timeStamp")
             .setPriority(NotificationCompat.PRIORITY_MAX)
