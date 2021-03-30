@@ -16,7 +16,7 @@ import java.net.URL
 import java.time.LocalDateTime
 
 
-class HttpRequestLib() {
+class HttpRequestLib {
     var context: Context = MailboxApp.getInstance()
 
     private val client = OkHttpClient()
@@ -63,15 +63,15 @@ class HttpRequestLib() {
         //Response
         Log.d("HTTP-Post", "Response Body: $responseBody")
         if (response.code == 200) {
-            val handler = Handler(Looper.getMainLooper())
-
-            handler.post(Runnable {
-                val toast = Toast.makeText(
-                    MailboxApp.getInstance(),
-                    "Timestamp saved!",
-                    Toast.LENGTH_LONG
-                ).show()
-            })
+            Handler(Looper.getMainLooper()).also {
+                it.post(
+                    Toast.makeText(
+                        MailboxApp.getInstance(),
+                        "Timestamp saved!",
+                        Toast.LENGTH_LONG
+                    )::show
+                )
+            }
 
         }
         return response.code == 200

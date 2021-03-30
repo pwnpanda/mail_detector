@@ -1,8 +1,12 @@
 package com.robinlunde.mailbox
 
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
@@ -14,7 +18,7 @@ import com.robinlunde.mailbox.databinding.ActivityMainBinding
 // Get data from BT then call
 // MailboxApp.pushNotification(timeStamp)
 
-class MainActivity() : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,6 +40,7 @@ class MainActivity() : AppCompatActivity() {
         return true
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // if it arrives here, something went wrong
         return when (item.itemId) {
@@ -49,5 +54,10 @@ class MainActivity() : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        Log.d("Intent!", "Intent received")
+        super.onNewIntent(intent)
     }
 }

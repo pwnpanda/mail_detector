@@ -21,8 +21,8 @@ data class PostLogEntry(
         return str.split("-").reversed().joinToString("-")
     }
 
-    // CAn change to ovveride toString
-    public fun toMyString(): String {
+    // Can change to override toString
+    fun toMyString(): String {
         return "PostLogEntry: ID: $id, Username: $username, " +
                 "Delivered: $delivered, DeliveredTime: $deliveredTime, DeliveredDate: $deliveredDate, " +
                 "Pickup: $pickup, PickupTime: $pickupTime, PickupDate: $pickupDate"
