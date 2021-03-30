@@ -46,7 +46,7 @@ class AlertFragment : Fragment() {
         // TODO remove - only temporary
         val timeStamp = "12.12.12"
         // Sense button presses
-        binding.clearNotifyBtn.setOnClickListener { view: View ->
+        binding.clearNotifyBtn.setOnClickListener {
             Toast.makeText(context, "Trying to register post pickup!", Toast.LENGTH_SHORT).show()
             // val res = util.sendBTPostPickupAck()
             // if (res) {

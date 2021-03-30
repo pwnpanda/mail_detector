@@ -1,5 +1,6 @@
 package com.robinlunde.mailbox
 
+import android.content.Context
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -13,24 +14,53 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.runBlocking
 import kotlin.math.pow
 
-class Util () {
+@RequiresApi(Build.VERSION_CODES.O)
+class Util (context: Context) {
     class LogItemViewHolder(val constraintLayout: ConstraintLayout) :
         RecyclerView.ViewHolder(constraintLayout)
 
     private val httpRequests = HttpRequestLib()
+    private val myNotificationManager: MyNotificationManager = MyNotificationManager(context)
+    private var pushNotificationIds: MutableList<Int> = mutableListOf()
+
+    // ----------------------------- Notification -------------------------------
+
+    fun getPushIds(): MutableList<Int>{
+        return pushNotificationIds
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun pushNotification(timestamp: String){
+        // TODO Does not work - Check why!
+        val pushId = myNotificationManager.createPush(timestamp)
+        pushNotificationIds.add(pushId)
+        // TODO
+        // Change to right fragment and add data!
+    }
+
+    // ----------------------------- HTTP -------------------------------
 
     fun startDataRenewer(){
         //Log.e("Debug", "Util initiated")
         // on init
         val myHandler = Handler(Looper.getMainLooper())
+        var first = true
         myHandler.postDelayed(object : Runnable {
+            @RequiresApi(Build.VERSION_CODES.O)
             override fun run() {
                 val data = getLogs()
                 MailboxApp.setPostEntries(data)
+                // TODO Review this! This is not where it belongs :)
+                if (!first){
+                    Log.d("Push", "Push started!")
+                    pushNotification("12.12.12")
+                }
                                             //1 second * 60 * 30 = 30 min
-                myHandler.postDelayed(this, 1000 * 60 * 30)
+                first = false
+                // Change this to 1000 * 10 * 1 for 10 sec between push when testing
+                myHandler.postDelayed(this, 1000 * 60 * 1)
             }
-            //1 second
+            //1 second delay before first start
         }, 1000 )
     }
 
@@ -57,14 +87,14 @@ class Util () {
                                 Log.d("Error", "Timestamp is null when trying to add new post log entry")
                                 throw NullPointerException()
                             }
-                            sendLog(timestamp!!).also { sent = it }
+                            sendLog(timestamp).also { sent = it }
                         }
                         MailboxApp.getInstance().getString(R.string.deleteLogsMethod) -> {
                             if(id == null) {
                                 Log.d("Error", "Id is null when trying to delete log entry")
                                 throw NullPointerException()
                             }
-                            delLog(id!!).also { sent = it }
+                            delLog(id).also { sent = it }
                         }
                         else -> throw java.lang.Exception("Unknown http method!")
                     }
@@ -169,6 +199,8 @@ class Util () {
         Log.d("HTTP-Del", res.toString())
         return res
     }
+
+    // ----------------------------- DIV -------------------------------
 
     fun getMyDate(str: String): String {
         return str.split("T")[0]

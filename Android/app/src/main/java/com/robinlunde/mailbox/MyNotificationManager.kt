@@ -1,5 +1,6 @@
 package com.robinlunde.mailbox
 
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -13,43 +14,72 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 
-class MyNotificationManager {
-    // Register the channel with the system
+class MyNotificationManager (private val ctx: Context){
     private val myNotificationManager: NotificationManager =
-        MailboxApp.getInstance().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-    private val fullScreenIntent = Intent(MailboxApp.getInstance(), MainActivity::class.java)
-    private val fullScreenPendingIntent: PendingIntent = PendingIntent.getActivity(MailboxApp.getInstance(), 0,
-        fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private val channelId: String = createNotificationChannel()!!
+
     private var count: Int = 0
 
+    // Register the channel with the system
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun createNotificationChannel(): String? {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channelId: String = ctx.getString(R.string.channel_id)
+            val name = ctx.getString(R.string.channel_name)
+            val descriptionText = ctx.getString(R.string.channel_description)
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val channel =
+                NotificationChannel(channelId, name, importance).apply {
+                    description = descriptionText
+                }
+            channel.enableVibration(true)
+            channel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            myNotificationManager.createNotificationChannel(channel)
+            channelId
+        } else {
+            null
+        }
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun createPush(
         timeStamp: String,
-        //@DrawableRes smallIcon: Int = R.drawable.ic_stat_mailbox,
         @DrawableRes smallIcon: Int = R.mipmap.ic_launcher,
+        //@DrawableRes largeIcon: Int = R.mipmap.post_box,
     ) : Int {
         // TODO replace with logo - icon_mailbox
-        val largeIcon = (ResourcesCompat.getDrawable(MailboxApp.getInstance().resources, R.mipmap.ic_launcher, null) as AdaptiveIconDrawable).toBitmap()
-        val builder = NotificationCompat.Builder(MailboxApp.getInstance(), MailboxApp.getInstance().getString(R.string.channel_id))
-            // Set small icon
-            .setSmallIcon(smallIcon)
-            // Set big icon
-            .setLargeIcon(largeIcon)
-            .setContentTitle("The mailman has been here!")
-            .setContentText("The mailman delivered the mail at: $timeStamp")
-            .setPriority(NotificationCompat.PRIORITY_MAX)
-                // Removes notification when pressed
-            .setAutoCancel(true)
-            .setFullScreenIntent(fullScreenPendingIntent, true)
+        //val largeIcon = BitmapFactory.decodeResource(MailboxApp.getInstance().resources, R.mipmap.post_box)
+        val largeIcon = ResourcesCompat.getDrawable(MailboxApp.getInstance().resources, R.mipmap.ic_launcher, null) as AdaptiveIconDrawable
 
-            // notificationId is a unique int for each notification that you must define
+        // Working setup
+        val intent = Intent(ctx, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val notifyPendingIntent = PendingIntent.getActivity(ctx, 0, intent ,PendingIntent.FLAG_UPDATE_CURRENT)
+
+        val builder = NotificationCompat.Builder(ctx, channelId).apply {
+            // Set small icon
+            this.setSmallIcon(smallIcon)
+            // Set big icon
+            .setLargeIcon(largeIcon.toBitmap())
+            this.setContentTitle("The mailman has been here!")
+            this.setContentText("The mailman delivered the mail at: $timeStamp")
+            priority = NotificationCompat.PRIORITY_MAX
+            // Removes notification when pressed
+            this.setAutoCancel(true)
+            //allow visibility on lockscreen
+            this.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            //Set following intent
+            this.setContentIntent(notifyPendingIntent)
+        }
+
+        // notificationId is a unique int for each notification that you must define
             myNotificationManager.notify(count, builder.build())
             return count++
         }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun createNotificationChannel(channel: NotificationChannel){
-        myNotificationManager.createNotificationChannel(channel)
-    }
 }

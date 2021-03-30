@@ -1,8 +1,6 @@
 package com.robinlunde.mailbox
 
 import android.app.Application
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
@@ -11,29 +9,16 @@ import androidx.annotation.RequiresApi
 
 class MailboxApp : Application() {
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate() {
         super.onCreate()
         mailboxApp = this
-        util = Util()
+
+
+        util = Util(this)
         prefs = this.getSharedPreferences(getString(R.string.username_pref), Context.MODE_PRIVATE)
         username = prefs.getString(getString(R.string.username_pref), "").toString()
         util.startDataRenewer()
-        myNotificationManager = MyNotificationManager()
-        createNotificationChannel()
-    }
-
-    private fun createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = getString(R.string.channel_name)
-            val descriptionText = getString(R.string.channel_description)
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel(getString(R.string.channel_id), name, importance).apply {
-                description = descriptionText
-            }
-            myNotificationManager.createNotificationChannel(channel)
-        }
     }
 
     companion object {
@@ -43,9 +28,6 @@ class MailboxApp : Application() {
         private lateinit var username: String
         private lateinit var prefs: SharedPreferences
         private lateinit var model: PostViewModel
-        private lateinit var myNotificationManager: MyNotificationManager
-        private var pushNotificationIds: MutableList<Int> = mutableListOf<Int>()
-
 
         fun getUsername(): String {
             return username
@@ -67,6 +49,7 @@ class MailboxApp : Application() {
             return mailboxApp
         }
 
+        @RequiresApi(Build.VERSION_CODES.O)
         fun getPostEntries(): MutableList<PostLogEntry> {
             //update mutable data ONLY!
             postLogEntryList = util.getLogs()
@@ -91,16 +74,6 @@ class MailboxApp : Application() {
 
         fun setModel(myModel: PostViewModel) {
             model = myModel
-        }
-
-        fun getPushIds(): MutableList<Int>{
-            return pushNotificationIds
-        }
-
-        @RequiresApi(Build.VERSION_CODES.O)
-        fun pushNotification(timestamp: String){
-            val pushId = myNotificationManager.createPush(timestamp)
-            pushNotificationIds.add(pushId)
         }
     }
 }

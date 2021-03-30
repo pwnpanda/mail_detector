@@ -18,14 +18,15 @@
         android:roundIcon="@drawable/my_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.Mailbox">
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".MainActivity"
+            android:taskAffinity=""
+            android:excludeFromRecents="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
