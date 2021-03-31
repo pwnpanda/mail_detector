@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import com.robinlunde.mailbox.databinding.ActivityMainBinding
+import kotlinx.coroutines.cancel
 
 
 // TODO
@@ -59,5 +60,12 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         Log.d("Intent!", "Intent received")
         super.onNewIntent(intent)
+    }
+
+    // Cleanup when activity is dead
+    // TODO is this correct?
+    override fun onDestroy() {
+        super.onDestroy()
+        MailboxApp.getAppScope().cancel()
     }
 }

@@ -6,6 +6,9 @@ import android.content.SharedPreferences
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 
 class MailboxApp : Application() {
 
@@ -13,12 +16,16 @@ class MailboxApp : Application() {
     override fun onCreate() {
         super.onCreate()
         mailboxApp = this
-
-
-        util = Util(this)
-        prefs = this.getSharedPreferences(getString(R.string.username_pref), Context.MODE_PRIVATE)
+        util = Util(this@MailboxApp)
+        prefs = this@MailboxApp.getSharedPreferences(getString(R.string.username_pref), Context.MODE_PRIVATE)
         username = prefs.getString(getString(R.string.username_pref), "").toString()
-        util.startDataRenewer()
+
+        // Create scope and start handler in coroutine
+        appScope = MainScope()
+        appScope.launch {
+            util.startDataRenewer()
+        }
+
     }
 
     companion object {
@@ -28,6 +35,7 @@ class MailboxApp : Application() {
         private lateinit var username: String
         private lateinit var prefs: SharedPreferences
         private lateinit var model: PostViewModel
+        private lateinit var appScope: CoroutineScope
 
         fun getUsername(): String {
             return username
@@ -74,6 +82,10 @@ class MailboxApp : Application() {
 
         fun setModel(myModel: PostViewModel) {
             model = myModel
+        }
+
+        fun getAppScope(): CoroutineScope {
+            return appScope
         }
     }
 }
