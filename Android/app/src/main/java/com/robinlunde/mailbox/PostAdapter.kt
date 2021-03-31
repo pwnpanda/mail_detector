@@ -1,7 +1,6 @@
 package com.robinlunde.mailbox
 
 
-import android.graphics.Color
 import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
@@ -10,11 +9,6 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.blue
-import androidx.core.graphics.green
-import androidx.core.graphics.red
-import androidx.core.graphics.toColor
 import androidx.recyclerview.widget.RecyclerView
 
 class PostAdapter(private val postLogEntries: MutableList<PostLogEntry>) :
@@ -28,19 +22,9 @@ class PostAdapter(private val postLogEntries: MutableList<PostLogEntry>) :
         if (itemCount > 0) {
             val postLogEntry = postLogEntries[position]
 
-            // If post belongs to this user, change backgroundcolor to slight red
+            // If post belongs to this user, change background color of row
             if (MailboxApp.getUsername().equals(postLogEntry.username, ignoreCase = true)) {
-                val color =
-                    ContextCompat.getColor(MailboxApp.getInstance(), R.color.light_red).toColor()
-                        .toArgb()
-                holder.constraintLayout.setBackgroundColor(
-                    Color.argb(
-                        25,
-                        color.red,
-                        color.blue,
-                        color.green
-                    )
-                )
+                holder.constraintLayout.setBackgroundColor(MailboxApp.getInstance().getColor(R.color.highlight))
             }
             // Set content for each UI element to the respective part of the postLogEntry
             holder.constraintLayout.findViewById<TextView>(R.id.post_user).text =

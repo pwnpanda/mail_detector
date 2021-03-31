@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.os.Build
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
@@ -46,7 +47,6 @@ class MyNotificationManager (private val ctx: Context){
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun createPush(
         timeStamp: String,
         @DrawableRes smallIcon: Int = R.mipmap.ic_launcher,
@@ -54,32 +54,48 @@ class MyNotificationManager (private val ctx: Context){
     ) : Int {
         // TODO replace with logo - icon_mailbox
         //val largeIcon = BitmapFactory.decodeResource(MailboxApp.getInstance().resources, R.mipmap.post_box)
-        val largeIcon = ResourcesCompat.getDrawable(MailboxApp.getInstance().resources, R.mipmap.ic_launcher, null) as AdaptiveIconDrawable
+
+        val largeIcon = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ResourcesCompat.getDrawable(
+                    MailboxApp.getInstance().resources,
+                    R.mipmap.ic_launcher,
+                    null
+                ) as AdaptiveIconDrawable
+        } else {
+            Log.d("Notification", "Android version too old, ignoring push notifications!")
+            null
+        }
 
         // Working setup
         val intent = Intent(ctx, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            flags =
+                Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
-        val notifyPendingIntent = PendingIntent.getActivity(ctx, 0, intent ,PendingIntent.FLAG_UPDATE_CURRENT)
+        val notifyPendingIntent =
+            PendingIntent.getActivity(ctx, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
-        val builder = NotificationCompat.Builder(ctx, channelId).apply {
-            // Set small icon
-            this.setSmallIcon(smallIcon)
-            // Set big icon
-            .setLargeIcon(largeIcon.toBitmap())
-            this.setContentTitle("The mailman has been here!")
-            this.setContentText("The mailman delivered the mail at: $timeStamp")
-            priority = NotificationCompat.PRIORITY_MAX
-            // Removes notification when pressed
-            this.setAutoCancel(true)
-            //allow visibility on lockscreen
-            this.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            //Set following intent
-            this.setContentIntent(notifyPendingIntent)
-        }
-
-        // notificationId is a unique int for each notification that you must define
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val builder = NotificationCompat.Builder(ctx, channelId).apply {
+                // Set small icon
+                this.setSmallIcon(smallIcon)
+                // Set big icon
+                .setLargeIcon(largeIcon?.toBitmap())
+                this.setContentTitle("The mailman has been here!")
+                this.setContentText("The mailman delivered the mail at: $timeStamp")
+                priority = NotificationCompat.PRIORITY_MAX
+                // Removes notification when pressed
+                this.setAutoCancel(true)
+                //allow visibility on lock screen
+                this.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                //Set following intent
+                this.setContentIntent(notifyPendingIntent)
+            }
+            // notificationId is a unique int for each notification that you must define
             myNotificationManager.notify(count, builder.build())
             return count++
+        } else {
+            Log.d("Notification", "Android version too old, ignoring push notifications!")
+            return -1
         }
+    }
 }

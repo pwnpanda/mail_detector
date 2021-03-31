@@ -14,7 +14,6 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.*
 import kotlin.math.pow
 
-@RequiresApi(Build.VERSION_CODES.O)
 class Util(context: Context) {
     class LogItemViewHolder(val constraintLayout: ConstraintLayout) :
         RecyclerView.ViewHolder(constraintLayout)
@@ -29,10 +28,15 @@ class Util(context: Context) {
         return pushNotificationIds
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun pushNotification(timestamp: String) {
-        val pushId = myNotificationManager.createPush(timestamp)
-        pushNotificationIds.add(pushId)
+        val pushId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            myNotificationManager.createPush(timestamp)
+        } else {
+            Log.d("Push", "Android version too old, ignoring push notification!")
+        }
+        if (pushId != -1) {
+            pushNotificationIds.add(pushId)
+        }
         // TODO
         // Change to right fragment and add data!
     }
@@ -45,7 +49,7 @@ class Util(context: Context) {
         val myHandler = Handler(Looper.getMainLooper())
         var first = true
         MailboxApp.getAppScope().launch {
-            myHandler.postDelayed (object : Runnable {
+            myHandler.postDelayed(object : Runnable {
                 @RequiresApi(Build.VERSION_CODES.O)
                 override fun run() {
                     val data = getLogs()
@@ -58,100 +62,82 @@ class Util(context: Context) {
                     //1 second * 60 * 30 = 30 min
                     first = false
                     // TODO Change this to 1000 * 60 * 30 for 30min between updates in prod!
-                    myHandler.postDelayed(this, 1000 * 10 * 1)
+                    // Use 1000 * 10 for testing (10sec)
+                    myHandler.postDelayed(this, 1000 * 60 * 30)
                 }
                 //1 second delay before first start
             }, 1000)
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun tryRequest(type: String, timestamp: String?, id: Int?): Boolean {
         // Do async thread with network request
         Log.d("TryToRequest", "Type: $type Timestamp: $timestamp Id: $id")
-        var sent: Boolean
-        runBlocking {
-            var tries = 0
-            do {
-                // 5 seconds
-                val base = 5000.0
-                // Exponentially increase wait time between tries
-                val time: Double = base.pow(n = tries)
-                Log.d("Coroutine", "Trying transmission $tries / 6")
-                val deferred = doAsyncCoroutine(type, time, timestamp, id)
-                tries++
-                sent = deferred
+        var sent = false
+        var tries = 0
+        do {
+            // 5 seconds
+            val base = 5000.0
+            // Exponentially increase wait time between tries
+            val time: Double = base.pow(n = tries)
 
-                // Check for giving up
-                if (tries >= 7 || sent) {
-                    if (tries >= 7) {
-                        Log.d("Thread", "Tried 6 transmissions but failed - Giving up! ")
-                        val toast = Toast.makeText(
-                            MailboxApp.getInstance().applicationContext,
-                            "Failed to save timestamp! Giving up!",
-                            Toast.LENGTH_LONG
-                        )
-                        toast.show()
-                    } else {
-                        Log.d("Thread", "Transmission success for type: $type!")
-                        val toast = Toast.makeText(
-                            MailboxApp.getInstance().applicationContext,
-                            "$type request has completed successfully!",
-                            Toast.LENGTH_LONG
-                        )
-                        toast.show()
+            val thread = Thread {
+                // Try to send web request
+                try {
+                    Log.d("Thread", "Sleeping")
+                    Thread.sleep(time.toLong())
+                    when (type) {
+                        MailboxApp.getInstance().getString(R.string.sendLogsMethod) -> {
+                            if (timestamp == null) {
+                                Log.d(
+                                    "Error",
+                                    "Timestamp is null when trying to add new post log entry"
+                                )
+                                throw NullPointerException()
+                            }
+                            sendLog(timestamp).also { sent = it }
+                        }
+                        MailboxApp.getInstance().getString(R.string.deleteLogsMethod) -> {
+                            if (id == null) {
+                                Log.d("Error", "Id is null when trying to delete log entry")
+                                throw NullPointerException()
+                            }
+                            delLog(id).also { sent = it }
+                        }
+                        else -> throw java.lang.Exception("Unknown http method!")
                     }
-
-                    break
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
-            } while (!sent)
-        }
+            }
+            Log.d("Thread", "Trying transmission $tries / 6")
+            thread.start()
+            thread.join()
+            tries++
+            // Check for giving up
+            if (tries >= 7 || sent) {
+                if (tries >= 7) {
+                    Log.d("Thread", "Tried 6 transmissions but failed - Giving up! ")
+                    Toast.makeText(
+                        MailboxApp.getInstance().applicationContext,
+                        "Failed to save timestamp! Giving up!",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } else {
+                    Log.d("Thread", "Transmission success for type: $type!")
+                }
+                break
+            }
+        } while (!sent)
 
         if (sent) {
             MailboxApp.setPostEntries(getLogs())
         }
-
         return sent
     }
 
-    private suspend fun doAsyncCoroutine(
-        type: String,
-        time: Double,
-        timestamp: String?,
-        id: Int?
-    ): Boolean {
-        return MailboxApp.getAppScope().async {
-            try {
-                Log.d("Coroutine", "Sleeping")
-                delay(time.toLong())
-                when (type) {
-                    MailboxApp.getInstance().getString(R.string.sendLogsMethod) -> {
-                        if (timestamp == null) {
-                            Log.d(
-                                "Error",
-                                "Timestamp is null when trying to add new post log entry"
-                            )
-                            throw NullPointerException()
-                        }
-                        return@async sendLog(timestamp)
-                    }
-                    MailboxApp.getInstance().getString(R.string.deleteLogsMethod) -> {
-                        if (id == null) {
-                            Log.d("Error", "Id is null when trying to delete log entry")
-                            throw NullPointerException()
-                        }
-                        return@async delLog(id)
-                    }
-                    else -> throw java.lang.Exception("Unknown http method!")
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }.await() as Boolean
-    }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun sendLog(timestamp: String): Boolean {
+    private fun sendLog(timestamp: String): Boolean {
         val res = runBlocking {
             // Create thread
             var tmpRes = false
@@ -213,6 +199,11 @@ class Util(context: Context) {
         return res
     }
 
+    // ----------------------------- BT -------------------------------
+    fun btEnabled() {
+        Log.d("BlueTooth", "Proxied from Util")
+        MailboxApp.getBTConn().btEnabledConfirmed()
+    }
     // ----------------------------- DIV -------------------------------
 
     fun getMyDate(str: String): String {
