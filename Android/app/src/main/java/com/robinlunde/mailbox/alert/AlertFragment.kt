@@ -1,6 +1,5 @@
 package com.robinlunde.mailbox.alert
 
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -9,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.NavHostFragment
@@ -29,7 +27,6 @@ class AlertFragment : Fragment() {
         util = MailboxApp.getUtil()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -59,8 +56,6 @@ class AlertFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        //WOrking
-        //util = MailboxApp.getUtil()
         return when (item.itemId) {
             R.id.logo -> {
                 // Do nothing, we are in correct view
@@ -80,8 +75,7 @@ class AlertFragment : Fragment() {
         }
     }
 
-    // Remove data and set basecase
-    @RequiresApi(Build.VERSION_CODES.O)
+    // Remove data and set base case
     private fun setNoResults(
         container: ViewGroup?,
         binding: FragmentAlertBinding,

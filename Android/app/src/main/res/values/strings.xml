@@ -22,4 +22,5 @@
     <string name="channel_name">Mail_Alert_Channel</string>
     <string name="channel_description">Channel for alerting users of new mail</string>
     <string name="channel_id">MailboxChannel</string>
+    <string name="bt_id_integer">1337</string>
 </resources>

@@ -1,19 +1,16 @@
 package com.robinlunde.mailbox
 
 import android.content.Context
-import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
-import android.widget.Toast
-import androidx.annotation.RequiresApi
 import com.fasterxml.jackson.databind.ObjectMapper
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.net.URL
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
+import java.util.*
 
 
 class HttpRequestLib {
@@ -39,10 +36,16 @@ class HttpRequestLib {
     }
 
     // Send latest data to Server
-    @RequiresApi(Build.VERSION_CODES.O)
     fun sendDataWeb(timestamp: String): Boolean {
 
-        val pickupTime = LocalDateTime.now()
+        val pickupTime = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            LocalDateTime.now()
+        } else {
+            val sdf = SimpleDateFormat("yyyy-MM-ddTHHmmssZ", Locale.getDefault())
+            val currentDateandTime: String = sdf.format(Date())
+            Log.d("Outdated Time", currentDateandTime)
+            currentDateandTime
+        }
         //Using jackson to get string to JSON
         val mapperAll = ObjectMapper()
         val jacksonObj = mapperAll.createObjectNode()
@@ -63,15 +66,7 @@ class HttpRequestLib {
         //Response
         Log.d("HTTP-Post", "Response Body: $responseBody")
         if (response.code == 200) {
-            Handler(Looper.getMainLooper()).also {
-                it.post(
-                    Toast.makeText(
-                        MailboxApp.getInstance(),
-                        "Timestamp saved!",
-                        Toast.LENGTH_LONG
-                    )::show
-                )
-            }
+            Log.d("HTTP-Post", "Timestamp for pickup logged successfully")
 
         }
         return response.code == 200

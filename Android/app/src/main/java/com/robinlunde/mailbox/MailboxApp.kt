@@ -1,18 +1,20 @@
 package com.robinlunde.mailbox
 
+import android.Manifest
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
 class MailboxApp : Application() {
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate() {
         super.onCreate()
         mailboxApp = this
@@ -22,8 +24,22 @@ class MailboxApp : Application() {
 
         // Create scope and start handler in coroutine
         appScope = MainScope()
+        btConnection = BlueToothLib()
         appScope.launch {
+            // Setup refresher on API to update data every 30min
             util.startDataRenewer()
+
+            // Setup bluetooth
+            val PERMISSION_CODE = getString(R.string.bt_id_integer).toInt()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                if (ContextCompat.checkSelfPermission(baseContext,
+                        Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(MainActivity.myActivity,
+                        arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                        PERMISSION_CODE)
+                }
+            }
         }
 
     }
@@ -36,6 +52,7 @@ class MailboxApp : Application() {
         private lateinit var prefs: SharedPreferences
         private lateinit var model: PostViewModel
         private lateinit var appScope: CoroutineScope
+        private lateinit var btConnection: BlueToothLib
 
         fun getUsername(): String {
             return username
@@ -57,7 +74,6 @@ class MailboxApp : Application() {
             return mailboxApp
         }
 
-        @RequiresApi(Build.VERSION_CODES.O)
         fun getPostEntries(): MutableList<PostLogEntry> {
             //update mutable data ONLY!
             postLogEntryList = util.getLogs()
@@ -86,6 +102,9 @@ class MailboxApp : Application() {
 
         fun getAppScope(): CoroutineScope {
             return appScope
+        }
+        fun getBTConn(): BlueToothLib {
+            return btConnection
         }
     }
 }
