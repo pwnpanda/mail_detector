@@ -18,7 +18,7 @@ class MailboxApp : Application() {
     override fun onCreate() {
         super.onCreate()
         mailboxApp = this
-        util = Util(this@MailboxApp)
+        util = Util()
         prefs = this@MailboxApp.getSharedPreferences(getString(R.string.username_pref), Context.MODE_PRIVATE)
         username = prefs.getString(getString(R.string.username_pref), "").toString()
 
@@ -53,11 +53,13 @@ class MailboxApp : Application() {
         private lateinit var model: PostViewModel
         private lateinit var appScope: CoroutineScope
         private lateinit var btConnection: BlueToothLib
+        private lateinit var status: Util.UpdateStatus
 
+        // Get username
         fun getUsername(): String {
             return username
         }
-
+        // Set username
         fun setUsername(newUsername: String) {
             username = newUsername
             // Store username for later, in sharedPrefs
@@ -69,18 +71,20 @@ class MailboxApp : Application() {
                 apply()
             }
         }
-
+        // Get application instance
         fun getInstance(): MailboxApp {
             return mailboxApp
         }
 
+        // Get mutable data only, for instantiating LiveData
         fun getPostEntries(): MutableList<PostLogEntry> {
+            // TODO no longer works. Have to test if it works
             //update mutable data ONLY!
-            postLogEntryList = util.getLogs()
+            //postLogEntryList = util.getDataWeb(null)
             return postLogEntryList
         }
 
-        // Update data in view
+        // Update data in view, by updating postEntries object
         fun setPostEntries(updatedPostLogEntryList: MutableList<PostLogEntry>) {
             postLogEntryList = updatedPostLogEntryList
             try {
@@ -91,20 +95,25 @@ class MailboxApp : Application() {
                 throw e
             }
         }
-
+        // Get utility instance
         fun getUtil(): Util {
             return util
         }
-
+        // Set PostViewModel
         fun setModel(myModel: PostViewModel) {
             model = myModel
         }
-
+        // Get application scope
         fun getAppScope(): CoroutineScope {
             return appScope
         }
+        // Get Connector for Bluetooth operations
         fun getBTConn(): BlueToothLib {
             return btConnection
+        }
+
+        fun setStatus(newStatus: Util.UpdateStatus) {
+            status = newStatus
         }
     }
 }

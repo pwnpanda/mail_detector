@@ -15,6 +15,14 @@ sealed class ScanStatus {
     data class Failed(val message: CharSequence) : ScanStatus()
 }
 
+/**
+ * https://github.com/JuulLabs/sensortag/blob/14dc04c1aa7eafdbcb6c2bbbc4ec063f9276c42e/app/src/androidMain/kotlin/features/scan/ScanViewModel.kt
+ * https://github.com/JuulLabs/sensortag
+ * https://github.com/JuulLabs/kable
+ * https://github.com/android/connectivity-samples/tree/main/BluetoothLeChat
+ * https://github.com/android/connectivity-samples/tree/main/BluetoothLeGatt
+ * https://developer.android.com/guide/topics/connectivity/use-ble
+ */
 class BlueToothLib {
 
     private val scanner = Scanner()
