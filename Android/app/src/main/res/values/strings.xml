@@ -12,6 +12,7 @@
     <string name="username_button">Continue</string>
     <string name="username_pref">username</string>
     <string name="normal_url">https://robinlunde.com/api/posts</string>
+    <string name="update_url">https://robinlunde.com/api/posts/new</string>
     <string name="sendLogsMethod">sendLog</string>
     <string name="deleteLogsMethod">deleteLog</string>
     <string name="user_header">User</string>
@@ -23,4 +24,6 @@
     <string name="channel_description">Channel for alerting users of new mail</string>
     <string name="channel_id">MailboxChannel</string>
     <string name="bt_id_integer">1337</string>
+    <string name="get_last_check_method">getLastUpdate</string>
+    <string name="set_last_check_method">setLastUpdate</string>
 </resources>
