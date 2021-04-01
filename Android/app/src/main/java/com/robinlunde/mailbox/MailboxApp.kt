@@ -108,9 +108,19 @@ class MailboxApp : Application() {
         fun getBTConn(): BlueToothLib {
             return btConnection
         }
-
+        // Get latest status of post
+        fun getStatus(): Util.UpdateStatus{
+            return status
+        }
+        // Set latest status of post
         fun setStatus(newStatus: Util.UpdateStatus) {
             status = newStatus
+            if (status.newMail){
+                // Push Notification
+                util.pushNotification(status.timestamp)
+                // Update fragment_alert
+
+            }
         }
     }
 }
