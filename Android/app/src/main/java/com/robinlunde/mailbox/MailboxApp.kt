@@ -78,9 +78,6 @@ class MailboxApp : Application() {
 
         // Get mutable data only, for instantiating LiveData
         fun getPostEntries(): MutableList<PostLogEntry> {
-            // TODO no longer works. Have to test if it works
-            //update mutable data ONLY!
-            //postLogEntryList = util.getDataWeb(null)
             return postLogEntryList
         }
 

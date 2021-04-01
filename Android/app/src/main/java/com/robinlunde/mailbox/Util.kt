@@ -1,6 +1,5 @@
 package com.robinlunde.mailbox
 
-import android.content.Context
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -19,7 +18,6 @@ import kotlin.math.pow
 
 class Util {
     private lateinit var myNotificationManager: MyNotificationManager
-    private lateinit var context: Context
 
     class LogItemViewHolder(val constraintLayout: ConstraintLayout) :
         RecyclerView.ViewHolder(constraintLayout)
@@ -56,7 +54,7 @@ class Util {
     fun startDataRenewer() {
         //Log.e("Debug", "Util initiated")
         // on init
-        context = MailboxApp.getInstance()
+        val context = MailboxApp.getInstance()
         myNotificationManager = MyNotificationManager(context)
         val myHandler = Handler(Looper.getMainLooper())
         var first = true
@@ -90,6 +88,7 @@ class Util {
     }
 
     fun tryRequest(type: String, timestamp: String?, id: Int?): Boolean {
+        val context = MailboxApp.getInstance()
         // Do async thread with network request
         Log.d("TryToRequest", "Type: $type Timestamp: $timestamp Id: $id")
         var sent = false
