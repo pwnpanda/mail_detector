@@ -90,5 +90,16 @@
             app:layout_constraintVertical_bias="0.65"
             app:srcCompat="@mipmap/post_box_foreground" />
 
+        <TextView
+            android:id="@+id/status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/last_update_not_found"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/post_box"
+            app:layout_constraintVertical_bias="0.89" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

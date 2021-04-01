@@ -26,4 +26,5 @@
     <string name="bt_id_integer">1337</string>
     <string name="get_last_check_method">getLastUpdate</string>
     <string name="set_last_check_method">setLastUpdate</string>
+    <string name="last_update_not_found">No data found for last update from mailbox!</string>
 </resources>

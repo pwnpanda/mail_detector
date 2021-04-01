@@ -5,8 +5,6 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -18,7 +16,6 @@ import com.robinlunde.mailbox.databinding.FragmentAlertBinding
 
 class AlertFragment : Fragment() {
     private lateinit var util: Util
-    // private lateinit val timeStamp: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,7 +44,7 @@ class AlertFragment : Fragment() {
             Toast.makeText(context, "Trying to register post pickup!", Toast.LENGTH_SHORT).show()
             // val res = util.sendBTPostPickupAck()
             // if (res) {
-            setNoResults(container, binding, timeStamp)
+            setNoResults(binding, timeStamp)
             // } else {
             //  Toast.makeText(context, "Could not acknowledge post pickup over BT!", Toast.LENGTH_SHORT).show()
             // }
@@ -75,19 +72,28 @@ class AlertFragment : Fragment() {
         }
     }
 
+    // Update only last seen status
+    private fun updateStatus(){
+
+    }
+
     // Remove data and set base case
     private fun setNoResults(
-        container: ViewGroup?,
         binding: FragmentAlertBinding,
         timeStamp: String
     ): Boolean {
+        // Get status
+        val status = MailboxApp.getStatus()
         // Clear fragment data
         binding.clearNotifyBtn.visibility = View.INVISIBLE
-        container!!.rootView.findViewById<ImageView>(R.id.post_box).visibility = View.VISIBLE
-        container.rootView.findViewById<TextView>(R.id.timestamp_text).text =
-            getString(R.string.no_new_post_message)
-        container.rootView.findViewById<TextView>(R.id.timestamp_time).text =
-            getString(R.string.nice_day_message)
+        binding.postBox.visibility = View.VISIBLE
+        binding.status.visibility = View.VISIBLE
+        // Todo use template string with placeholders, but how?
+        if (status.username == MailboxApp.getUsername()) binding.status.text =
+            "Last update seen was: ${util.getMyDate(timeStamp)} at ${util.getMyTime(timeStamp)} by ${MailboxApp.getUsername()} <b>(You)</b> !"
+        else binding.status.text = "Last update seen was: ${util.getMyDate(timeStamp)} at ${util.getMyTime(timeStamp)} by ${status.username} !"
+        binding.timestampText.text = getString(R.string.no_new_post_message)
+        binding.timestampTime.text = getString(R.string.nice_day_message)
         // Try to log to web
         val request: Boolean =
             util.tryRequest(getString(R.string.sendLogsMethod), timeStamp, null)
@@ -100,19 +106,21 @@ class AlertFragment : Fragment() {
         return request
     }
 
-    // Update data and set relevant information
-    private fun setNotificationValue(
+    // Got new mail! Update data and set relevant information
+    fun setNotificationValue(
         timeStamp: String,
-        binding: FragmentAlertBinding,
-        container: ViewGroup?
+        binding: FragmentAlertBinding
     ) {
+        val status = MailboxApp.getStatus()
         binding.clearNotifyBtn.visibility = View.VISIBLE
-        container!!.rootView.findViewById<ImageView>(R.id.post_box).visibility = View.INVISIBLE
-        container.rootView.findViewById<TextView>(R.id.timestamp_text).text =
-            getString(R.string.timestamp_text)
-        container.rootView.findViewById<TextView>(R.id.timestamp_time).text =
-            util.getMyTime(timeStamp)
-        container.rootView.findViewById<TextView>(R.id.timestamp_day).text =
-            util.getMyDate(timeStamp)
+        // TODO use string templates
+        if (status.username == MailboxApp.getUsername()) binding.status.text =
+            "Last update seen by you!" else binding.status.text =
+            "Last update seen by ${status.username}"
+
+        binding.postBox.visibility = View.INVISIBLE
+        binding.timestampText.text = getString(R.string.timestamp_text)
+        binding.timestampTime.text = util.getMyTime(timeStamp)
+        binding.timestampDay.text = util.getMyDate(timeStamp)
     }
 }
