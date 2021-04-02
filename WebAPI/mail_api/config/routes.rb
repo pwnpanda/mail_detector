@@ -2,6 +2,11 @@ Rails.application.routes.draw do
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
   namespace :api do
     resources :posts
+    namespace :post do
+      get 'status', to: 'post#get_status'
+      post 'status', to: 'post#set_status'
+    end
+    
     # All other gets 404'd
     get '*unmatched_route', to: 'errors#show'
     post '*unmatched_route', to: 'errors#show'
