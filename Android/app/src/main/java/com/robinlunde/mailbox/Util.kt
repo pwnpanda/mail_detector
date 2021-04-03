@@ -9,6 +9,9 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.robinlunde.mailbox.datamodel.PostLogEntry
+import com.robinlunde.mailbox.datamodel.PostUpdateStatus
+import com.robinlunde.mailbox.network.HttpRequestLib
 import kotlinx.coroutines.*
 import java.net.URL
 import java.text.SimpleDateFormat
@@ -23,30 +26,19 @@ class Util {
         RecyclerView.ViewHolder(constraintLayout)
 
     private val httpRequests = HttpRequestLib()
-    private var pushNotificationIds: MutableList<Int> = mutableListOf()
     private val updateURL: URL = URL(
         MailboxApp.getInstance().getString(R.string.update_url)
     )
 
-    data class UpdateStatus(val newMail: Boolean, val timestamp: String, val username: String?)
-
     // ----------------------------- Notification -------------------------------
 
-    fun getPushIds(): MutableList<Int> {
-        return pushNotificationIds
-    }
 
-    fun pushNotification(timestamp: String) {
-        val pushId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            myNotificationManager.createPush(timestamp)
+    fun pushNotification(message: MailboxApp.Companion.MyMessage) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            myNotificationManager.createPush(message)
         } else {
             Log.d("Push", "Android version too old, ignoring push notification!")
         }
-        if (pushId != -1) {
-            pushNotificationIds.add(pushId)
-        }
-        // TODO
-        // Change to right fragment and add data!
     }
 
     // ----------------------------- HTTP -------------------------------
@@ -57,11 +49,12 @@ class Util {
         val context = MailboxApp.getInstance()
         myNotificationManager = MyNotificationManager(context)
         val myHandler = Handler(Looper.getMainLooper())
+        // TODO remove
         var first = true
         MailboxApp.getAppScope().launch {
             myHandler.postDelayed(object : Runnable {
                 override fun run() {
-                    // Todo move error handling to if
+                    // Check if error when getting new data
                     if (!getDataWeb(null)) {
                         Log.d("HTTP-Get", "Error when getting logs from server")
                     }
@@ -71,12 +64,9 @@ class Util {
                     if (!lastCheck) {
                         Log.d("HTTP-Get", "Error when checking for new status with server")
                     }
-                    // TODO Review this! This is not where it belongs :)
-                    if (!first) {
-                        Log.d("Push", "Push started!")
-                        pushNotification("12.12.12")
-                    }
+
                     //1 second * 60 * 30 = 30 min
+                    // TODO remove
                     first = false
                     // 1000 * 60 * 10 = 10min between updates in prod!
                     // Use 1000 * 10 for testing (10sec)
@@ -87,7 +77,7 @@ class Util {
         }
     }
 
-    fun tryRequest(type: String, timestamp: String?, id: Int?): Boolean {
+    fun tryRequest(type: String, timestamp: String?, id: Int?, newMail: Boolean?): Boolean {
         val context = MailboxApp.getInstance()
         // Do async thread with network request
         Log.d("TryToRequest", "Type: $type Timestamp: $timestamp Id: $id")
@@ -126,21 +116,31 @@ class Util {
                             delLog(id).also { sent = it }
                         }
 
-                        // Look for new post submitted by others
-                        context.getString(R.string.get_last_check_method) -> {
+                        // Look for new post submitted by others (status)
+                        context.getString(R.string.get_last_status_update_method) -> {
                             getDataWeb(updateURL).also { sent = it }
                         }
 
-                        // New post found by BT device - share with online api
-                        context.getString(R.string.set_last_check_method) -> {
+                        // New communication with BT device / new mail pickup - share with online api
+                        context.getString(R.string.set_last_status_update_method) -> {
+                            if (newMail == null) {
+                                Log.d("Error", "newMail is null when trying to set new status update")
+                                throw NullPointerException()
+                            }
                             setLastUpdate(
-                                UpdateStatus(
-                                    true,
+                                PostUpdateStatus(
+                                    newMail,
                                     timestamp = getTime(),
                                     MailboxApp.getUsername()
                                 )
                             ).also { sent = it }
                         }
+
+                        // Get update from server (logs
+                       context.getString(R.string.get_logs) -> {
+                            getDataWeb(null).also { sent = it }
+                        }
+
                         else -> throw java.lang.Exception("Unknown http method!")
                     }
                 } catch (e: Exception) {
@@ -172,7 +172,7 @@ class Util {
     }
 
     // Set last time we got info from BT Device
-    private fun setLastUpdate(data: UpdateStatus): Boolean {
+    private fun setLastUpdate(data: PostUpdateStatus): Boolean {
         val res = runBlocking {
             // Create thread
             var tmpRes = false
@@ -240,10 +240,14 @@ class Util {
         // Getting Update-data since we specified an URL
         if (myUrl != null && gotValidResult) {
             // Convert data to ArrayList using jackson
-            val dataParsed: UpdateStatus = mapper.readValue(res)
-            Log.d("ParsedData", dataParsed.toString())
-            // Call to store value
-            updateStatus(dataParsed)
+            if ( res.contains("\"timestamp\":\"\"") ){
+                Log.d("StatusUpdate-data", "Data not yet initialized in server!")
+            } else {
+                val dataParsed: PostUpdateStatus = mapper.readValue(res)
+                Log.d("ParsedData", dataParsed.toString())
+                // Call to store value
+                updateStatus(dataParsed)
+            }
         } else if (gotValidResult) {
             // Getting Log-data since we didn't specify an URL
             // Convert data to ArrayList using jackson
@@ -277,7 +281,7 @@ class Util {
     }
 
     // Helper function to update status from result of HTTP call
-    private fun updateStatus(data: UpdateStatus) {
+    private fun updateStatus(data: PostUpdateStatus) {
         MailboxApp.setStatus(data)
     }
 
@@ -294,10 +298,18 @@ class Util {
     // ----------------------------- DIV -------------------------------
 
     fun getMyDate(str: String): String {
+        if (str == "") {
+            Log.e("getTime", "In string is empty!")
+            throw java.lang.NullPointerException("Input string is empty")
+        }
         return str.split("T")[0]
     }
 
     fun getMyTime(str: String): String {
+        if (str == "") {
+            Log.e("getTime", "In string is empty!")
+            throw java.lang.NullPointerException("Input string is empty")
+        }
         return str.split("T")[1].subSequence(0, 8).toString()
     }
 

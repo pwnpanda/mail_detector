@@ -1,7 +1,8 @@
-package com.robinlunde.mailbox
+package com.robinlunde.mailbox.datamodel
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.robinlunde.mailbox.MailboxApp
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class PostLogEntry(
@@ -22,9 +23,11 @@ data class PostLogEntry(
     }
 
     // Can change to override toString
+    // TODO not sur if useful
+    /*
     fun toMyString(): String {
         return "PostLogEntry: ID: $id, Username: $username, " +
                 "Delivered: $delivered, DeliveredTime: $deliveredTime, DeliveredDate: $deliveredDate, " +
                 "Pickup: $pickup, PickupTime: $pickupTime, PickupDate: $pickupDate"
-    }
+    }*/
 }

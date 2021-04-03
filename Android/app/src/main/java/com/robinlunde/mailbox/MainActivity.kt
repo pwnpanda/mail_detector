@@ -21,9 +21,7 @@ import kotlinx.coroutines.cancel
 
 
 // TODO
-// Name - Timestamp of post received (from BT) - Timestamp of pickup
-// Get data from BT then call
-// MailboxApp.pushNotification(timeStamp)
+// Get data from BT, call MailboxApp.setStatus(status), and send new status to web by calling
 
 class MainActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
@@ -55,6 +53,7 @@ class MainActivity : AppCompatActivity() {
         val binding =
             DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
         drawerLayout = binding.drawerLayout
+        onNewIntent(intent)
     }
 
     // create and inflate menu here
@@ -69,7 +68,7 @@ class MainActivity : AppCompatActivity() {
 
     // Handles clicks on the menu
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // if it arrives here, something went wrong
+        // Always arrives here first
         return when (item.itemId) {
             R.id.logo -> {
                 MailboxApp.getUtil().logButtonPress("Main - logo")
@@ -84,9 +83,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Currently does nothing... ? TODO Check and fix
-    override fun onNewIntent(intent: Intent?) {
-        Log.d("Intent!", "Intent received")
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        Log.d("Intent!", "Intent received: $intent")
+
+        // It is my push notification intent!
+        if ( intent.getBooleanExtra(getString(R.string.app_name), false) ) {
+            Log.d("Intent!", "My intent received: $intent")
+            // No need to update fragment, as it does so automatically upon intent clicked ^~^
+        }
     }
 
     // Make sure BT is enabled when we resume app
@@ -120,7 +125,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
 
     // Cleanup when activity is dead
     // TODO is this correct?
