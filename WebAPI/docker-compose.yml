@@ -1,0 +1,20 @@
+version: "3.8"
+services:
+  web:
+    build: .
+    working_dir: /mail_api
+    volumes:
+      - "mail_api_db:/mail_api/db"
+    ports:
+      - "12121:12121"
+    environment:
+      SECRET_KEY_BASE: /run/secrets/mail_api_secret
+    secrets:
+      - mail_api_secret
+
+secrets:
+  mail_api_secret:
+    file: secret.txt
+
+volumes:
+  mail_api_db:

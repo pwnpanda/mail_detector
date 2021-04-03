@@ -1,0 +1,20 @@
+from ruby:3.0.0 as runtime
+
+#RUN bundle config --global frozen 1
+RUN apt-get update -y && apt-get upgrade -y
+
+WORKDIR mail_api/
+
+copy mail_api/ ./
+
+ENV BUNDLER_VERSION=2.2.3
+
+RUN gem update --system
+RUN gem install rails
+RUN gem install bundler -v 2.2.3
+RUN bundle install
+RUN rake app:update:bin
+
+EXPOSE 12121
+ENV RAILS_ENV=production
+ENTRYPOINT ["rails", "s", "-p", "12121", "-b", "0.0.0.0", "-e", "production"]
