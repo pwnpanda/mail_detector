@@ -12,11 +12,24 @@
     <string name="username_button">Continue</string>
     <string name="username_pref">username</string>
     <string name="normal_url">https://robinlunde.com/api/posts</string>
+    <string name="update_url">https://robinlunde.com/api/post/status</string>
     <string name="sendLogsMethod">sendLog</string>
+    <string name="get_logs">getLogs</string>
     <string name="deleteLogsMethod">deleteLog</string>
     <string name="user_header">User</string>
     <string name="delivered_header">Delivered</string>
     <string name="pickup_header">Picked up</string>
     <string name="no_new_post_message">No new post detected!</string>
     <string name="nice_day_message">Have a nice day!</string>
+    <string name="channel_name">Mail_Alert_Channel</string>
+    <string name="channel_description">Channel for alerting users of new mail</string>
+    <string name="channel_id">MailboxChannel</string>
+    <string name="bt_id_integer">1337</string>
+    <string name="get_last_status_update_method">getLastUpdate</string>
+    <string name="set_last_status_update_method">setLastUpdate</string>
+    <string name="last_update_not_found">No data found for last update from mailbox!</string>
+    <string name="last_update_not_new_string">Last update seen was at %1$s on %2$s by <b>%3$s</b> !</string>
+    <string name="last_update_new_string">Last update seen by: <b>%1$s</b> !</string>
+    <string name="no_status_yet_username">nodata</string>
+    <string name="no_status_yet_string">No status data available!</string>
 </resources>

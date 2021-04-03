@@ -7,7 +7,8 @@
         android:id="@+id/frag_logview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".logview.LogviewFragment"
+        android:background="?attr/colorSecondary"
+        tools:context=".logview.PostViewFragment"
         tools:layout="@layout/fragment_logview">
 
         <TextView

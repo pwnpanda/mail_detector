@@ -1,63 +1,176 @@
 package com.robinlunde.mailbox.alert
 
-import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.NavHostFragment
 import com.robinlunde.mailbox.MailboxApp
 import com.robinlunde.mailbox.R
+import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.databinding.FragmentAlertBinding
+import com.robinlunde.mailbox.datamodel.PostUpdateStatus
 
 class AlertFragment : Fragment() {
-    val util = MailboxApp.getUtil()
-    // private lateinit val timeStamp: String
+    private lateinit var util: Util
+    private lateinit var binding: FragmentAlertBinding
+    private val model: AlertViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Enable menu buttons in this fragment
         setHasOptionsMenu(true)
+        MailboxApp.setAlertModel(model)
+        util = MailboxApp.getUtil()
+
+        // Update UI if new data
+        val statusObserver = Observer<PostUpdateStatus> { newData ->
+            Log.d("Observer - Alert", newData.toString())
+            // do something with new data
+            updateFragment(newData)
+
+            // Update correct view with new data
+            /*binding.status.adapter = AlertAdapter(newData)
+            binding.status.layoutManager = LinearLayoutManager(context)
+            // Tel view it has changed
+            binding.status.adapter?.notifyDataSetChanged()*/
+        }
+        model.currentStatus.observe(this, statusObserver)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val binding = DataBindingUtil.inflate<FragmentAlertBinding>(
+        binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_alert,
             container,
             false
         )
-        // TODO need data signalling about new post / other way to update
-        // Observable.onChange(setNotificationValue(timestamp))
-        // TODO remove - only temporary
-        val timeStamp = "12.12.12"
+        this.binding = binding
+        // set adapter
+        // val adapter = model.getStatus().value?.let { AlertAdapter(it) }
+        binding.lifecycleOwner = viewLifecycleOwner
+
+        // This happens every time the fragment is re-rendered, which is perfect
+        // Incl. pressing of notifications
+
+        val status = model.currentStatus.value!!
+        // Update fragment based on status
+        updateFragment(status)
+
         // Sense button presses
-        binding.clearNotifyBtn.setOnClickListener { view: View ->
+        binding.clearNotifyBtn.setOnClickListener {
             Toast.makeText(context, "Trying to register post pickup!", Toast.LENGTH_SHORT).show()
+            // Ack to device
             // val res = util.sendBTPostPickupAck()
             // if (res) {
-            setNoResults(container, binding, timeStamp)
+            noNewMail(status)
             // } else {
             //  Toast.makeText(context, "Could not acknowledge post pickup over BT!", Toast.LENGTH_SHORT).show()
             // }
+
+            val timestamp = model.currentStatus.value!!.timestamp
+            // Try to log to web
+            val request1: Boolean =
+                util.tryRequest(getString(R.string.sendLogsMethod), timestamp, null, null)
+            if (!request1)  makeToast("Could not register post pickup over Web!")
+            else  makeToast("Post pickup registered!")
+
+            val request2: Boolean = util.tryRequest(getString(R.string.set_last_status_update_method), null, null, newMail = false
+            )
+            if (!request2)   makeToast("Could not send latest Status Update over web")
+            else    makeToast("New status registered!")
+
         }
+
         return binding.root
     }
 
+    fun makeToast(msg: String) {
+        Toast.makeText(
+            context, "Could not register post pickup over Web!", Toast.LENGTH_SHORT).show()
+    }
+
+    // Updates fragment with new data from Status API
+    fun updateFragment(status: PostUpdateStatus) {
+        if (status.newMail) {
+            newMail(status)
+        } else {
+            noNewMail(status)
+        }
+    }
+
+    // Remove data and set base case
+    private fun noNewMail(
+        status: PostUpdateStatus
+    ) {
+        Log.d("AlertFragment", "No new mail")
+        // Clear fragment data
+        binding.clearNotifyBtn.visibility = View.INVISIBLE
+        binding.timestampTime.visibility = View.INVISIBLE
+        binding.postBox.visibility = View.VISIBLE
+        binding.status.visibility = View.VISIBLE
+        // If you got the last message from the BT device
+        when (status.username) {
+            MailboxApp.getUsername() -> binding.status.text =
+                getString(
+                    R.string.last_update_not_new_string,
+                    status.time,
+                    status.date,
+                    "You"
+                )
+            // If the username is set to the one indicating no data is available yet!
+            getString(R.string.no_status_yet_username) -> binding.status.text =
+                getString(R.string.no_status_yet_string)
+
+            // If someone else got the last message from the BT device
+            else -> binding.status.text =
+                getString(
+                    R.string.last_update_not_new_string,
+                    status.time,
+                    status.date,
+                    status.username
+                )
+        }
+
+        binding.timestampText.text = getString(R.string.no_new_post_message)
+        binding.timestampDay.text = getString(R.string.nice_day_message)
+    }
+
+    // Got new mail! Update data and set relevant information
+    private fun newMail(
+        status: PostUpdateStatus
+    ) {
+        Log.d("AlertFragment", "New mail!")
+        binding.clearNotifyBtn.visibility = View.VISIBLE
+        binding.timestampTime.visibility = View.VISIBLE
+        // If you got the last message from the BT device
+        if (status.username == MailboxApp.getUsername()) binding.status.text =
+            getString(R.string.last_update_new_string, "You")
+        // If someone else got the last message from the BT device
+        else binding.status.text =
+            getString(R.string.last_update_new_string, status.username)
+
+        binding.postBox.visibility = View.INVISIBLE
+        binding.timestampText.text = getString(R.string.timestamp_text)
+        binding.timestampTime.text = status.time
+        binding.timestampDay.text = status.date
+    }
+    // TODO Should this be moved? -------------------------
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+
             R.id.logo -> {
                 // Do nothing, we are in correct view
                 util.logButtonPress("Alert - logo")
@@ -65,7 +178,9 @@ class AlertFragment : Fragment() {
             }
 
             R.id.logs -> {
-                // go to logview
+                // Try to fetch data to update logview - if we fail, we don't care
+                util.tryRequest(getString(R.string.get_logs), null, null, null)
+                // Go to logview (noew named PostView
                 NavHostFragment.findNavController(this)
                     .navigate(AlertFragmentDirections.actionAlertFragmentToLogviewFragment())
                 util.logButtonPress("Alert - logs")
@@ -74,47 +189,5 @@ class AlertFragment : Fragment() {
 
             else -> return super.onOptionsItemSelected(item)
         }
-    }
-
-    // Remove data and set basecase
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun setNoResults(
-        container: ViewGroup?,
-        binding: FragmentAlertBinding,
-        timeStamp: String
-    ): Boolean {
-        // Clear fragment data
-        binding.clearNotifyBtn.visibility = View.INVISIBLE
-        container!!.rootView.findViewById<ImageView>(R.id.post_box).visibility = View.VISIBLE
-        container.rootView.findViewById<TextView>(R.id.timestamp_text).text =
-            getString(R.string.no_new_post_message)
-        container.rootView.findViewById<TextView>(R.id.timestamp_time).text =
-            getString(R.string.nice_day_message)
-        // Try to log to web
-        val request: Boolean =
-            util.tryRequest(getString(R.string.deleteLogsMethod), timeStamp, null)
-        if (!request) {
-            Toast.makeText(context, "Could not register post pickup over Web!", Toast.LENGTH_SHORT)
-                .show()
-        } else {
-            Toast.makeText(context, "Post pickup registered!", Toast.LENGTH_SHORT).show()
-        }
-        return request
-    }
-
-    // Update data and set relevant information
-    private fun setNotificationValue(
-        timeStamp: String,
-        binding: FragmentAlertBinding,
-        container: ViewGroup?
-    ) {
-        binding.clearNotifyBtn.visibility = View.VISIBLE
-        container!!.rootView.findViewById<ImageView>(R.id.post_box).visibility = View.INVISIBLE
-        container.rootView.findViewById<TextView>(R.id.timestamp_text).text =
-            getString(R.string.timestamp_text)
-        container.rootView.findViewById<TextView>(R.id.timestamp_time).text =
-            util.getMyTime(timeStamp)
-        container.rootView.findViewById<TextView>(R.id.timestamp_day).text =
-            util.getMyDate(timeStamp)
     }
 }

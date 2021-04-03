@@ -27,7 +27,7 @@
     </fragment>
     <fragment
         android:id="@+id/logviewFragment"
-        android:name="com.robinlunde.mailbox.logview.LogviewFragment"
+        android:name="com.robinlunde.mailbox.logview.PostViewFragment"
         android:label="LogviewFragment">
         <action
             android:id="@+id/action_logviewFragment_to_AlertFragment"

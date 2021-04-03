@@ -13,4 +13,11 @@
     <color name="charcoal">#27292b</color>
     <color name="grey">#babbbb</color>
     <color name="light_gray">#c7c8c8</color>
+    <color name="background_blue">#FF26C6DA</color>
+    <color name="background_dark_blue">#00ACC1</color>
+    <color name="background_light_blue">#4DD0E1</color>
+    <color name="background">#f3ecc2</color>
+    <color name="highlight">#f9d56e</color>
+    <color name="top">#e8505b</color>
+    <color name="button">#EE9452</color>
 </resources>

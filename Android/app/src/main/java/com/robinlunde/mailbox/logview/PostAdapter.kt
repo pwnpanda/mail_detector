@@ -1,7 +1,6 @@
-package com.robinlunde.mailbox
+package com.robinlunde.mailbox.logview
 
 
-import android.graphics.Color
 import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
@@ -10,12 +9,11 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.blue
-import androidx.core.graphics.green
-import androidx.core.graphics.red
-import androidx.core.graphics.toColor
 import androidx.recyclerview.widget.RecyclerView
+import com.robinlunde.mailbox.MailboxApp
+import com.robinlunde.mailbox.R
+import com.robinlunde.mailbox.Util
+import com.robinlunde.mailbox.datamodel.PostLogEntry
 
 class PostAdapter(private val postLogEntries: MutableList<PostLogEntry>) :
     RecyclerView.Adapter<Util.LogItemViewHolder>() {
@@ -28,19 +26,10 @@ class PostAdapter(private val postLogEntries: MutableList<PostLogEntry>) :
         if (itemCount > 0) {
             val postLogEntry = postLogEntries[position]
 
-            // If post belongs to this user, change backgroundcolor to slight red
+            // If post belongs to this user, change background color of row
             if (MailboxApp.getUsername().equals(postLogEntry.username, ignoreCase = true)) {
-                val color =
-                    ContextCompat.getColor(MailboxApp.getInstance(), R.color.light_red).toColor()
-                        .toArgb()
                 holder.constraintLayout.setBackgroundColor(
-                    Color.argb(
-                        25,
-                        color.red,
-                        color.blue,
-                        color.green
-                    )
-                )
+                    MailboxApp.getInstance().getColor(R.color.highlight))
             }
             // Set content for each UI element to the respective part of the postLogEntry
             holder.constraintLayout.findViewById<TextView>(R.id.post_user).text =
@@ -62,7 +51,8 @@ class PostAdapter(private val postLogEntries: MutableList<PostLogEntry>) :
                     MailboxApp.getUtil().tryRequest(
                         MailboxApp.getInstance().getString(R.string.deleteLogsMethod),
                         null,
-                        postLogEntry.id
+                        postLogEntry.id,
+                        null
                     )
                 }
             // If there is no data found, show error

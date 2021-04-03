@@ -7,8 +7,9 @@
     tools:context="com.robinlunde.mailbox.alert.AlertFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_width="match_parent">
+        android:background="?attr/colorSecondary">
 
         <TextView
             android:id="@+id/timestamp_text"
@@ -57,6 +58,7 @@
             android:background="@drawable/round_button"
             android:fontFamily="@font/alegreya_sans"
             android:gravity="center"
+            android:hapticFeedbackEnabled="true"
             android:text="@string/remove_notification"
             android:textAlignment="center"
             android:textAllCaps="false"
@@ -64,7 +66,7 @@
             android:textSize="24sp"
             android:textStyle="bold"
             android:visibility="invisible"
-            app:backgroundTint="@color/red"
+            app:backgroundTint="?attr/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.497"
@@ -87,6 +89,17 @@
             app:layout_constraintTop_toBottomOf="@+id/timestamp_text"
             app:layout_constraintVertical_bias="0.65"
             app:srcCompat="@mipmap/post_box_foreground" />
+
+        <TextView
+            android:id="@+id/status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/last_update_not_found"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/post_box"
+            app:layout_constraintVertical_bias="0.89" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

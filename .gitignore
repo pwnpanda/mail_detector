@@ -9,6 +9,12 @@
 *.ap_
 *.aab
 
+#environment files
+.env
+
+#secret
+WebAPI/secret.txt
+
 # Files for the ART/Dalvik VM
 *.dex
 
