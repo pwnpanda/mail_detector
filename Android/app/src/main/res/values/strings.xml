@@ -28,8 +28,8 @@
     <string name="get_last_status_update_method">getLastUpdate</string>
     <string name="set_last_status_update_method">setLastUpdate</string>
     <string name="last_update_not_found">No data found for last update from mailbox!</string>
-    <string name="last_update_not_new_string">Last update seen was at %1$s on %2$s by <b>%3$s</b> !</string>
-    <string name="last_update_new_string">Last update seen by: <b>%1$s</b> !</string>
+    <string name="last_update_not_new_string"><![CDATA[Last update was at %1$s %2$s by <b>%3$s</b>!]]></string>
+    <string name="last_update_new_string"><![CDATA[Last update seen by: <b>%1$s</b>!]]></string>
     <string name="no_status_yet_username">nodata</string>
     <string name="no_status_yet_string">No status data available!</string>
 </resources>

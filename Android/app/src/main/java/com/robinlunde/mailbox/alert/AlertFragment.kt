@@ -7,6 +7,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.text.HtmlCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -83,13 +84,14 @@ class AlertFragment : Fragment() {
             // Try to log to web
             val request1: Boolean =
                 util.tryRequest(getString(R.string.sendLogsMethod), timestamp, null, null)
-            if (!request1)  makeToast("Could not register post pickup over Web!")
-            else  makeToast("Post pickup registered!")
+            if (!request1) makeToast("Could not register post pickup over Web!")
+            else makeToast("Post pickup registered!")
 
-            val request2: Boolean = util.tryRequest(getString(R.string.set_last_status_update_method), null, null, newMail = false
+            val request2: Boolean = util.tryRequest(
+                getString(R.string.set_last_status_update_method), null, null, newMail = false
             )
-            if (!request2)   makeToast("Could not send latest Status Update over web")
-            else    makeToast("New status registered!")
+            if (!request2) makeToast("Could not send latest Status Update over web")
+            else makeToast("New status registered!")
 
         }
 
@@ -98,7 +100,8 @@ class AlertFragment : Fragment() {
 
     fun makeToast(msg: String) {
         Toast.makeText(
-            context, "Could not register post pickup over Web!", Toast.LENGTH_SHORT).show()
+            context, "Could not register post pickup over Web!", Toast.LENGTH_SHORT
+        ).show()
     }
 
     // Updates fragment with new data from Status API
@@ -123,11 +126,13 @@ class AlertFragment : Fragment() {
         // If you got the last message from the BT device
         when (status.username) {
             MailboxApp.getUsername() -> binding.status.text =
-                getString(
-                    R.string.last_update_not_new_string,
-                    status.time,
-                    status.date,
-                    "You"
+                HtmlCompat.fromHtml(
+                    getString(
+                        R.string.last_update_not_new_string,
+                        status.time,
+                        status.date,
+                        "You"
+                    ), HtmlCompat.FROM_HTML_MODE_COMPACT
                 )
             // If the username is set to the one indicating no data is available yet!
             getString(R.string.no_status_yet_username) -> binding.status.text =
@@ -135,11 +140,13 @@ class AlertFragment : Fragment() {
 
             // If someone else got the last message from the BT device
             else -> binding.status.text =
-                getString(
-                    R.string.last_update_not_new_string,
-                    status.time,
-                    status.date,
-                    status.username
+                HtmlCompat.fromHtml(
+                    getString(
+                        R.string.last_update_not_new_string,
+                        status.time,
+                        status.date,
+                        status.username
+                    ), HtmlCompat.FROM_HTML_MODE_COMPACT
                 )
         }
 
