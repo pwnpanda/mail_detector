@@ -1,4 +1,4 @@
-package com.robinlunde.mailbox
+package com.robinlunde.mailbox.logview
 
 
 import android.os.Build
@@ -10,6 +10,10 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
+import com.robinlunde.mailbox.MailboxApp
+import com.robinlunde.mailbox.R
+import com.robinlunde.mailbox.Util
+import com.robinlunde.mailbox.datamodel.PostLogEntry
 
 class PostAdapter(private val postLogEntries: MutableList<PostLogEntry>) :
     RecyclerView.Adapter<Util.LogItemViewHolder>() {
@@ -24,7 +28,8 @@ class PostAdapter(private val postLogEntries: MutableList<PostLogEntry>) :
 
             // If post belongs to this user, change background color of row
             if (MailboxApp.getUsername().equals(postLogEntry.username, ignoreCase = true)) {
-                holder.constraintLayout.setBackgroundColor(MailboxApp.getInstance().getColor(R.color.highlight))
+                holder.constraintLayout.setBackgroundColor(
+                    MailboxApp.getInstance().getColor(R.color.highlight))
             }
             // Set content for each UI element to the respective part of the postLogEntry
             holder.constraintLayout.findViewById<TextView>(R.id.post_user).text =
@@ -46,7 +51,8 @@ class PostAdapter(private val postLogEntries: MutableList<PostLogEntry>) :
                     MailboxApp.getUtil().tryRequest(
                         MailboxApp.getInstance().getString(R.string.deleteLogsMethod),
                         null,
-                        postLogEntry.id
+                        postLogEntry.id,
+                        null
                     )
                 }
             // If there is no data found, show error

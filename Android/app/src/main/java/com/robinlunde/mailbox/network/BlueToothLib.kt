@@ -1,8 +1,9 @@
-package com.robinlunde.mailbox
+package com.robinlunde.mailbox.network
 
 import android.util.Log
 import com.juul.kable.Advertisement
 import com.juul.kable.Scanner
+import com.robinlunde.mailbox.MailboxApp
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import java.util.concurrent.TimeUnit
