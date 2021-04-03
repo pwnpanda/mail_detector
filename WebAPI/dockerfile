@@ -14,6 +14,7 @@ RUN gem install rails
 RUN gem install bundler -v 2.2.3
 RUN bundle install
 RUN rake app:update:bin
+RUN chown -R www-data:www-data /mail_api
 
 EXPOSE 12121
 ENV RAILS_ENV=production

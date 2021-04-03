@@ -27,4 +27,4 @@ Follow (this article)[https://medium.com/@mshostdrive/how-to-run-a-rails-app-in-
 
 	- Easy mode:
 		- put secret in "secret.txt" with dockerfile and docker-compse.yml
-		- docker-compose up -d -u "www-data"
+		- docker-compose up -d
