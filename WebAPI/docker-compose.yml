@@ -2,7 +2,6 @@ version: "3.8"
 services:
   web:
     build: .
-    user: www-data
     working_dir: /mail_api
     volumes:
       - "mail_api_db:/mail_api/db"

@@ -15,6 +15,14 @@ Follow (this article)[https://medium.com/@mshostdrive/how-to-run-a-rails-app-in-
 	- `rails s -p 12121 -b 127.0.0.1 -e production`
 
 ### Docker
+
+	- Easy mode:
+		- put secret in "secret.txt" with dockerfile and docker-compse.yml
+		- docker-compose up -d	
+
+
+	
+	
 	- Build image: `docker build --tag mail_api:latest .`
 	- Cleanup previous fragments `docker ps -aq --filter "name=mail_api"|grep -q . && docker stop mail_api && docker container rm -fv mail_api || true`
 	- Start new instance `docker run --name mail_api -d=true -v mail_api_db:/mail_api/db/ -p 12121:12121 mail_api:latest`
@@ -24,7 +32,3 @@ Follow (this article)[https://medium.com/@mshostdrive/how-to-run-a-rails-app-in-
 		* Use volume (as seen above)
 		* FInd real location: `docker volume inspect mail_api_db`
 		* Copy from that location to backup spot
-
-	- Easy mode:
-		- put secret in "secret.txt" with dockerfile and docker-compse.yml
-		- docker-compose up -d
