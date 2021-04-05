@@ -116,11 +116,6 @@ class MainActivity : AppCompatActivity() {
             finishAndRemoveTask()
         }
         when {
-            // If we do not have BT or loc permissions
-            !bluetoothAdapter.isEnabled && !hasLocationPermission -> {
-                requestBothPermissions()
-            }
-
             // If we do not have BT permission
             !bluetoothAdapter.isEnabled -> {
                 enableBluetooth()
