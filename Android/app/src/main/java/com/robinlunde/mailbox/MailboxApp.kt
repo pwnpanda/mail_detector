@@ -193,7 +193,13 @@ class MailboxApp : Application() {
             // Update value for checking next time :)
             // This needs to happen before updating fragment, as the fragment relies on getStatus()
             status = newStatus
-            alertViewModel.currentStatus.postValue(newStatus)
+            try{
+                alertViewModel.currentStatus.postValue(newStatus)
+            } catch (e: UninitializedPropertyAccessException) {
+                Log.d("Soft error", "Model not yet instantiated - Could not update data for view")
+            } catch (e: Exception) {
+                throw e
+            }
 
             // Update fragment_alert - Do for all instances, doesn't hurt!
             // This happens automatically when notification is clicked.
