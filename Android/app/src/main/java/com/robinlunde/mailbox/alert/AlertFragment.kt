@@ -57,7 +57,6 @@ class AlertFragment : Fragment() {
             container,
             false
         )
-        this.binding = binding
         // set adapter
         // val adapter = model.getStatus().value?.let { AlertAdapter(it) }
         binding.lifecycleOwner = viewLifecycleOwner
@@ -98,14 +97,14 @@ class AlertFragment : Fragment() {
         return binding.root
     }
 
-    fun makeToast(msg: String) {
+    private fun makeToast(msg: String) {
         Toast.makeText(
-            context, "Could not register post pickup over Web!", Toast.LENGTH_SHORT
+            context, msg, Toast.LENGTH_SHORT
         ).show()
     }
 
     // Updates fragment with new data from Status API
-    fun updateFragment(status: PostUpdateStatus) {
+    private fun updateFragment(status: PostUpdateStatus) {
         if (status.newMail) {
             newMail(status)
         } else {
@@ -173,7 +172,6 @@ class AlertFragment : Fragment() {
         binding.timestampTime.text = status.time
         binding.timestampDay.text = status.date
     }
-    // TODO Should this be moved? -------------------------
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {

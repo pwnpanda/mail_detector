@@ -37,7 +37,10 @@ class BlueToothLib {
     private val _advertisements = MutableStateFlow<List<Advertisement>>(emptyList())
     val advertisement = _advertisements.asStateFlow()
 
-    private fun startScan() {
+    fun startScan() {
+        Log.d("Bluetooth", "Starting BT Scan")
+        Log.d("Bluetooth", "ScanStatus ${scanStatus.value}")
+
         if (_scanStatus.value == ScanStatus.Started) return // Scan already in progress.
         _scanStatus.value = ScanStatus.Started
 
@@ -55,26 +58,28 @@ class BlueToothLib {
                         if (cause == null) _scanStatus.value =
                             ScanStatus.Stopped
                     }
-                    .collect { advertisement ->
-                        found[advertisement.address] = advertisement
-                        _advertisements.value = found.values.toList()
-                        Log.d("Bluetooth vals", _advertisements.value.toString())
-                     }/*
                     .filter { it.isPi }
                     .collect { advertisement ->
                         found[advertisement.address] = advertisement
                         _advertisements.value = found.values.toList()
                         Log.d("Bluetooth Vals received", _advertisements.value.toString())
-                    }*/
-                    //stopScan()
+                        Log.d("Bluetooth addr", advertisement.address)
+                        stopScan()
+                    }
+                /*.collect { advertisement ->
+                     found[advertisement.address] = advertisement
+                     _advertisements.value = found.values.toList()
+                     Log.d("Bluetooth vals", _advertisements.value.toString())
+                     Log.d("Bluetooth addr", advertisement.address) }
+                  */
             }
         }
     }
 
-    fun stopScan() {
+    private fun stopScan() {
         Log.d("Bluetooth","Scan stopped")
-
         scanScope.cancelChildren()
+        _scanStatus.value = ScanStatus.Stopped
     }
 
     fun btEnabledConfirmed() {
@@ -83,9 +88,10 @@ class BlueToothLib {
     }
 }
 
+// How to identify correct node. TODO Need to update for different boards
 private val Advertisement.isPi
     get() = name?.startsWith("RaspberryPi") == true ||
-            name?.startsWith("Pi") == true
+            name?.startsWith("Pi") == true || address == "B8:27:EB:12:D0:9A"
 
 private fun CoroutineScope.childScope() =
     CoroutineScope(coroutineContext + Job(coroutineContext[Job]))

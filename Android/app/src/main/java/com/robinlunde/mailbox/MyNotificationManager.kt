@@ -53,7 +53,6 @@ class MyNotificationManager(private val ctx: Context) {
         //@DrawableRes largeIcon: Int = R.mipmap.post_box,
     ) {
         // TODO replace with logo - icon_mailbox
-        // TODO change message based on input. Not only timestamp
         //val largeIcon = BitmapFactory.decodeResource(MailboxApp.getInstance().resources, R.mipmap.post_box)
 
         val largeIcon = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

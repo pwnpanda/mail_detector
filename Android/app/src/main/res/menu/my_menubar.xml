@@ -4,7 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity" >
+
+    <item
+        android:id="@+id/bluetooth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:contentDescription="@string/bt_icon_name"
+        android:icon="@android:drawable/stat_sys_data_bluetooth"
+        android:title="@string/bt_icon_name"
+        app:showAsAction="ifRoom|withText"
+        app:iconTint="@color/charcoal"/>
 
     <item
         android:id="@+id/logo"

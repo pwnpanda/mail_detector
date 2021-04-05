@@ -23,7 +23,6 @@ data class PostLogEntry(
     }
 
     // Can change to override toString
-    // TODO not sur if useful
     /*
     fun toMyString(): String {
         return "PostLogEntry: ID: $id, Username: $username, " +

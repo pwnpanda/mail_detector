@@ -73,11 +73,15 @@ class MainActivity : AppCompatActivity() {
                 MailboxApp.getUtil().logButtonPress("Main - logs")
                 false
             }
+            R.id.bluetooth -> {
+                MailboxApp.getBTConn().startScan()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
-    // Currently does nothing... ? TODO Check and fix
+    // Currently just logs information for debugging
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         Log.d("Intent!", "Intent received: $intent")
@@ -93,7 +97,7 @@ class MainActivity : AppCompatActivity() {
     // TODO this should be probably improved UI wise as well
     override fun onResume() {
         super.onResume()
-        promptGivePermission()
+        if (promptGivePermission()) MailboxApp.getUtil().btEnabled()
     }
 
     // Cleanup when activity is dead
@@ -106,7 +110,7 @@ class MainActivity : AppCompatActivity() {
     // ------------------- BT ---------------------
 
     // Supportive function
-    private fun promptGivePermission() {
+    private fun promptGivePermission(): Boolean {
         if (permCheckCount > 0) {
             Toast.makeText(
                 this,
@@ -130,17 +134,11 @@ class MainActivity : AppCompatActivity() {
             }
 
             // All permissions ready, run BT scan
-            else -> MailboxApp.getUtil().btEnabled()
+            else -> return true
         }
-    }
 
-    private fun Activity.requestBothPermissions() {
-        ActivityCompat.requestPermissions(
-            this,
-            arrayOf(ACCESS_FINE_LOCATION, BluetoothAdapter.ACTION_REQUEST_ENABLE),
-            RequestCodeConst.BothPermissions
-        )
-
+        // Never reached
+        return false
     }
 
     // Send BT enable intent to OS

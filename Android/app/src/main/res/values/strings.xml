@@ -4,6 +4,7 @@
     <string name="timestamp_text">Post was delivered at</string>
     <string name="remove_notification">Remove notification</string>
     <string name="logo_icon_name">Logo</string>
+    <string name="bt_icon_name">Bluetooth</string>
     <string name="logs_icon_name">Logs</string>
     <string name="postbox">postbox</string>
     <string name="delete_button">Delete button</string>

@@ -49,8 +49,6 @@ class Util {
         val context = MailboxApp.getInstance()
         myNotificationManager = MyNotificationManager(context)
         val myHandler = Handler(Looper.getMainLooper())
-        // TODO remove
-        var first = true
         MailboxApp.getAppScope().launch {
             myHandler.postDelayed(object : Runnable {
                 override fun run() {
@@ -66,8 +64,6 @@ class Util {
                     }
 
                     //1 second * 60 * 30 = 30 min
-                    // TODO remove
-                    first = false
                     // 1000 * 60 * 10 = 10min between updates in prod!
                     // Use 1000 * 10 for testing (10sec)
                     myHandler.postDelayed(this, 1000 * 60 * 10)
@@ -295,6 +291,7 @@ class Util {
         Log.d("BlueTooth", "Proxied from Util")
         MailboxApp.getBTConn().btEnabledConfirmed()
     }
+
     // ----------------------------- DIV -------------------------------
 
     fun getMyDate(str: String): String {

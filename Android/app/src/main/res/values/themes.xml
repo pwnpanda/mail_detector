@@ -26,12 +26,4 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="Theme.Mailbox.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-    </style>
-
-    <style name="Theme.Mailbox.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-    <style name="Theme.Mailbox.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>
