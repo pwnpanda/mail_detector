@@ -72,7 +72,8 @@ class BlueToothLib {
                         _advertisements.value = found.values.toList()
                         Log.d("Bluetooth Vals received", _advertisements.value.toString())
                         Log.d("Bluetooth addr", advertisement.address)
-                        stopScan()
+                        handleContent()
+                        //stopScan()
                     }
                 /*.collect { advertisement ->
                      found[advertisement.address] = advertisement
