@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name"><u>MailBox</u></string>
+    <string name="app_name">Mailbox</string>
     <string name="icon">App_Icon</string>
     <string name="timestamp_text">Post was delivered at</string>
     <string name="remove_notification">Remove notification</string>

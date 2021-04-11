@@ -15,7 +15,7 @@
         android:icon="@android:drawable/stat_sys_data_bluetooth"
         android:title="@string/bt_icon_name"
         app:showAsAction="ifRoom|withText"
-        app:iconTint="@color/charcoal"/>
+        app:iconTint="@color/charcoal_light"/>
 
     <item
         android:id="@+id/logo"
