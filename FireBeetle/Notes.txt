@@ -1,0 +1,53 @@
+BLE 
+
+    Radio Server (Central) = Phone
+    Radio CLient (Peripheral) = FireBeetle
+
+    FireBeetle = GATT Server
+    Phone = GATT Client
+
+
+    Should use Indication property (As well as read?)
+
+    ** GATT Characteristic and Object Type 0X2AE2 Boolean
+    ** GATT Service 0x183B Binary Sensor
+        Examples for heartrate:
+            BLEService heartRateService("180D"); // BLE Heart Rate Service
+            BLECharacteristic heartRateChar("2A37",  // standard 16-bit characteristic UUID
+    ** Can also just use custom UUIDs
+
+
+    Arduino BLE refrerence
+        https://www.arduino.cc/en/Reference/ArduinoBLE
+
+    Good example
+        https://create.arduino.cc/projecthub/monica/getting-started-with-bluetooth-low-energy-ble-ab4c94
+
+Use C for now
+    ** If using micropython, just installing a normal sketch from Aruino IDE will overwrite it and work normally
+    ** Micropython adv:
+        - REPL
+        - Python
+        - Easy and quick
+    ** Micropython bad:
+        - Changing constantly
+        - Experimental
+        - Lacking features
+
+    Arduino millis overflows at about 50 days
+        https://www.arduino.cc/reference/en/language/functions/time/millis/
+
+    Deep sleep for 40 hours
+    https://randomnerdtutorials.com/esp32-deep-sleep-arduino-ide-wake-up-sources/
+    
+        Set:
+            esp_sleep_enable_timer_wakeup(time_in_microsec)
+
+        Then call:
+            esp_deep_sleep_start()
+
+        Awake Mon: 0900 - 1700 (8h) 
+        Asleep Until Wed: 0900  (/48h)
+        Awake Wed: 0900 - 1700
+
+    

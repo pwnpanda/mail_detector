@@ -23,7 +23,7 @@ void setSendValue(){
   Serial.print(F("Setting current value: "));
   Serial.println(buf);
   pCharacteristic->setValue(buf);
-  pCharacteristic->notify();
+  pCharacteristic->indicate();
 }
 
 unsigned long getCurrent(){
@@ -52,8 +52,8 @@ void setup() {
   pService = pServer->createService(SERVICE_UUID);
   pCharacteristic = pService->createCharacteristic(
                                          CHARACTERISTIC_UUID,
-                                         BLECharacteristic::PROPERTY_READ |
-                                         BLECharacteristic::PROPERTY_WRITE
+                                         BLECharacteristic::PROPERTY_READ | BLECharacteristic::NOTIFY |
+                                         BLECharacteristic::PROPERTY_INDICATION
                                        );
 
   pCharacteristic->setValue(getCurrentAsString());
