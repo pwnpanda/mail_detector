@@ -33,4 +33,6 @@
     <string name="last_update_new_string"><![CDATA[Last update seen by: <b>%1$s</b>!]]></string>
     <string name="no_status_yet_username">nodata</string>
     <string name="no_status_yet_string">No status data available!</string>
+    <string name="bgScan">BackgroundScan</string>
+    <string name="activeScan">ActiveScan</string>
 </resources>

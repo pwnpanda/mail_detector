@@ -1,14 +1,14 @@
 package com.robinlunde.mailbox.network
 
 import android.util.Log
-import com.juul.kable.Advertisement
-import com.juul.kable.Scanner
-import com.juul.kable.characteristicOf
-import com.juul.kable.peripheral
+import com.juul.kable.*
 import com.robinlunde.mailbox.MailboxApp
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import okhttp3.internal.notify
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.math.pow
 
 private val SCAN_DURATION_MILLIS = TimeUnit.SECONDS.toMillis(10)
 private val SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
@@ -35,13 +35,15 @@ class BlueToothLib {
     private val scanner = Scanner()
     private val scanScope = MailboxApp.getAppScope().childScope()
     private val found = hashMapOf<String, Advertisement>()
+    private val ack: ByteArray = byteArrayOf(0)
+    private var attempt = AtomicInteger()
 
 
     private val _scanStatus = MutableStateFlow<ScanStatus>(ScanStatus.Stopped)
-    val scanStatus = _scanStatus.asStateFlow()
+    private val scanStatus = _scanStatus.asStateFlow()
 
     private val _advertisements = MutableStateFlow<List<Advertisement>>(emptyList())
-    val advertisement = _advertisements.asStateFlow()
+    private val advertisement = _advertisements.asStateFlow()
 
     fun startScan() {
         Log.d("Bluetooth", "Starting BT Scan")
@@ -65,15 +67,13 @@ class BlueToothLib {
                     }
                         // Only keep the relevant data
                     .filter { it.isFireBeetle }
-                        // If data found, keep data and stop scan
-                        // TODO - Store value, notify UI and API of value (status) and Send response
+                        // If connection found, set it up
                     .collect { advertisement ->
                         found[advertisement.address] = advertisement
                         _advertisements.value = found.values.toList()
                         Log.d("Bluetooth Vals received", _advertisements.value.toString())
                         Log.d("Bluetooth addr", advertisement.address)
-                        handleContent()
-                        //stopScan()
+                        handleContentHelper()
                     }
                 /*.collect { advertisement ->
                      found[advertisement.address] = advertisement
@@ -87,8 +87,7 @@ class BlueToothLib {
 
     private fun stopScan() {
         Log.d("Bluetooth", "Scan stopped")
-        handleContent()
-        //scanScope.cancelChildren()
+        scanScope.cancelChildren()
         _scanStatus.value = ScanStatus.Stopped
     }
 
@@ -97,28 +96,85 @@ class BlueToothLib {
         startScan()
     }
 
-    private fun handleContent() {
-        Log.d("BlueTooth", "Trying to handle content")
-        val peripheral = scanScope.peripheral(advertisement.value[0])
-        Log.d("Bluetooth", "Peripheral $peripheral created")
+    private fun handleContentHelper() {
+
         scanScope.launch {
-            peripheral.connect()
-            Log.d("BlueTOOTH", "Connected to $peripheral")
 
-            val data: String = runBlocking { withContext(Dispatchers.IO) { peripheral.read(dataConfigCharacteristics).decodeToString() } }
-            Log.d("Bluetooth", "First data: $data")
-
-            try {
-                peripheral.observe(dataConfigCharacteristics).collect { data ->
-                    Log.d("Bluetooth", "Data update: ${data.decodeToString()}")
+            Log.d("BlueTooth", "Trying to handle content")
+            val peripheral = scanScope.peripheral(advertisement.value[0])
+            Log.d("Bluetooth", "Peripheral $peripheral created")
+            peripheral.state
+                .filter { it is State.Disconnected }
+                .onEach {
+                    // 0.5 sec * 2^(x)
+                    val time: Long = (200L * 2f.pow( attempt.getAndIncrement() ) ).toLong()
+                    Log.w("Bluetooth", "Not connected! Backoff-time is: $time (200 * 2^$attempt = 200 * ${2f.pow(attempt.get())})")
+                    delay(time)
+                    handleContent(peripheral)
                 }
-            } catch (e: Exception){
-                 Log.d("Bluetooth", "Exception $e")
-             }
-           
-            /*peripheral.state.collect { state: State ->
-                Log.d("Bluetooth", "State changed to $state for peripheral $peripheral")
-            }*/
+                .launchIn(this)
+        }
+    }
+
+    private fun CoroutineScope.handleContent(peripheral: Peripheral) {
+        launch {
+            try {
+                peripheral.connect()
+
+                Log.d("Bluetooth", "Connected to $peripheral")
+                peripheral.state.collect { state: State ->
+                    Log.d("Bluetooth", "State changed to $state for peripheral $peripheral")
+
+                    when(state) {
+                        State.Connected -> {
+                            attempt.set(0)
+                            // TODO
+                            // Send to API that we connected to IoT Device, and that nothing was received
+                            //val content: String = runBlocking { withContext(Dispatchers.IO) { peripheral.read(dataConfigCharacteristics).decodeToString() } }
+                            //Log.d("Bluetooth", "First data: $content")
+                            // If there is data, send to API and to phone that we have new mail and that an alert should trigger
+                            try {
+                                peripheral.observe(dataConfigCharacteristics).collect { data ->
+                                    Log.d("Bluetooth", "Data update: ${data.decodeToString()}")
+                                    // TODO 1
+                                    // Send message to API and trigger alert
+
+                                    // Send message to BT device as ack
+                                    runBlocking { withContext(Dispatchers.IO) {
+                                        peripheral.write(dataConfigCharacteristics, ack, WriteType.WithoutResponse)
+                                        peripheral.notify()
+                                    } }
+
+                                    peripheral.disconnect()
+                                    stopScan()
+                                }
+                            } catch (e: Exception){
+                                Log.d("Bluetooth", "Exception $e")
+                            }
+                        }
+
+                        State.Connecting -> {
+                            Log.d("Bluetooth", "Connecting")
+                        }
+
+                        State.Disconnecting -> {
+                            Log.d("Bluetooth", "Disconnecting")
+
+                        }
+
+                        else -> Log.d("Bluetooth", "Disconnected")
+                    }
+                }
+
+                // Catch weird connection lost issue
+            } catch (e: ConnectionLostException) {
+                Log.d("Bluetooth", "ConnectionLostException! Trying again after a short while!")
+                return@launch
+                // Catch a real exception
+            } catch (e: Exception) {
+                Log.d("Bluetooth", "Fatal exception $e occurred. Exiting!")
+                throw e
+            }
         }
     }
 }

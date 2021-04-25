@@ -13,7 +13,7 @@ import com.robinlunde.mailbox.alert.AlertViewModel
 import com.robinlunde.mailbox.datamodel.PostLogEntry
 import com.robinlunde.mailbox.datamodel.PostUpdateStatus
 import com.robinlunde.mailbox.logview.PostViewModel
-import com.robinlunde.mailbox.network.BlueToothLib
+import com.robinlunde.mailbox.network.NativeBluetooth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -33,7 +33,11 @@ class MailboxApp : Application() {
         status = PostUpdateStatus(false, "FOOTBARBAZFOOBARBAZ", getString(R.string.no_status_yet_username))
         // Create scope and start handler in coroutine
         appScope = MainScope()
-        btConnection = BlueToothLib()
+
+        // BT
+        btConnection = NativeBluetooth()
+        //btConnection = BlueToothLib()
+
         appScope.launch {
             // Setup refresher on API to update data every 30min
             util.startDataRenewer()
@@ -67,9 +71,14 @@ class MailboxApp : Application() {
         private lateinit var postViewModel: PostViewModel
         private lateinit var alertViewModel: AlertViewModel
         private lateinit var appScope: CoroutineScope
-        private lateinit var btConnection: BlueToothLib
+        // BT
+        //private lateinit var btConnection: BlueToothLib
+        private lateinit var btConnection: NativeBluetooth
+
         // Initialize to signal no data available
         private lateinit var status: PostUpdateStatus
+        // TODO Do we need to keep track of last received mail timing?
+        private var lastReceivedMail: String = "0"
 
         data class MyMessage(val title: String, val text: String)
 
@@ -133,7 +142,8 @@ class MailboxApp : Application() {
         }
 
         // Get Connector for Bluetooth operations
-        fun getBTConn(): BlueToothLib {
+        // fun getBTConn(): BlueToothLib {
+        fun getBTConn(): NativeBluetooth {
             return btConnection
         }
 
@@ -201,10 +211,21 @@ class MailboxApp : Application() {
                 throw e
             }
 
+            // Todo check if needed
             // Update fragment_alert - Do for all instances, doesn't hurt!
             // This happens automatically when notification is clicked.
             //MainActivity.myActivity.updateAlertFragment()
         }
 
+        // function for handling new data from BT
+        fun newBTData(offset: String){
+            /**
+             * If lastReceivedMail is 0:
+             *      mail received is current time - offset
+             * if lastReceivedMail has a value:
+             *      mail received is lastReceivedMail + offset
+             */
+            Log.d("Main function", "New data from device received: $offset")
+        }
     }
 }

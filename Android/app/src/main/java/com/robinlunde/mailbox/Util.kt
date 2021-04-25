@@ -290,6 +290,7 @@ class Util {
     fun btEnabled() {
         Log.d("BlueTooth", "Proxied from Util")
         MailboxApp.getBTConn().btEnabledConfirmed()
+        // TODO start background scanning
     }
 
     // ----------------------------- DIV -------------------------------

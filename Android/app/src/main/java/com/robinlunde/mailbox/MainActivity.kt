@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import com.robinlunde.mailbox.databinding.ActivityMainBinding
+import com.robinlunde.mailbox.network.ScanType
 import kotlinx.coroutines.cancel
 
 
@@ -74,7 +75,8 @@ class MainActivity : AppCompatActivity() {
                 false
             }
             R.id.bluetooth -> {
-                MailboxApp.getBTConn().startScan()
+                // MailboxApp.getBTConn().startScan()
+                MailboxApp.getBTConn().bleScan(ScanType.ACTIVE)
                 true
             }
             else -> super.onOptionsItemSelected(item)
