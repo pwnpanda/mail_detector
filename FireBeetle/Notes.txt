@@ -20,8 +20,10 @@ BLE
     Arduino BLE refrerence
         https://www.arduino.cc/en/Reference/ArduinoBLE
 
-    Good example
+    Good examples
         https://create.arduino.cc/projecthub/monica/getting-started-with-bluetooth-low-energy-ble-ab4c94
+
+        https://www.electronicshub.org/esp32-ble-tutorial/
 
 Use C for now
     ** If using micropython, just installing a normal sketch from Aruino IDE will overwrite it and work normally
