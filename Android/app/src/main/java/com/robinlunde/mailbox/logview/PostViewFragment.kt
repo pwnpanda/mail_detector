@@ -84,7 +84,7 @@ class PostViewFragment : Fragment() {
             R.id.bluetooth -> {
                 util.logButtonPress("Logview - bt")
                 // Move to debug view
-                if (MailboxApp.getClickCounter() >= 3)  findNavController(this).navigate(PostViewFragmentDirections.actionLogViewFragmentToDebugFragment())
+                if (MailboxApp.getClickCounter() >= 3)  findNavController(this).navigate(PostViewFragmentDirections.actionLogviewFragmentToDebugFragment())
                 true
             }
             else -> return super.onOptionsItemSelected(item)

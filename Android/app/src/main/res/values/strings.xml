@@ -35,4 +35,6 @@
     <string name="no_status_yet_string">No status data available!</string>
     <string name="bgScan">BackgroundScan</string>
     <string name="activeScan">ActiveScan</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

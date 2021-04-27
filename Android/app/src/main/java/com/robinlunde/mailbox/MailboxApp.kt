@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import com.robinlunde.mailbox.alert.AlertViewModel
 import com.robinlunde.mailbox.datamodel.PostLogEntry
 import com.robinlunde.mailbox.datamodel.PostUpdateStatus
+import com.robinlunde.mailbox.debug.DebugViewModel
 import com.robinlunde.mailbox.logview.PostViewModel
 import com.robinlunde.mailbox.network.NativeBluetooth
 import kotlinx.coroutines.CoroutineScope
@@ -31,7 +32,11 @@ class MailboxApp : Application() {
         )
         username = prefs.getString(getString(R.string.username_pref), "").toString()
         // Need to start with string long enough to not trigger fault
-        status = PostUpdateStatus(false, "FOOTBARBAZFOOBARBAZ", getString(R.string.no_status_yet_username))
+        status = PostUpdateStatus(
+            false,
+            "FOOTBARBAZFOOBARBAZ",
+            getString(R.string.no_status_yet_username)
+        )
         // Create scope and start handler in coroutine
         appScope = MainScope()
 
@@ -72,12 +77,16 @@ class MailboxApp : Application() {
         private lateinit var postViewModel: PostViewModel
         private lateinit var alertViewModel: AlertViewModel
         private lateinit var appScope: CoroutineScope
+
         // BT
         private lateinit var btConnection: NativeBluetooth
         private var clickCounter = AtomicInteger()
+        private lateinit var sensorData: MutableList<Float>
+        private lateinit var debugViewModel: DebugViewModel
 
         // Initialize to signal no data available
         private lateinit var status: PostUpdateStatus
+
         // TODO Do we need to keep track of last received mail timing?
         private var lastReceivedMail: String = "0"
 
@@ -133,7 +142,7 @@ class MailboxApp : Application() {
             postViewModel = myModel
         }
 
-        fun setAlertModel(myModel: AlertViewModel){
+        fun setAlertModel(myModel: AlertViewModel) {
             alertViewModel = myModel
         }
 
@@ -173,7 +182,10 @@ class MailboxApp : Application() {
             } else {
                 val msg: MyMessage = when (newStatus.newMail) {
                     true -> {
-                        Log.d("Status", "New mail detected! Send push and update fragment! Data: $newStatus")
+                        Log.d(
+                            "Status",
+                            "New mail detected! Send push and update fragment! Data: $newStatus"
+                        )
                         // This is return value
                         MyMessage(
                             "New mail detected!",
@@ -194,7 +206,7 @@ class MailboxApp : Application() {
                     }
                 }
                 // Push Notification only if it is not the first run
-                if (status.username != getInstance().getString(R.string.no_status_yet_username) ){
+                if (status.username != getInstance().getString(R.string.no_status_yet_username)) {
                     Log.d("Status", "Not first run, Send push notification!")
                     util.pushNotification(msg)
                 }
@@ -203,7 +215,7 @@ class MailboxApp : Application() {
             // Update value for checking next time :)
             // This needs to happen before updating fragment, as the fragment relies on getStatus()
             status = newStatus
-            try{
+            try {
                 alertViewModel.currentStatus.postValue(newStatus)
             } catch (e: UninitializedPropertyAccessException) {
                 Log.d("Soft error", "Model not yet instantiated - Could not update data for view")
@@ -218,7 +230,7 @@ class MailboxApp : Application() {
         }
 
         // function for handling new data from BT
-        fun newBTData(offset: String){
+        fun newBTData(offset: String) {
             /**
              * If lastReceivedMail is 0:
              *      mail received is current time - offset
@@ -238,6 +250,27 @@ class MailboxApp : Application() {
 
         fun getClickCounter(): Int {
             return clickCounter.get()
+        }
+
+        fun setDebugViewModel(model: DebugViewModel) {
+            debugViewModel = model
+        }
+
+        fun getSensorData(): MutableList<Float> {
+            return sensorData
+        }
+
+        // Call from BT function!
+        fun setSensorData(data: Float) {
+            sensorData.add(data)
+            try {
+                debugViewModel.sensorData.postValue(sensorData)
+            } catch (e: UninitializedPropertyAccessException) {
+                Log.d("Soft error", "Model not yet instantiated - Could not update data for view")
+            } catch (e: Exception) {
+                throw e
+            }
+
         }
     }
 }

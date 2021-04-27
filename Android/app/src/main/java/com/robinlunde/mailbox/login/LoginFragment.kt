@@ -65,6 +65,7 @@ class LoginFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        super.onOptionsItemSelected(item)
         return when (item.itemId) {
             R.id.logo -> {
                 findNavController(this).navigate(
@@ -83,6 +84,8 @@ class LoginFragment : Fragment() {
 
             R.id.bluetooth -> {
                 MailboxApp.getUtil().logButtonPress("Login - bt")
+                if (MailboxApp.getClickCounter() >= 3)  findNavController(this).navigate(
+                    LoginFragmentDirections.actionLoginFragmentToDebugFragment())
                 true
             }
             else -> super.onOptionsItemSelected(item)

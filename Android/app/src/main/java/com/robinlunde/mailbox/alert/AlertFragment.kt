@@ -18,7 +18,6 @@ import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.databinding.FragmentAlertBinding
 import com.robinlunde.mailbox.datamodel.PostUpdateStatus
-import com.robinlunde.mailbox.logview.PostViewFragmentDirections
 
 class AlertFragment : Fragment() {
     private lateinit var util: Util
@@ -37,12 +36,6 @@ class AlertFragment : Fragment() {
             Log.d("Observer - Alert", newData.toString())
             // do something with new data
             updateFragment(newData)
-
-            // Update correct view with new data
-            /*binding.status.adapter = AlertAdapter(newData)
-            binding.status.layoutManager = LinearLayoutManager(context)
-            // Tel view it has changed
-            binding.status.adapter?.notifyDataSetChanged()*/
         }
         model.currentStatus.observe(this, statusObserver)
     }
@@ -58,8 +51,6 @@ class AlertFragment : Fragment() {
             container,
             false
         )
-        // set adapter
-        // val adapter = model.getStatus().value?.let { AlertAdapter(it) }
         binding.lifecycleOwner = viewLifecycleOwner
 
         // This happens every time the fragment is re-rendered, which is perfect
