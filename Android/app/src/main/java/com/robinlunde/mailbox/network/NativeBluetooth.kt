@@ -45,7 +45,7 @@ class NativeBluetooth {
         ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_OPPORTUNISTIC)
             .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES).build()
 
-    private val ack: ByteArray = byteArrayOf(0)
+    private val ack: ByteArray = byteArrayOf("1".toByte())
     private var connected = false
     private val attempt = AtomicInteger()
 
@@ -63,6 +63,7 @@ class NativeBluetooth {
         scanner.let { scanner ->
             if (!scanning) { // Stops scanning after a pre-defined scan period.
                 handler.postDelayed({
+                    Log.d(logTag, "Scan over from async action!")
                     scanning = false
                     scanner.stopScan(leScanCallback)
                 }, scanPeriod)
@@ -79,6 +80,7 @@ class NativeBluetooth {
                     }
                 }
             } else {
+                Log.d(logTag, "Scan over naturally!")
                 scanning = false
                 scanner.stopScan(leScanCallback)
             }
@@ -108,6 +110,8 @@ class NativeBluetooth {
     private fun retryConnection() {
         // call again after exponential backoff
         val delay = 200F * 2.0.pow(attempt.getAndIncrement())
+        // NUllPointerException here if device goes offline! Needs handling!
+        // TODO
         Handler(Looper.myLooper()!!).postDelayed({
             bleScan(ScanType.ACTIVE)
         }, delay.toLong())
