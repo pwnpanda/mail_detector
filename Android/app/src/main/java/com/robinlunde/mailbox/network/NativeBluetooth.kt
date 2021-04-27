@@ -45,7 +45,7 @@ class NativeBluetooth {
         ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_OPPORTUNISTIC)
             .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES).build()
 
-    private val ack: ByteArray = byteArrayOf("1".toByte())
+    private val ack: ByteArray = byteArrayOf(1)
     private var connected = false
     private val attempt = AtomicInteger()
 
@@ -110,11 +110,18 @@ class NativeBluetooth {
     private fun retryConnection() {
         // call again after exponential backoff
         val delay = 200F * 2.0.pow(attempt.getAndIncrement())
-        // NUllPointerException here if device goes offline! Needs handling!
-        // TODO
-        Handler(Looper.myLooper()!!).postDelayed({
-            bleScan(ScanType.ACTIVE)
-        }, delay.toLong())
+
+        try {
+            Handler(Looper.myLooper()!!).postDelayed({
+                bleScan(ScanType.ACTIVE)
+            }, delay.toLong())
+        } catch (nullPointer: NullPointerException) {
+            // Might want to try to detect exactly what is throwing null pointer!
+            Log.d(logTag, "Caught NullPointerException in rescan function. Likely due to client disconnect. Stacktrace: ${nullPointer.printStackTrace()}")
+        } catch (e: Exception) {
+            Log.d(logTag,"Caught exception: ${e.printStackTrace()} - Need to be handled?")
+            throw e
+        }
     }
 
     // Connect callback
@@ -197,7 +204,6 @@ class NativeBluetooth {
 
                 // Periodically read the remote connection value - every 30 sec
                 try {
-
                     Handler(Looper.getMainLooper()).also {
                         it.post(object : Runnable{
                             override fun run() {

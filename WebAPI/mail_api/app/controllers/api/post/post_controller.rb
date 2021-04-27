@@ -22,7 +22,7 @@ class Api::Post::PostController < ApplicationController
         # Return 400
         rescue ActionController::ParameterMissing
             render json: {error: "Unable to save status!" }, status: 400
-    end
+        end
     end
 
     # Helper to verify parameters

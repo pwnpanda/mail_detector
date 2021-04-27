@@ -214,7 +214,7 @@ class MailboxApp : Application() {
             // Todo check if needed
             // Update fragment_alert - Do for all instances, doesn't hurt!
             // This happens automatically when notification is clicked.
-            //MainActivity.myActivity.updateAlertFragment()
+            // MainActivity.myActivity.updateAlertFragment()
         }
 
         // function for handling new data from BT
