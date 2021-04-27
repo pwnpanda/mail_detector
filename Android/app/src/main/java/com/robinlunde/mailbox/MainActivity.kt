@@ -8,6 +8,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -67,16 +69,25 @@ class MainActivity : AppCompatActivity() {
         // Always arrives here first
         return when (item.itemId) {
             R.id.logo -> {
+                MailboxApp.setClickCounterZero()
                 MailboxApp.getUtil().logButtonPress("Main - logo")
                 false
             }
             R.id.logs -> {
+                MailboxApp.setClickCounterZero()
                 MailboxApp.getUtil().logButtonPress("Main - logs")
                 false
             }
             R.id.bluetooth -> {
                 // MailboxApp.getBTConn().startScan()
-                MailboxApp.getBTConn().bleScan(ScanType.ACTIVE)
+                val cnt = MailboxApp.incrementClickCounter()
+                if (cnt == 1) {
+                    MailboxApp.getBTConn().bleScan(ScanType.ACTIVE)
+                    // Sets clickCounter to 0 in 3 seconds
+                    Handler(Looper.myLooper()!!).postDelayed({
+                        MailboxApp.setClickCounterZero()
+                    }, 3000)
+                }
                 true
             }
             else -> super.onOptionsItemSelected(item)

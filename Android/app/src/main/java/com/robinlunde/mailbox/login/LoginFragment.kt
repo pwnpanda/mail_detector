@@ -80,6 +80,11 @@ class LoginFragment : Fragment() {
                 // return true so that the menu pop up is opened
                 true
             }
+
+            R.id.bluetooth -> {
+                MailboxApp.getUtil().logButtonPress("Login - bt")
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }

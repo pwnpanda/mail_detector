@@ -17,6 +17,7 @@ import com.robinlunde.mailbox.network.NativeBluetooth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicInteger
 
 class MailboxApp : Application() {
 
@@ -72,8 +73,8 @@ class MailboxApp : Application() {
         private lateinit var alertViewModel: AlertViewModel
         private lateinit var appScope: CoroutineScope
         // BT
-        //private lateinit var btConnection: BlueToothLib
         private lateinit var btConnection: NativeBluetooth
+        private var clickCounter = AtomicInteger()
 
         // Initialize to signal no data available
         private lateinit var status: PostUpdateStatus
@@ -142,7 +143,6 @@ class MailboxApp : Application() {
         }
 
         // Get Connector for Bluetooth operations
-        // fun getBTConn(): BlueToothLib {
         fun getBTConn(): NativeBluetooth {
             return btConnection
         }
@@ -226,6 +226,18 @@ class MailboxApp : Application() {
              *      mail received is lastReceivedMail + offset
              */
             Log.d("Main function", "New data from device received: $offset")
+        }
+
+        fun incrementClickCounter(): Int {
+            return clickCounter.getAndIncrement()
+        }
+
+        fun setClickCounterZero() {
+            clickCounter.set(0)
+        }
+
+        fun getClickCounter(): Int {
+            return clickCounter.get()
         }
     }
 }

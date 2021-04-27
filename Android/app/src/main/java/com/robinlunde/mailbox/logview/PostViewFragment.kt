@@ -62,20 +62,29 @@ class PostViewFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        super.onOptionsItemSelected(item)
         return when (item.itemId) {
             R.id.logo -> {
+                util.logButtonPress("Logview - logo")
                 // Try to fetch new data, if we fail we don't care
                 util.tryRequest(getString(R.string.get_last_status_update_method), null, null, null)
                 //Move to Alert fragment
                 findNavController(this).navigate(
                     PostViewFragmentDirections.actionLogviewFragmentToAlertFragment()
                 )
-                util.logButtonPress("Logview - logo")
+
                 true
             }
             R.id.logs -> {
                 // Do nothing, in correct view
                 util.logButtonPress("Logview - logs")
+                true
+            }
+
+            R.id.bluetooth -> {
+                util.logButtonPress("Logview - bt")
+                // Move to debug view
+                if (MailboxApp.getClickCounter() >= 3)  findNavController(this).navigate(PostViewFragmentDirections.actionLogViewFragmentToDebugFragment())
                 true
             }
             else -> return super.onOptionsItemSelected(item)

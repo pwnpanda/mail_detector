@@ -18,6 +18,7 @@ import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.databinding.FragmentAlertBinding
 import com.robinlunde.mailbox.datamodel.PostUpdateStatus
+import com.robinlunde.mailbox.logview.PostViewFragmentDirections
 
 class AlertFragment : Fragment() {
     private lateinit var util: Util
@@ -174,6 +175,7 @@ class AlertFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        super.onOptionsItemSelected(item)
         return when (item.itemId) {
 
             R.id.logo -> {
@@ -183,12 +185,20 @@ class AlertFragment : Fragment() {
             }
 
             R.id.logs -> {
+                util.logButtonPress("Alert - logs")
                 // Try to fetch data to update logview - if we fail, we don't care
                 util.tryRequest(getString(R.string.get_logs), null, null, null)
                 // Go to logview (noew named PostView
                 NavHostFragment.findNavController(this)
                     .navigate(AlertFragmentDirections.actionAlertFragmentToLogviewFragment())
-                util.logButtonPress("Alert - logs")
+                true
+            }
+
+            R.id.bluetooth -> {
+                util.logButtonPress("Alert - bt")
+                // Move to debug view
+                if (MailboxApp.getClickCounter() >= 3)  NavHostFragment.findNavController(this)
+                    .navigate(AlertFragmentDirections.actionAlertFragmentToDebugFragment())
                 true
             }
 
