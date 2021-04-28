@@ -240,27 +240,32 @@ class MailboxApp : Application() {
             Log.d("Main function", "New data from device received: $offset")
         }
 
+        // increment clickCounter
         fun incrementClickCounter(): Int {
             Log.d("MailboxApp","Increment counter +1! Value before increment: ${clickCounter.get()}")
             return clickCounter.incrementAndGet()
         }
 
+        // set clickCounter 0
         fun setClickCounterZero() {
             Log.d("MailboxApp","Set to 0! Current value of counter: ${clickCounter.get()}.")
             clickCounter.set(0)
         }
 
+        // get clickCounter
         fun getClickCounter(): Int {
             Log.d("MailboxApp","Value of counter: ${clickCounter.get()}")
             return clickCounter.get()
         }
 
+        // Set debugViewModel
         fun setDebugViewModel(model: DebugViewModel) {
             debugViewModel = model
         }
 
         // Call from BT function!
         fun setSensorData(data: Double) {
+            Log.d("MailboxApp", "New SensorData received: $data")
             sensorData.add(data)
             try {
                 debugViewModel.sensorData.postValue(sensorData)

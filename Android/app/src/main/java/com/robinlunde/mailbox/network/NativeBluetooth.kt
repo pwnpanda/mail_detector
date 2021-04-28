@@ -8,25 +8,15 @@ import android.os.Handler
 import android.os.Looper
 import android.os.ParcelUuid
 import android.util.Log
-import androidx.annotation.StringRes
 import com.robinlunde.mailbox.MailboxApp
-import com.robinlunde.mailbox.R
+import com.robinlunde.mailbox.debug.ScanType
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.pow
 
 private val SERVICE_UUID = UUID.fromString("4fafc201-1fb5-459e-8fcc-c5c9c331914b")
-private val CHARACTERISTIC_UUID = UUID.fromString("beb5483e-36e1-4688-b7f5-ea07361b26a8")
-
-// TODO should probably be in own class
-enum class ScanType(@StringRes res: Int) {
-    ACTIVE(R.string.activeScan),
-    BACKGROUND(R.string.bgScan);
-
-    fun toString(@StringRes res: Int): String {
-        return MailboxApp.getInstance().getString(res)
-    }
-}
+private val CHARACTERISTIC_REAL_UUID = UUID.fromString("beb5483e-36e1-4688-b7f5-ea07361b26a8")
+private val CHARACTERISTIC_DEBUG_UUID = UUID.fromString("")
 
 class NativeBluetooth {
     private val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
@@ -193,9 +183,12 @@ class NativeBluetooth {
                     if (SERVICE_UUID == service.uuid) {
                         // Service exists, lets check characteristic
                         for (characteristic in service.characteristics) {
-                            if (CHARACTERISTIC_UUID == characteristic.uuid) {
+                            if (CHARACTERISTIC_REAL_UUID == characteristic.uuid) {
                                 // Characteristic exists, lets have fun
                                 // Get notified if characteristic changes / has a value
+                                gatt.setCharacteristicNotification(characteristic, true)
+                            } else if (CHARACTERISTIC_DEBUG_UUID == characteristic.uuid){
+                                // Register for debug data
                                 gatt.setCharacteristicNotification(characteristic, true)
                             }
                         }
@@ -230,15 +223,17 @@ class NativeBluetooth {
                 logTag,
                 "Characteristic ${characteristic!!.uuid} changed. New value: ${characteristic.value.decodeToString()}"
             )
-            val difference = characteristic.value.decodeToString()
-            // Send ack
-            characteristic.value = ack
-            gatt!!.writeCharacteristic(characteristic)
-            // Notify app and api of new mail
-            MailboxApp.newBTData(difference)
-            /** TODO
-             * Disconnect
-             */
+            if (characteristic.uuid == CHARACTERISTIC_REAL_UUID){
+                val difference = characteristic.value.decodeToString()
+                // Send ack
+                characteristic.value = ack
+                gatt!!.writeCharacteristic(characteristic)
+                // Notify app and api of new mail
+                MailboxApp.newBTData(difference)
+                // TODO disconnect
+            } else if (characteristic.uuid == CHARACTERISTIC_DEBUG_UUID) {
+                MailboxApp.setSensorData(characteristic.value.decodeToString().toDouble())
+            }
         }
 
         // Unused, but useful to store in case needed later
@@ -296,7 +291,6 @@ class NativeBluetooth {
         when (device.bondState) {
             BOND_NONE -> {
                 Log.d(logTag, "Not bonded, continue with service discovery")
-                // TODO bond?
                 gatt.discoverServices()
             }
 
