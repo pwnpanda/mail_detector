@@ -81,7 +81,7 @@ class MailboxApp : Application() {
         // BT
         private lateinit var btConnection: NativeBluetooth
         private var clickCounter = AtomicInteger()
-        private lateinit var sensorData: MutableList<Float>
+        private lateinit var sensorData: MutableList<Double>
         private lateinit var debugViewModel: DebugViewModel
 
         // Initialize to signal no data available
@@ -241,14 +241,17 @@ class MailboxApp : Application() {
         }
 
         fun incrementClickCounter(): Int {
-            return clickCounter.getAndIncrement()
+            Log.d("MailboxApp","Increment counter +1! Value before increment: ${clickCounter.get()}")
+            return clickCounter.incrementAndGet()
         }
 
         fun setClickCounterZero() {
+            Log.d("MailboxApp","Set to 0! Current value of counter: ${clickCounter.get()}.")
             clickCounter.set(0)
         }
 
         fun getClickCounter(): Int {
+            Log.d("MailboxApp","Value of counter: ${clickCounter.get()}")
             return clickCounter.get()
         }
 
@@ -256,12 +259,8 @@ class MailboxApp : Application() {
             debugViewModel = model
         }
 
-        fun getSensorData(): MutableList<Float> {
-            return sensorData
-        }
-
         // Call from BT function!
-        fun setSensorData(data: Float) {
+        fun setSensorData(data: Double) {
             sensorData.add(data)
             try {
                 debugViewModel.sensorData.postValue(sensorData)

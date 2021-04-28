@@ -166,7 +166,6 @@ class AlertFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        super.onOptionsItemSelected(item)
         return when (item.itemId) {
 
             R.id.logo -> {
@@ -190,7 +189,7 @@ class AlertFragment : Fragment() {
                 // Move to debug view
                 if (MailboxApp.getClickCounter() >= 3)  NavHostFragment.findNavController(this)
                     .navigate(AlertFragmentDirections.actionAlertFragmentToDebugFragment())
-                true
+                super.onOptionsItemSelected(item)
             }
 
             else -> return super.onOptionsItemSelected(item)

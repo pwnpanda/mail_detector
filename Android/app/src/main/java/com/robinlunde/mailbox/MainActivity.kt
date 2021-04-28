@@ -79,6 +79,7 @@ class MainActivity : AppCompatActivity() {
                 false
             }
             R.id.bluetooth -> {
+                MailboxApp.getUtil().logButtonPress("Main - BT")
                 // MailboxApp.getBTConn().startScan()
                 val cnt = MailboxApp.incrementClickCounter()
                 if (cnt == 1) {
@@ -88,7 +89,7 @@ class MainActivity : AppCompatActivity() {
                         MailboxApp.setClickCounterZero()
                     }, 3000)
                 }
-                true
+                false
             }
             else -> super.onOptionsItemSelected(item)
         }

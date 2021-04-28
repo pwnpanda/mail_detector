@@ -12,6 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.NavHostFragment
 import com.jjoe64.graphview.GraphView
+import com.jjoe64.graphview.LegendRenderer
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import com.robinlunde.mailbox.MailboxApp
@@ -24,16 +25,17 @@ class DebugFragment : Fragment() {
     private lateinit var util: Util
     private lateinit var binding: FragmentDebugBinding
     private val model: DebugViewModel by viewModels()
+    private val logTag = "DebugFragment"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         util = MailboxApp.getUtil()
-        // need a central store in mailboxapp to update data for view model
+        // need a central store in mailbox app to update data for view model
         MailboxApp.setDebugViewModel(model)
         // Update UI if new data
-        val statusObserver = Observer<MutableList<Float>> { newData ->
-            Log.d("Observer - Debug", newData.toString())
+        val statusObserver = Observer<MutableList<Double>> { newData ->
+            Log.d(logTag, newData.toString())
             // do something with new data
             updateFragment(newData)
         }
@@ -59,18 +61,45 @@ class DebugFragment : Fragment() {
         return binding.root
     }
 
-    private fun updateFragment(newData: MutableList<Float>) {
-        var graph: GraphView = binding.debugGraph
+    private fun updateFragment(newData: MutableList<Double>) {
+        /**
+         * Add RSSI stats
+         * Add Multiple screens for more debugging?
+         */
+        val graph: GraphView = binding.debugGraph
+
         val data: LineGraphSeries<DataPoint> = LineGraphSeries<DataPoint>()
         // Automatically sorted as first entry has lowest x value!
-        for (ent in newData) {
-            data.appendData(DataPoint(newData.indexOf(ent).toDouble(), ent.toDouble()), true, 100)
+        for (i in newData.indices) {
+            Log.d(logTag, "Index: $i - Value: ${newData[i]}")
+            data.appendData(DataPoint(i.toDouble(), newData[i]), true, 100)
         }
+
+        // Set data name
+        data.title = "Sensor data"
+        // Show data points and dots, and draw line
+        data.isDrawDataPoints = true
+        data.dataPointsRadius = 20F
+        data.isDrawAsPath = true
+        // Title for the x-axis and y-axis label
+        graph.gridLabelRenderer.verticalAxisTitle = "Sensor data"
+        graph.gridLabelRenderer.horizontalAxisTitle = "Seconds"
+
+        // Set max values for graph
+        graph.viewport.isYAxisBoundsManual = true
+        graph.viewport.setMaxY(1.1)
+        graph.viewport.setMinX(0.0)
+
+        // Show legend at top - Set title
+        graph.title = "LDR Sensor data"
+        graph.titleTextSize = 72F
+        graph.legendRenderer.isVisible = true
+        graph.legendRenderer.align = LegendRenderer.LegendAlign.TOP
+
         graph.addSeries(data)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        super.onOptionsItemSelected(item)
         return when (item.itemId) {
 
             R.id.logo -> {
@@ -85,7 +114,7 @@ class DebugFragment : Fragment() {
                 util.logButtonPress("Debug - logs")
                 // Try to fetch data to update logview - if we fail, we don't care
                 util.tryRequest(getString(R.string.get_logs), null, null, null)
-                // Go to logview (noew named PostView
+                // Go to logview (now named PostView)
                 NavHostFragment.findNavController(this)
                     .navigate(DebugFragmentDirections.actionDebugFragmentToLogviewFragment())
                 true
@@ -94,7 +123,7 @@ class DebugFragment : Fragment() {
             R.id.bluetooth -> {
                 util.logButtonPress("Debug - bt")
                 // Do nothing, we are in this view
-                true
+                super.onOptionsItemSelected(item)
             }
 
             else -> return super.onOptionsItemSelected(item)

@@ -62,7 +62,6 @@ class PostViewFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        super.onOptionsItemSelected(item)
         return when (item.itemId) {
             R.id.logo -> {
                 util.logButtonPress("Logview - logo")
@@ -85,7 +84,8 @@ class PostViewFragment : Fragment() {
                 util.logButtonPress("Logview - bt")
                 // Move to debug view
                 if (MailboxApp.getClickCounter() >= 3)  findNavController(this).navigate(PostViewFragmentDirections.actionLogviewFragmentToDebugFragment())
-                true
+                super.onOptionsItemSelected(item)
+                //true
             }
             else -> return super.onOptionsItemSelected(item)
         }
