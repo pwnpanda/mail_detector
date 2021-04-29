@@ -12,7 +12,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.NavHostFragment
 import com.jjoe64.graphview.GraphView
-import com.jjoe64.graphview.LegendRenderer
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import com.robinlunde.mailbox.MailboxApp
@@ -40,6 +39,12 @@ class DebugFragment : Fragment() {
             updateFragment(newData)
         }
         model.sensorData.observe(this, statusObserver)
+
+        val rssiObserver = Observer<Int> { newRSSI ->
+            Log.d(logTag, "New RSSI Value: $newRSSI")
+            binding.rssi.text = getString(R.string.rssiSignal, newRSSI)
+        }
+        model.rssi.observe(this, rssiObserver)
     }
 
     override fun onCreateView(
@@ -66,6 +71,7 @@ class DebugFragment : Fragment() {
          * Add RSSI stats
          * Add Multiple screens for more debugging?
          */
+
         val graph: GraphView = binding.debugGraph
 
         val data: LineGraphSeries<DataPoint> = LineGraphSeries<DataPoint>()
@@ -93,8 +99,10 @@ class DebugFragment : Fragment() {
         // Show legend at top - Set title
         graph.title = "LDR Sensor data"
         graph.titleTextSize = 72F
-        graph.legendRenderer.isVisible = true
-        graph.legendRenderer.align = LegendRenderer.LegendAlign.TOP
+
+        // TODO
+        // Add scroll on more than 6 datapoints, up to 30!
+
 
         graph.addSeries(data)
     }

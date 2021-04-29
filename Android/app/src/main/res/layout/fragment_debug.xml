@@ -10,14 +10,25 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <TextView
+            android:id="@+id/rssi"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:text="@string/rssiSignal"
+            android:textSize="30sp"
+            app:layout_constraintEnd_toEndOf="@+id/debug_graph"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="RSSI Signal: 1234" />
+
         <com.jjoe64.graphview.GraphView
             android:id="@+id/debug_graph"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/rssi" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

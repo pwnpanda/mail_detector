@@ -81,7 +81,7 @@ class MailboxApp : Application() {
         // BT
         private lateinit var btConnection: NativeBluetooth
         private var clickCounter = AtomicInteger()
-        private lateinit var sensorData: MutableList<Double>
+        private var sensorData = mutableListOf<Double>()
         private lateinit var debugViewModel: DebugViewModel
 
         // Initialize to signal no data available
@@ -261,6 +261,18 @@ class MailboxApp : Application() {
         // Set debugViewModel
         fun setDebugViewModel(model: DebugViewModel) {
             debugViewModel = model
+        }
+
+        // Set rssi data in debug mode
+        fun setRSSIData(data: Int) {
+            Log.d("MailboxApp", "New RSSI received: $data")
+            try {
+                debugViewModel.rssi.postValue(data)
+            } catch (e: UninitializedPropertyAccessException) {
+                Log.d("Soft error", "Model not yet instantiated - Could not update data for view")
+            } catch (e: Exception) {
+                throw e
+            }
         }
 
         // Call from BT function!

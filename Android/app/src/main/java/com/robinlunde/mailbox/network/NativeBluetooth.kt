@@ -16,7 +16,7 @@ import kotlin.math.pow
 
 private val SERVICE_UUID = UUID.fromString("4fafc201-1fb5-459e-8fcc-c5c9c331914b")
 private val CHARACTERISTIC_REAL_UUID = UUID.fromString("beb5483e-36e1-4688-b7f5-ea07361b26a8")
-private val CHARACTERISTIC_DEBUG_UUID = UUID.fromString("")
+private val CHARACTERISTIC_DEBUG_UUID = UUID.fromString("0f06709f-e038-4f4f-8795-31c514ec22dd")
 
 class NativeBluetooth {
     private val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
@@ -80,6 +80,7 @@ class NativeBluetooth {
     private val leScanCallback: ScanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
+            Log.d(logTag, "Found some results!")
             // This result contains a lot of interesting data. May want to use it later
             device = result!!.device
             device.connectGatt(
@@ -107,7 +108,7 @@ class NativeBluetooth {
             }, delay.toLong())
         } catch (nullPointer: NullPointerException) {
             // Might want to try to detect exactly what is throwing null pointer!
-            Log.d(logTag, "Caught NullPointerException in rescan function. Likely due to client disconnect. Stacktrace: ${nullPointer.printStackTrace()}")
+            Log.d(logTag, "Caught NullPointerException in rescan function. Likely due to client disconnect. Stacktrace: ${nullPointer.localizedMessage}")
         } catch (e: Exception) {
             Log.d(logTag,"Caught exception: ${e.printStackTrace()} - Need to be handled?")
             throw e
@@ -232,7 +233,12 @@ class NativeBluetooth {
                 MailboxApp.newBTData(difference)
                 // TODO disconnect
             } else if (characteristic.uuid == CHARACTERISTIC_DEBUG_UUID) {
+
+                Log.d(logTag, "Received data: ${characteristic.value.decodeToString()}")
                 MailboxApp.setSensorData(characteristic.value.decodeToString().toDouble())
+                // TODO only send once every 30 sec
+                //characteristic.value = byteArrayOf(1)
+                //gatt!!.writeCharacteristic(characteristic)
             }
         }
 
@@ -276,6 +282,7 @@ class NativeBluetooth {
         override fun onReadRemoteRssi(gatt: BluetoothGatt?, rssi: Int, status: Int) {
             if (status == GATT_SUCCESS) {
                 Log.i(logTag, "Signal for remote server $rssi")
+                MailboxApp.setRSSIData(rssi)
             } else {
                 Log.d(
                     logTag,
