@@ -35,6 +35,8 @@ class NativeBluetooth {
         ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_OPPORTUNISTIC)
             .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES).build()
 
+    private var localGatt: BluetoothGatt? = null
+
     private val ack: ByteArray = byteArrayOf(1)
     private var connected = false
     private val attempt = AtomicInteger()
@@ -119,8 +121,10 @@ class NativeBluetooth {
     private val gattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {
         // Detects and registers changes during the Connection-process for the GATT Server
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
+
             // We succeeded in whatever we wanted to do
             if (status == GATT_SUCCESS) {
+                localGatt = gatt
                 // Check what is currently happening
                 when (newState) {
                     // We're connection
@@ -196,13 +200,13 @@ class NativeBluetooth {
                     }
                 }
 
-                // Periodically read the remote connection value - every 30 sec
+                // Periodically read the remote connection value - every 5 sec
                 try {
                     Handler(Looper.getMainLooper()).also {
                         it.post(object : Runnable{
                             override fun run() {
                                 gatt.readRemoteRssi()
-                                it.postDelayed(this, 30000)
+                                it.postDelayed(this, 5000)
                             }
                         })
                     }
@@ -314,6 +318,14 @@ class NativeBluetooth {
                 Log.d(logTag, "Unknown bond state: ${device.bondState}")
             }
         }
+    }
+
+    fun requestDebugData() {
+        val debugService = localGatt?.getService(SERVICE_UUID)
+        val debugCharacteristic = debugService?.getCharacteristic(
+            CHARACTERISTIC_DEBUG_UUID)
+        debugCharacteristic?.value = ack
+        localGatt?.writeCharacteristic(debugCharacteristic)
     }
 }
 /**

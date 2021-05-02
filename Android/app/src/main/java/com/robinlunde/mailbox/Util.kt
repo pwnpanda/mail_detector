@@ -11,6 +11,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.robinlunde.mailbox.datamodel.PostLogEntry
 import com.robinlunde.mailbox.datamodel.PostUpdateStatus
+import com.robinlunde.mailbox.debug.ScanType
 import com.robinlunde.mailbox.network.HttpRequestLib
 import kotlinx.coroutines.*
 import java.net.URL
@@ -56,7 +57,7 @@ class Util {
                     if (!getDataWeb(null)) {
                         Log.d("HTTP-Get", "Error when getting logs from server")
                     }
-
+                    MailboxApp.getBTConn().bleScan(ScanType.BACKGROUND)
                     val lastCheck = getDataWeb(updateURL)
                     // if there was new mail
                     if (!lastCheck) {
@@ -290,7 +291,6 @@ class Util {
     fun btEnabled() {
         Log.d("BlueTooth", "Proxied from Util")
         MailboxApp.getBTConn().btEnabledConfirmed()
-        // TODO start background scanning
     }
 
     // ----------------------------- DIV -------------------------------

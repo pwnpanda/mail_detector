@@ -29,7 +29,10 @@ class DebugFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        Log.d(logTag, "OnCreate Called for Debug!")
         util = MailboxApp.getUtil()
+        // Start collecting debug data
+        MailboxApp.getBTConn().requestDebugData()
         // need a central store in mailbox app to update data for view model
         MailboxApp.setDebugViewModel(model)
         // Update UI if new data
@@ -62,6 +65,9 @@ class DebugFragment : Fragment() {
 
         val sensorData = model.sensorData.value!!
         updateFragment(sensorData)
+
+        val RSSI = model.rssi.value!!
+        binding.rssi.text = getString(R.string.rssiSignal, RSSI)
 
         return binding.root
     }

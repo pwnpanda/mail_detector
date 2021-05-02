@@ -279,8 +279,9 @@ class MailboxApp : Application() {
         fun setSensorData(data: Double) {
             Log.d("MailboxApp", "New SensorData received: $data")
             sensorData.add(data)
+            val curValue = sensorData
             try {
-                debugViewModel.sensorData.postValue(sensorData)
+                debugViewModel.sensorData.postValue(curValue)
             } catch (e: UninitializedPropertyAccessException) {
                 Log.d("Soft error", "Model not yet instantiated - Could not update data for view")
             } catch (e: Exception) {
