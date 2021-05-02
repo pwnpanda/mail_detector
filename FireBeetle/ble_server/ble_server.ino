@@ -56,10 +56,11 @@ characteristic getCharacteristic(BLECharacteristic *blechar){
 }
 
 void setSendValue(BLECharacteristic *pCharacteristic, char *buffer){
-  Serial.print("Sending data: ");
-  Serial.print(buffer);
   // get Characteristic
   characteristic curChar = getCharacteristic(pCharacteristic);
+  // Describe data to send
+  Serial.print("Sending data: ");
+  Serial.print(buffer);
   // Print relevant data based on enum
   if (curChar == c_real){
   	Serial.println(" to Real characteristic!");
@@ -216,7 +217,7 @@ void setup() {
   // BLEDevice::startAdvertising();
   Serial.println("Characteristic defined! Now you can read it in your phone!");
   
-  // Set sleep wakeup condition
+  // Set sleep wakeup condition - WakeUp if GPIO Goes to High!
   esp_sleep_enable_ext0_wakeup(GPIO_NUM, GPIO_LEVEL);
 }
 
@@ -246,7 +247,12 @@ void loop() {
   }
 
   // If we have printed debug info for 30sec, stop it and reset counter
-  if (sleep_counter >= 30)	debug = false; sleep_counter = 0; sleep = 5000;
+  if (sleep_counter >= 30){
+  	debug = false;
+  	sleep_counter = 0;
+  	sleep = 5000;
+  	Serial.println("Reported debug signal for 30 sec. Setting Debug off!");
+  }
  
   // Sleep for 1 sec
   delay(sleep);
