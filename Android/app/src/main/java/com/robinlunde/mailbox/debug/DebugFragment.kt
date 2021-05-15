@@ -37,6 +37,7 @@ class DebugFragment : Fragment() {
         MailboxApp.setDebugViewModel(model)
         // Update UI if new data
         val statusObserver = Observer<MutableList<Double>> { newData ->
+            // TODO Issue with being updated too quickly! Need to lock somehow!
             Log.d(logTag, newData.toString())
             // do something with new data
             updateFragment(newData)
