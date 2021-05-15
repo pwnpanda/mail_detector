@@ -52,4 +52,19 @@ Use C for now
         Asleep Until Wed: 0900  (/48h)
         Awake Wed: 0900 - 1700
 
+
         
+White = 3.3V
+Brown = Sensor reader (RTC-GPI10)
+Black = Ground
+
+Check power consumption
+    https://diyi0t.com/reduce-the-esp32-power-consumption/
+
+
+TODO:
+    1. Build circuit without breadboard
+    2. Test in real environment with readings
+    3. FInish up code with deep sleep
+    4. Test deep sleep
+    5. Finish real code
