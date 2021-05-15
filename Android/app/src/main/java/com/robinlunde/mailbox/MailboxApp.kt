@@ -87,9 +87,6 @@ class MailboxApp : Application() {
         // Initialize to signal no data available
         private lateinit var status: PostUpdateStatus
 
-        // TODO Do we need to keep track of last received mail timing?
-        private var lastReceivedMail: String = "0"
-
         data class MyMessage(val title: String, val text: String)
 
         // Get username
@@ -222,11 +219,6 @@ class MailboxApp : Application() {
             } catch (e: Exception) {
                 throw e
             }
-
-            // Todo check if needed
-            // Update fragment_alert - Do for all instances, doesn't hurt!
-            // This happens automatically when notification is clicked.
-            // MainActivity.myActivity.updateAlertFragment()
         }
 
         // function for handling new data from BT

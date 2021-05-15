@@ -37,10 +37,17 @@ class DebugFragment : Fragment() {
         MailboxApp.setDebugViewModel(model)
         // Update UI if new data
         val statusObserver = Observer<MutableList<Double>> { newData ->
-            // TODO Issue with being updated too quickly! Need to lock somehow!
-            Log.d(logTag, newData.toString())
-            // do something with new data
-            updateFragment(newData)
+            // Just ignore issue since it is for debugging!
+            try {
+                Log.d(logTag, newData.toString())
+                // do something with new data
+                updateFragment(newData)
+            } catch (e: ConcurrentModificationException) {
+                Log.d(logTag,"Got data too quickly, just error out and update next time")
+            } catch (e: Exception){
+                Log.e(logTag, "Got some fatal error! Crash in order to debug further")
+                throw e
+            }
         }
         model.sensorData.observe(this, statusObserver)
 
@@ -88,12 +95,16 @@ class DebugFragment : Fragment() {
             data.appendData(DataPoint(i.toDouble(), newData[i]), true, 100)
         }
 
+        // Add scroll on more than 6 datapoints, up to 30!
+        if (newData.size > 30)  graph.viewport.isScalable = true
+
         // Set data name
         data.title = "Sensor data"
         // Show data points and dots, and draw line
         data.isDrawDataPoints = true
         data.dataPointsRadius = 20F
         data.isDrawAsPath = true
+
         // Title for the x-axis and y-axis label
         graph.gridLabelRenderer.verticalAxisTitle = "Sensor data"
         graph.gridLabelRenderer.horizontalAxisTitle = "Seconds"
@@ -106,10 +117,6 @@ class DebugFragment : Fragment() {
         // Show legend at top - Set title
         graph.title = "LDR Sensor data"
         graph.titleTextSize = 72F
-
-        // TODO
-        // Add scroll on more than 6 datapoints, up to 30!
-
 
         graph.addSeries(data)
     }
@@ -138,6 +145,8 @@ class DebugFragment : Fragment() {
             R.id.bluetooth -> {
                 util.logButtonPress("Debug - bt")
                 // Do nothing, we are in this view
+                // Start collecting debug data           
+                if (MailboxApp.getClickCounter() >= 3)  MailboxApp.getBTConn().requestDebugData()
                 super.onOptionsItemSelected(item)
             }
 

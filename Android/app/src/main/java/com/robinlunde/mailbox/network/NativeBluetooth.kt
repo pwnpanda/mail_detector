@@ -229,20 +229,22 @@ class NativeBluetooth {
                 "Characteristic ${characteristic!!.uuid} changed. New value: ${characteristic.value.decodeToString()}"
             )
             if (characteristic.uuid == CHARACTERISTIC_REAL_UUID){
-                val difference = characteristic.value.decodeToString()
+                val valFromSensor = characteristic.value.decodeToString()
                 // Send ack
                 characteristic.value = ack
                 gatt!!.writeCharacteristic(characteristic)
                 // Notify app and api of new mail
-                MailboxApp.newBTData(difference)
+                MailboxApp.newBTData(valFromSensor)
+                // TODO Calculate timestamp based on difference from current time
+                // given value (valFromSensor) is the time (in seconds) since the mail was detected.
+                // We can calculate when it was, by removing valFromSensor seconds from the current timestamp
+                // val sensorDetected = now() - valFromSensor
+                // val pickupTime = now()
                 // TODO disconnect
+                // gatt.disconnect()
             } else if (characteristic.uuid == CHARACTERISTIC_DEBUG_UUID) {
-
                 Log.d(logTag, "Received data: ${characteristic.value.decodeToString()}")
                 MailboxApp.setSensorData(characteristic.value.decodeToString().toDouble())
-                // TODO only send once every 30 sec
-                //characteristic.value = byteArrayOf(1)
-                //gatt!!.writeCharacteristic(characteristic)
             }
         }
 
