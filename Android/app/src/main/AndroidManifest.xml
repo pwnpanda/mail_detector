@@ -23,8 +23,7 @@
         android:theme="@style/Theme.Mailbox">
         <activity
             android:name=".MainActivity"
-            android:taskAffinity=""
-            android:excludeFromRecents="true">
+            android:taskAffinity="">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

@@ -21,7 +21,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import com.robinlunde.mailbox.databinding.ActivityMainBinding
 import com.robinlunde.mailbox.debug.ScanType
-import kotlinx.coroutines.cancel
 
 
 // TODO
@@ -108,17 +107,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Make sure BT is enabled when we resume app
-    // TODO this should be probably improved UI wise as well
     override fun onResume() {
         super.onResume()
         if (promptGivePermission()) MailboxApp.getUtil().btEnabled()
-    }
-
-    // Cleanup when activity is dead
-    // TODO is this correct?
-    override fun onDestroy() {
-        super.onDestroy()
-        MailboxApp.getAppScope().cancel()
     }
 
     // ------------------- BT ---------------------
