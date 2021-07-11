@@ -290,6 +290,9 @@ void loop() {
 
 	if (connected) {
 		// TODO change to sending time since post detected
+
+		// When post is detected, get time. Then when sending notification to phone, get current time and deduct previous time
+		
 		// getTimeAsString(curTime getTimeSincePostArrived() );
 		getTimeAsString(curTime, getCurrent());
 		setSendValue(pCharacteristic_real, curTime);
