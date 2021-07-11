@@ -163,7 +163,7 @@ class MailboxApp : Application() {
          * newMail True -> True = do nothing
          * newMail True -> False = remove notification view & push that X picked up the mail
          * newMail: False -> True = Notification and details update
-         * newMail False -> False, Update timestamp and person who did last check
+         * newMail False -> False = Update timestamp and person who did last check
          */
         fun setStatus(newStatus: PostUpdateStatus) {
             // Check if current and previous status is the same
@@ -222,14 +222,35 @@ class MailboxApp : Application() {
         }
 
         // function for handling new data from BT
-        fun newBTData(offset: String) {
+        fun newBTData(time: String, onlyTimestamp: Boolean) {
+
+            // TODO
+            // ensure correct format
+            // "timestamp":"2021-04-03T23:26:55.108"
+            Log.d("Main function", "New data from device received: $time, only update the timestamp? $onlyTimestamp")
+
+            // If we only update the current check timestamp and know nothing of the status of mail
+            if (onlyTimestamp) {
+                getUtil().setLastUpdate(PostUpdateStatus(getStatus().newMail, time, getUsername() ) )
+                return
+            }
+
             /**
              * If lastReceivedMail is 0:
              *      mail received is current time - offset
              * if lastReceivedMail has a value:
              *      mail received is lastReceivedMail + offset
              */
-            Log.d("Main function", "New data from device received: $offset")
+
+             /** TODO Calculate timestamp based on difference from current time
+             * given value (valFromSensor) is the time (in seconds) since the mail was detected.
+             * We can calculate when it was, by removing valFromSensor seconds from the current timestamp
+             * val sensorDetected = now() - valFromSensor
+             * val pickupTime = now()
+             */
+
+            // add update to API server - this automatically updates local state as well
+            // getUtil().setLastUpdate(PostUpdateStatus(newMail = True, timestamp, getUsername() ) )
         }
 
         // increment clickCounter
@@ -279,7 +300,6 @@ class MailboxApp : Application() {
             } catch (e: Exception) {
                 throw e
             }
-
         }
     }
 }

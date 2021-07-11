@@ -139,9 +139,9 @@ class NativeBluetooth {
                         attempt.set(0)
                         Log.d(logTag, "Connected to GATT server!")
                         handleGattConnection(gatt)
-                        // TODO
                         // Send timestamp to MailboxApp
                         // Use info to send new "last checked" API update
+                        MailboxApp.newBTData(MailboxApp.getUtil().getTime(), onlyTimestamp = true)
                     }
 
                     // We're disconnecting
@@ -203,7 +203,7 @@ class NativeBluetooth {
                 // Periodically read the remote connection value - every 5 sec
                 try {
                     Handler(Looper.getMainLooper()).also {
-                        it.post(object : Runnable{
+                        it.post(object : Runnable {
                             override fun run() {
                                 gatt.readRemoteRssi()
                                 it.postDelayed(this, 5000)
@@ -234,12 +234,7 @@ class NativeBluetooth {
                 characteristic.value = ack
                 gatt!!.writeCharacteristic(characteristic)
                 // Notify app and api of new mail
-                MailboxApp.newBTData(valFromSensor)
-                // TODO Calculate timestamp based on difference from current time
-                // given value (valFromSensor) is the time (in seconds) since the mail was detected.
-                // We can calculate when it was, by removing valFromSensor seconds from the current timestamp
-                // val sensorDetected = now() - valFromSensor
-                // val pickupTime = now()
+                MailboxApp.newBTData(valFromSensor, onlyTimestamp = false)
                 // TODO disconnect
                 // gatt.disconnect()
             } else if (characteristic.uuid == CHARACTERISTIC_DEBUG_UUID) {

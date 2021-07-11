@@ -169,7 +169,7 @@ class Util {
     }
 
     // Set last time we got info from BT Device
-    private fun setLastUpdate(data: PostUpdateStatus): Boolean {
+    public fun setLastUpdate(data: PostUpdateStatus): Boolean {
         val res = runBlocking {
             // Create thread
             var tmpRes = false
