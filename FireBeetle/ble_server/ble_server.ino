@@ -290,6 +290,7 @@ void loop() {
 
 	if (connected) {
 		// TODO change to sending time since post detected
+		// getTimeAsString(curTime getTimeSincePostArrived() );
 		getTimeAsString(curTime, getCurrent());
 		setSendValue(pCharacteristic_real, curTime);
 

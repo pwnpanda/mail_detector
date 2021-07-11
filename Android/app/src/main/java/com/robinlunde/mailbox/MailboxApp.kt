@@ -231,19 +231,15 @@ class MailboxApp : Application() {
 
             // If we only update the current check timestamp and know nothing of the status of mail
             if (onlyTimestamp) {
-                getUtil().setLastUpdate(PostUpdateStatus(getStatus().newMail, time, getUsername() ) )
+                getUtil().setLastUpdate(PostUpdateStatus(
+                    getStatus().newMail,
+                    time,
+                    getUsername()
+                ) )
                 return
             }
-
-            /**
-             * If lastReceivedMail is 0:
-             *      mail received is current time - offset
-             * if lastReceivedMail has a value:
-             *      mail received is lastReceivedMail + offset
-             */
-
              /** TODO Calculate timestamp based on difference from current time
-             * given value (valFromSensor) is the time (in seconds) since the mail was detected.
+             * given value (time) is the time (in seconds) since the mail was detected.
              * We can calculate when it was, by removing valFromSensor seconds from the current timestamp
              * val sensorDetected = now() - valFromSensor
              * val pickupTime = now()
