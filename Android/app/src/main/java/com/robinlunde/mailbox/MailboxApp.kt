@@ -18,6 +18,7 @@ import com.robinlunde.mailbox.network.NativeBluetooth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import java.util.concurrent.atomic.AtomicInteger
 
 class MailboxApp : Application() {
@@ -231,22 +232,37 @@ class MailboxApp : Application() {
 
             // If we only update the current check timestamp and know nothing of the status of mail
             if (onlyTimestamp) {
-                getUtil().setLastUpdate(PostUpdateStatus(
-                    getStatus().newMail,
-                    time,
-                    getUsername()
+                getUtil().setLastUpdate(
+                    PostUpdateStatus(
+                        getStatus().newMail,
+                        time,
+                        getUsername()
                 ) )
                 return
             }
-             /** TODO Calculate timestamp based on difference from current time
+
+            /** TODO Calculate timestamp based on difference from current time
              * given value (time) is the time (in seconds) since the mail was detected.
              * We can calculate when it was, by removing valFromSensor seconds from the current timestamp
              * val sensorDetected = now() - valFromSensor
              * val pickupTime = now()
              */
+            val postTime = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                LocalDateTime.now().minusSeconds( time.toLong() ).toString()
+            } else {
+                Log.e("Time calculation", "Android version too low! Please upgrade your os")
+                throw error("Android version too low!")
+            }
+
+            Log.d("Time calculation", "Time is set to: $postTime, which is $time ago.")
 
             // add update to API server - this automatically updates local state as well
-            // getUtil().setLastUpdate(PostUpdateStatus(newMail = True, timestamp, getUsername() ) )
+            getUtil().setLastUpdate(
+                PostUpdateStatus(
+                    newMail = true,
+                    postTime,
+                    getUsername()
+                ) )
         }
 
         // increment clickCounter
