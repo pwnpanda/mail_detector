@@ -1,0 +1,44 @@
+- UI!
+    - Upload and set icons
+    - Check if app can be backgrounded and how to do it
+    - Push Notifications UI
+        - import small icon and large icon
+            * ic_stat_mailbox = app icon
+            * mipmap.icon_mailbox = large icon
+------------
+
+- Begin Bluetooth hell
+    - When detecting new post, make sure to call Web API directly to update!
+    - Fix and test proper BT discovery with app and Pi
+        - Refactor so BT conn receives INT and calculates time on device
+
+        ** Add later - Timestamp is not that important, it is only for statistics
+
+    - Start BT listener for 8 min when close to home
+        - When entering zone from outside (arriving)
+            - Need geo coordinates
+        - When disconnecting from WiFi (leaving)
+
+    - https://punchthrough.com/android-ble-guide/
+
+
+https://www.raspberrypi.org/forums/viewtopic.php?t=242665
+
+- On Pi / Chip
+
+    - Setup basic Light Diode and check readings
+        - Working!
+         - https://pimylifeup.com/raspberry-pi-light-sensor/
+
+         
+    - BT Device Server should:
+        - Only send BT signals between 0700 - 2300
+        - Only check for mail between 0930 and 1500, every other day
+        - Immediately turn off after registering mail, then sending and receiving ack from phone
+
+-------------------
+
+curl -v -XPOST https://robinlunde.com/api/post/status -H "Content-Type: application/json" -d '{"newMail":false,"username":"Robin","timestamp":"2021-03-23T22:53:16.686Z"}'
+
+curl -v https://robinlunde.com/api/post/status
+
