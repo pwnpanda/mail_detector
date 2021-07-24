@@ -9,6 +9,16 @@
 *.ap_
 *.aab
 
+#environment files
+.env
+
+#secret
+WebAPI/secret.txt
+
+# Research data only - do not include
+RaspberryPi/research_project
+RaspberryPi/research_project/*
+
 # Files for the ART/Dalvik VM
 *.dex
 
