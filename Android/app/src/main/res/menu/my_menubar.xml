@@ -7,6 +7,17 @@
     tools:context=".MainActivity" >
 
     <item
+        android:id="@+id/pill"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:contentDescription="@string/pill_icon_name"
+        android:icon="@mipmap/pill_foreground"
+        android:title="@string/pill_icon_name"
+        app:iconTint="@color/charcoal_light"
+        app:showAsAction="ifRoom|withText" />
+
+    <item
         android:id="@+id/bluetooth"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

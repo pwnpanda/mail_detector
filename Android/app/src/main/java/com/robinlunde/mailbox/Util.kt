@@ -67,7 +67,7 @@ class Util {
                     //1 second * 60 * 30 = 30 min
                     // 1000 * 60 * 10 = 10min between updates in prod!
                     // Use 1000 * 10 for testing (10sec)
-                    myHandler.postDelayed(this, 1000 * 60 * 10)
+                    myHandler.postDelayed(this, (1000 * 60 * 10).toLong())
                 }
                 //1 second delay before first start
             }, 1000)

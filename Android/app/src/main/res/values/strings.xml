@@ -36,4 +36,6 @@
     <string name="bgScan">BackgroundScan</string>
     <string name="activeScan">ActiveScan</string>
     <string name="rssiSignal">RSSI Signal: %1$d</string>
+    <string name="pill_icon_name">Pills</string>
+    <string name="set_alarm_button">Set alarm</string>
 </resources>
