@@ -13,6 +13,10 @@ import com.robinlunde.mailbox.databinding.FragmentPillBinding
 class PillFragment : Fragment() {
     private lateinit var binding: FragmentPillBinding
 
+    // Need to store alarm time in sharedPreferences
+    
+    // Need to set alarm time to correct time when window loads (from sharedPreferences)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
