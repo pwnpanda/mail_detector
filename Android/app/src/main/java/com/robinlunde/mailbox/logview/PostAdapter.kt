@@ -67,7 +67,7 @@ class PostAdapter(private val postLogEntries: MutableList<PostLogEntry>) :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Util.LogItemViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         val view =
-            layoutInflater.inflate(R.layout.recyclerview_row, parent, false) as ConstraintLayout
+            layoutInflater.inflate(R.layout.recyclerview_row_logview, parent, false) as ConstraintLayout
         return Util.LogItemViewHolder(view)
     }
 }

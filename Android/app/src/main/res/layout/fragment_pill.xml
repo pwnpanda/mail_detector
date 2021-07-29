@@ -39,6 +39,39 @@
             app:layout_constraintTop_toTopOf="@+id/set_alarm"
             tools:text="Set alarm" />
 
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/pill_registration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/set_alarm"
+            app:layout_constraintBottom_toTopOf="@+id/pill_week"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Put the registration view here"/>
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/pill_week"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/pill_registration"
+            app:layout_constraintBottom_toTopOf="@+id/pill_screen_title1"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Put the weekday view here"/>
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
         <TextView
             android:id="@+id/pill_screen_title1"
             android:layout_width="wrap_content"
@@ -55,7 +88,8 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintHorizontal_chainStyle="spread"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/set_alarm"
+            app:layout_constraintTop_toBottomOf="@+id/pill_week"
+            app:layout_constraintBottom_toTopOf="@+id/pill_log_entries"
             app:layout_constraintVertical_bias="0.02"
             tools:text="Pill" />
 
@@ -100,10 +134,10 @@
             android:layout_marginTop="10dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/pill_screen_title2" />
+            app:layout_constraintTop_toBottomOf="@+id/pill_screen_title1" />
 
         <TextView
-            android:id="@+id/error_logs"
+            android:id="@+id/pill_logs"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/post_row"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp">
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:paddingBottom="5dp">
+
+
+        <TextView
+            android:id="@+id/post_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            tools:text="Aerius" />
+
+        <TextView
+            android:id="@+id/pill_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:textSize="18sp"
+            tools:text="12-12-2012" />
+
+
+        <TextView
+            android:id="@+id/pill_taken"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:textSize="16sp"
+            tools:text="YES" />
+
+        <ImageButton
+            android:id="@+id/pill_delete_button"
+            android:layout_width="51dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?attr/colorOnSecondary"
+            android:contentDescription="@string/delete_button"
+            android:hapticFeedbackEnabled="true"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:src="@android:drawable/ic_menu_delete"
+            tools:ignore="RedundantDescriptionCheck,ImageContrastCheck" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
