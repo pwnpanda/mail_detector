@@ -14,8 +14,15 @@ class PillFragment : Fragment() {
     private lateinit var binding: FragmentPillBinding
 
     // Need to store alarm time in sharedPreferences
-    
+
     // Need to set alarm time to correct time when window loads (from sharedPreferences)
+
+    // https://stackoverflow.com/a/34917457
+    // Change color and aspect of single drawable instance
+    // Needed for date circles and for "pill taken" circles
+
+    // Create circle as drawable resource
+    // https://stackoverflow.com/a/24682125
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
