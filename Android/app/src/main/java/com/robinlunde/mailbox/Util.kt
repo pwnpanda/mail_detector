@@ -366,7 +366,7 @@ class Util {
             set(Calendar.MILLISECOND, 0)
         }
 
-        alarmManager?.setInexactRepeating(
+        alarmManager.setInexactRepeating(
             AlarmManager.RTC_WAKEUP,
             calendar.timeInMillis,
             AlarmManager.INTERVAL_DAY,
@@ -376,7 +376,7 @@ class Util {
 
     fun cancelAlarm(){
         // If the alarm has been set, cancel it.
-        alarmManager?.cancel(alarmPendingIntent)
+        alarmManager.cancel(alarmPendingIntent)
     }
 
 }
