@@ -69,6 +69,10 @@ class MailboxApp : Application() {
 
     }
 
+    public fun getContext(): Context {
+        return applicationContext
+    }
+
     companion object {
         private lateinit var util: Util
         private lateinit var postLogEntryList: MutableList<PostLogEntry>
@@ -89,6 +93,11 @@ class MailboxApp : Application() {
         private lateinit var status: PostUpdateStatus
 
         data class MyMessage(val title: String, val text: String)
+
+        // Get context
+        fun getContext(): Context? {
+            return mailboxApp.applicationContext
+        }
 
         // Get username
         fun getUsername(): String {
@@ -111,6 +120,11 @@ class MailboxApp : Application() {
         // Get application instance
         fun getInstance(): MailboxApp {
             return mailboxApp
+        }
+
+        // Get shared preferences
+        fun getPrefs(): SharedPreferences {
+            return prefs
         }
 
         // Get mutable data only, for instantiating LiveData

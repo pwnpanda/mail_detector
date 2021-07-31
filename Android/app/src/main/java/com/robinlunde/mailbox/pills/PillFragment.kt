@@ -1,5 +1,7 @@
 package com.robinlunde.mailbox.pills
 
+import android.content.SharedPreferences
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -13,9 +15,11 @@ import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.databinding.FragmentPillBinding
 
+
 class PillFragment : Fragment() {
     private lateinit var binding: FragmentPillBinding
-
+    private val prefs: SharedPreferences = MailboxApp.getPrefs()
+    private val util: Util = MailboxApp.getUtil()
     // Need to store alarm time in sharedPreferences
 
     // Need to set alarm time to correct time when window loads (from sharedPreferences)
@@ -32,6 +36,20 @@ class PillFragment : Fragment() {
         // Include top menu
         setHasOptionsMenu(true)
 
+        // Set the time for the alarm clock to the currently set value
+        val hour = prefs.getInt("alarm_hour", -1)
+        val minute = prefs.getInt("alarm_minute", -1)
+        if (hour != -1 && minute != -1) {
+            binding.setAlarm.hour = hour
+            binding.setAlarm.minute = minute
+
+            // Activate the alarm for the given time
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                // TODO evaluate how to do alarm etc. Now there will need to be different callbacks depending on setting or cancelling the alarm. May be better to just trigger alarm directly
+                util.activateAlarm(hour, minute)
+            }
+        }
+
         // Update UI if new data!
 
         /** Possible updates:
@@ -40,14 +58,14 @@ class PillFragment : Fragment() {
          *   Pill is disabled
          *   Alarm is changed and/or set
          *   Date changes
-        **/
+         **/
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_pill,
@@ -56,31 +74,59 @@ class PillFragment : Fragment() {
         )
 
         // Set 24 hour display
-        binding.setAlarm.setIs24HourView(true);
+        binding.setAlarm.setIs24HourView(true)
 
         binding.lifecycleOwner = viewLifecycleOwner
+
+        binding.alarmButton.setOnClickListener {
+            val alarmHour = binding.setAlarm.hour
+            val alarmMinute = binding.setAlarm.minute
+
+
+            // Store new alarm value in shared preferences
+            with(prefs.edit()) {
+                putInt(
+                    "alarm_hour",
+                    alarmHour
+                )
+                putInt(
+                    "alarm_minute",
+                    alarmMinute
+                )
+                apply()
+            }
+
+            // Activate the alarm for the given time
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                // TODO evaluate how to do alarm etc. Now there will need to be different callbacks depending on setting or cancelling the alarm. May be better to just trigger alarm directly
+                util.activateAlarm(alarmHour, alarmMinute)
+            }
+        }
 
         return binding.root
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val util: Util = MailboxApp.getUtil()
+
         return when (item.itemId) {
             R.id.logo -> {
                 util.logButtonPress("Pill - logo")
-                NavHostFragment.findNavController(this).navigate(PillFragmentDirections.actionPillFragmentToAlertFragment())
+                NavHostFragment.findNavController(this)
+                    .navigate(PillFragmentDirections.actionPillFragmentToAlertFragment())
                 true
             }
 
             R.id.logs -> {
                 util.logButtonPress("Pill - logs")
-                NavHostFragment.findNavController(this).navigate(PillFragmentDirections.actionPillFragmentToLogviewFragment())
+                NavHostFragment.findNavController(this)
+                    .navigate(PillFragmentDirections.actionPillFragmentToLogviewFragment())
                 true
             }
 
             R.id.bluetooth -> {
                 util.logButtonPress("Pill - bt")
-                NavHostFragment.findNavController(this).navigate(PillFragmentDirections.actionPillFragmentToDebugFragment())
+                NavHostFragment.findNavController(this)
+                    .navigate(PillFragmentDirections.actionPillFragmentToDebugFragment())
                 true
             }
 

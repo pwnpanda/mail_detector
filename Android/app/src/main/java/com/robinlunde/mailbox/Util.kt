@@ -1,10 +1,16 @@
 package com.robinlunde.mailbox
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.icu.util.Calendar
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -13,6 +19,7 @@ import com.robinlunde.mailbox.datamodel.PostLogEntry
 import com.robinlunde.mailbox.datamodel.PostUpdateStatus
 import com.robinlunde.mailbox.debug.ScanType
 import com.robinlunde.mailbox.network.HttpRequestLib
+import com.robinlunde.mailbox.triggers.RepeatedTrigger
 import kotlinx.coroutines.*
 import java.net.URL
 import java.text.SimpleDateFormat
@@ -22,6 +29,8 @@ import kotlin.math.pow
 
 class Util {
     private lateinit var myNotificationManager: MyNotificationManager
+    private lateinit var alarmPendingIntent: PendingIntent
+    private lateinit var alarmManager: AlarmManager
 
     class LogItemViewHolder(val constraintLayout: ConstraintLayout) :
         RecyclerView.ViewHolder(constraintLayout)
@@ -169,7 +178,7 @@ class Util {
     }
 
     // Set last time we got info from BT Device
-    public fun setLastUpdate(data: PostUpdateStatus): Boolean {
+    fun setLastUpdate(data: PostUpdateStatus): Boolean {
         val res = runBlocking {
             // Create thread
             var tmpRes = false
@@ -326,5 +335,48 @@ class Util {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
+    // TODO evaluate how to do alarm etc. Now there will need to be different callbacks depending on setting or cancelling the alarm. May be better to just trigger alarm directly
+    // TODO Maybe set trigger to 1 minute before, immediately send push and then set alarm for 1 minute in the future?
+    fun activateAlarm(hourTime: Int, minuteTime: Int) {
+        val hour = if (hourTime == -1) 21 else hourTime
+        val minute =  if (minuteTime == -1) 0 else minuteTime
+
+        val context: Context? = MailboxApp.getContext()
+
+        alarmManager =
+            (context?.getSystemService(Context.ALARM_SERVICE) as? AlarmManager)!!
+
+        var alarmIntent = Intent(context, RepeatedTrigger::class.java)
+            .putExtra("hour", hour)
+            .putExtra("minute", minute)
+        val alarmPendingIntent by lazy {
+            PendingIntent.getBroadcast(context, 0, alarmIntent, 0)
+        }
+        val hourToScheduleAlert = 1
+
+        val calendar = Calendar.getInstance().apply {
+            if (get(Calendar.HOUR_OF_DAY) >= hourToScheduleAlert) {
+                add(Calendar.DAY_OF_MONTH, 1)
+            }
+
+            set(Calendar.HOUR_OF_DAY, hourToScheduleAlert)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+
+        alarmManager?.setInexactRepeating(
+            AlarmManager.RTC_WAKEUP,
+            calendar.timeInMillis,
+            AlarmManager.INTERVAL_DAY,
+            alarmPendingIntent
+        )
+    }
+
+    fun cancelAlarm(){
+        // If the alarm has been set, cancel it.
+        alarmManager?.cancel(alarmPendingIntent)
+    }
 
 }
