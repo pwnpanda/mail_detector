@@ -347,7 +347,7 @@ class Util {
         alarmManager =
             (context?.getSystemService(Context.ALARM_SERVICE) as? AlarmManager)!!
 
-        var alarmIntent = Intent(context, RepeatedTrigger::class.java)
+        val alarmIntent = Intent(context, RepeatedTrigger::class.java)
             .putExtra("hour", hour)
             .putExtra("minute", minute)
         val alarmPendingIntent by lazy {
