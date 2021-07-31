@@ -7,7 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.NavHostFragment
+import com.robinlunde.mailbox.MailboxApp
 import com.robinlunde.mailbox.R
+import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.databinding.FragmentPillBinding
 
 class PillFragment : Fragment() {
@@ -26,6 +29,18 @@ class PillFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Include top menu
+        setHasOptionsMenu(true)
+
+        // Update UI if new data!
+
+        /** Possible updates:
+         *   New pill is added
+         *   Pill is taken
+         *   Pill is disabled
+         *   Alarm is changed and/or set
+         *   Date changes
+        **/
     }
 
     override fun onCreateView(
@@ -43,13 +58,39 @@ class PillFragment : Fragment() {
         // Set 24 hour display
         binding.setAlarm.setIs24HourView(true);
 
-        return super.onCreateView(inflater, container, savedInstanceState)
+        binding.lifecycleOwner = viewLifecycleOwner
 
-
-
+        return binding.root
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return super.onOptionsItemSelected(item)
+        val util: Util = MailboxApp.getUtil()
+        return when (item.itemId) {
+            R.id.logo -> {
+                util.logButtonPress("Pill - logo")
+                NavHostFragment.findNavController(this).navigate(PillFragmentDirections.actionPillFragmentToAlertFragment())
+                true
+            }
+
+            R.id.logs -> {
+                util.logButtonPress("Pill - logs")
+                NavHostFragment.findNavController(this).navigate(PillFragmentDirections.actionPillFragmentToLogviewFragment())
+                true
+            }
+
+            R.id.bluetooth -> {
+                util.logButtonPress("Pill - bt")
+                NavHostFragment.findNavController(this).navigate(PillFragmentDirections.actionPillFragmentToDebugFragment())
+                true
+            }
+
+            R.id.pill -> {
+                util.logButtonPress("Pill - pill")
+                // Do nothing we are in this view
+                true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 }

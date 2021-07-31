@@ -14,6 +14,7 @@ import androidx.navigation.fragment.NavHostFragment.findNavController
 import com.google.android.material.textfield.TextInputEditText
 import com.robinlunde.mailbox.MailboxApp
 import com.robinlunde.mailbox.R
+import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.databinding.FragmentLoginBinding
 
 class LoginFragment : Fragment() {
@@ -65,9 +66,11 @@ class LoginFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val util: Util = MailboxApp.getUtil()
         return when (item.itemId) {
+
             R.id.logo -> {
-                MailboxApp.getUtil().logButtonPress("Login - logo")
+                util.logButtonPress("Login - logo")
 
                 findNavController(this).navigate(
                     LoginFragmentDirections.actionLoginFragmentToAlertFragment()
@@ -75,7 +78,7 @@ class LoginFragment : Fragment() {
                 true
             }
             R.id.logs -> {
-                MailboxApp.getUtil().logButtonPress("Login - logs")
+                util.logButtonPress("Login - logs")
 
                 // Show log screen
                 findNavController(this).navigate(LoginFragmentDirections.actionLoginFragmentToLogviewFragment())
@@ -84,7 +87,7 @@ class LoginFragment : Fragment() {
             }
 
             R.id.bluetooth -> {
-                MailboxApp.getUtil().logButtonPress("Login - bt")
+                util.logButtonPress("Login - bt")
 
                 if (MailboxApp.getClickCounter() >= 3)  findNavController(this).navigate(
                     LoginFragmentDirections.actionLoginFragmentToDebugFragment())
@@ -92,7 +95,7 @@ class LoginFragment : Fragment() {
             }
 
             R.id.pill -> {
-                MailboxApp.getUtil().logButtonPress("Login - pill")
+                util.logButtonPress("Login - pill")
                 findNavController(this).navigate(LoginFragmentDirections.actionLoginFragmentToPillFragment())
                 true
             }

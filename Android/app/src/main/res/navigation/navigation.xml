@@ -10,13 +10,13 @@
         android:label="fragment_pill"
         tools:layout="@layout/fragment_pill">
         <action
-            android:id="@+id/action_loginFragment_to_alertFragment"
+            android:id="@+id/action_pillFragment_to_alertFragment"
             app:destination="@id/alertFragment" />
         <action
-            android:id="@+id/action_loginFragment_to_logviewFragment"
+            android:id="@+id/action_pillFragment_to_logviewFragment"
             app:destination="@id/logviewFragment" />
         <action
-            android:id="@+id/action_loginFragment_to_debugFragment"
+            android:id="@+id/action_pillFragment_to_debugFragment"
             app:destination="@id/debugFragment" />
     </fragment>
     <fragment

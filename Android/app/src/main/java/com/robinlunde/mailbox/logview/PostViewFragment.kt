@@ -35,7 +35,7 @@ class PostViewFragment : Fragment() {
             // Update correct view with new data
             binding.postEntries.adapter = PostAdapter(newData)
             binding.postEntries.layoutManager = LinearLayoutManager(context)
-            // Tel view it has changed
+            // Tell view it has changed
             binding.postEntries.adapter?.notifyDataSetChanged()
         }
         model.mutablePostEntries.observe(this, postObserver)
