@@ -15,7 +15,7 @@
         android:icon="@mipmap/pill_foreground"
         android:title="@string/pill_icon_name"
         app:iconTint="@color/charcoal_light"
-        app:showAsAction="ifRoom|withText" />
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/bluetooth"
@@ -25,7 +25,7 @@
         android:contentDescription="@string/bt_icon_name"
         android:icon="@android:drawable/stat_sys_data_bluetooth"
         android:title="@string/bt_icon_name"
-        app:showAsAction="ifRoom|withText"
+        app:showAsAction="always"
         app:iconTint="@color/charcoal_light"/>
 
     <item
@@ -36,7 +36,7 @@
         android:contentDescription="@string/logo_icon_name"
         android:icon="@drawable/my_icon"
         android:title="@string/logo_icon_name"
-        app:showAsAction="ifRoom|withText" />
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/logs"
@@ -46,6 +46,6 @@
         android:contentDescription="@string/logs_icon_name"
         android:icon="@drawable/logs"
         android:title="@string/logs_icon_name"
-        app:showAsAction="ifRoom|withText" />
+        app:showAsAction="always" />
 
 </menu>

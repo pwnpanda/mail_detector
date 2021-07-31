@@ -72,11 +72,13 @@ class MainActivity : AppCompatActivity() {
                 MailboxApp.getUtil().logButtonPress("Main - logo")
                 false
             }
+
             R.id.logs -> {
                 MailboxApp.setClickCounterZero()
                 MailboxApp.getUtil().logButtonPress("Main - logs")
                 false
             }
+
             R.id.bluetooth -> {
                 MailboxApp.getUtil().logButtonPress("Main - BT")
                 // MailboxApp.getBTConn().startScan()
@@ -90,6 +92,13 @@ class MainActivity : AppCompatActivity() {
                 }
                 false
             }
+
+            R.id.pill -> {
+                MailboxApp.getUtil().logButtonPress("Main - pill")
+                MailboxApp.setClickCounterZero()
+                false
+            }
+
             else -> super.onOptionsItemSelected(item)
         }
     }

@@ -178,7 +178,7 @@ class AlertFragment : Fragment() {
                 util.logButtonPress("Alert - logs")
                 // Try to fetch data to update logview - if we fail, we don't care
                 util.tryRequest(getString(R.string.get_logs), null, null, null)
-                // Go to logview (noew named PostView
+                // Go to logview (now named PostView)
                 NavHostFragment.findNavController(this)
                     .navigate(AlertFragmentDirections.actionAlertFragmentToLogviewFragment())
                 true
@@ -190,6 +190,13 @@ class AlertFragment : Fragment() {
                 if (MailboxApp.getClickCounter() >= 3)  NavHostFragment.findNavController(this)
                     .navigate(AlertFragmentDirections.actionAlertFragmentToDebugFragment())
                 super.onOptionsItemSelected(item)
+            }
+
+            R.id.pill -> {
+                util.logButtonPress("Alert - pill")
+                // Move to pill view
+                NavHostFragment.findNavController(this).navigate(AlertFragmentDirections.actionAlertFragmentToPillFragment())
+                true
             }
 
             else -> return super.onOptionsItemSelected(item)

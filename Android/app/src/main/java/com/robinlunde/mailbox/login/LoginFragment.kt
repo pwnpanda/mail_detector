@@ -67,26 +67,36 @@ class LoginFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.logo -> {
+                MailboxApp.getUtil().logButtonPress("Login - logo")
+
                 findNavController(this).navigate(
                     LoginFragmentDirections.actionLoginFragmentToAlertFragment()
                 )
-                MailboxApp.getUtil().logButtonPress("Login - logo")
                 true
             }
             R.id.logs -> {
+                MailboxApp.getUtil().logButtonPress("Login - logs")
+
                 // Show log screen
                 findNavController(this).navigate(LoginFragmentDirections.actionLoginFragmentToLogviewFragment())
-                MailboxApp.getUtil().logButtonPress("Login - logs")
                 // return true so that the menu pop up is opened
                 true
             }
 
             R.id.bluetooth -> {
                 MailboxApp.getUtil().logButtonPress("Login - bt")
+
                 if (MailboxApp.getClickCounter() >= 3)  findNavController(this).navigate(
                     LoginFragmentDirections.actionLoginFragmentToDebugFragment())
                 super.onOptionsItemSelected(item)
             }
+
+            R.id.pill -> {
+                MailboxApp.getUtil().logButtonPress("Login - pill")
+                findNavController(this).navigate(LoginFragmentDirections.actionLoginFragmentToPillFragment())
+                true
+            }
+
             else -> super.onOptionsItemSelected(item)
         }
     }

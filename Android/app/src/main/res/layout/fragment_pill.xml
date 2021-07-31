@@ -87,7 +87,7 @@
                     android:id="@+id/pill_taken_button_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Pill taken"
+                    android:text="@string/pill_taken"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -116,7 +116,7 @@
                     android:id="@+id/create_pill_button_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="New pill"
+                    android:text="@string/new_pill"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -145,7 +145,7 @@
                     android:id="@+id/delete_pill_button_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Remove pill"
+                    android:text="@string/remove_pill"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -486,7 +486,9 @@
             android:layout_marginTop="10dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/pill_screen_title1" />
+            app:layout_constraintTop_toBottomOf="@+id/pill_screen_title1"
+            app:layout_constraintVertical_bias="1.0"
+            tools:layout_editor_absoluteX="-18dp" />
 
         <TextView
             android:id="@+id/pill_logs"

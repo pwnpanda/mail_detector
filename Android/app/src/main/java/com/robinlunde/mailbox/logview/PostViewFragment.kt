@@ -87,6 +87,14 @@ class PostViewFragment : Fragment() {
                 super.onOptionsItemSelected(item)
                 //true
             }
+
+            R.id.pill -> {
+                util.logButtonPress("Logview - pill")
+                // Move to pill view
+                findNavController(this).navigate(PostViewFragmentDirections.actionLogviewFragmentToPillFragment())
+                true
+            }
+
             else -> return super.onOptionsItemSelected(item)
         }
     }

@@ -150,6 +150,13 @@ class DebugFragment : Fragment() {
                 super.onOptionsItemSelected(item)
             }
 
+            R.id.pill -> {
+                util.logButtonPress("Debug - pill")
+                // Move to pill view
+                NavHostFragment.findNavController(this).navigate(DebugFragmentDirections.actionDebugFragmentToPillFragment())
+                true
+            }
+
             else -> return super.onOptionsItemSelected(item)
         }
     }
