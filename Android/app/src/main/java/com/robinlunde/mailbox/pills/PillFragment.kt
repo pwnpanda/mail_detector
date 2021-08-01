@@ -3,6 +3,7 @@ package com.robinlunde.mailbox.pills
 import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -20,9 +21,7 @@ class PillFragment : Fragment() {
     private lateinit var binding: FragmentPillBinding
     private val prefs: SharedPreferences = MailboxApp.getPrefs()
     private val util: Util = MailboxApp.getUtil()
-    // Need to store alarm time in sharedPreferences
-
-    // Need to set alarm time to correct time when window loads (from sharedPreferences)
+    val logTag = "PillFragment -"
 
     // https://stackoverflow.com/a/34917457
     // Change color and aspect of single drawable instance
@@ -31,24 +30,18 @@ class PillFragment : Fragment() {
     // Create circle as drawable resource
     // https://stackoverflow.com/a/24682125
 
+    /**
+     * TODO MUST CHECK TO CANCEL ACTIVATEALARM INTENT!
+     * // Cancel notification and alarm manually
+     * if (curHour == hour && curMinute > x-5 && time =< x)    cancelNotification(); cancelAlarm();
+     * // Cancel intent
+     * else    cancelCreateAlarm();
+     */
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Include top menu
         setHasOptionsMenu(true)
-
-        // Set the time for the alarm clock to the currently set value
-        val hour = prefs.getInt("alarm_hour", -1)
-        val minute = prefs.getInt("alarm_minute", -1)
-        if (hour != -1 && minute != -1) {
-            binding.setAlarm.hour = hour
-            binding.setAlarm.minute = minute
-
-            // Activate the alarm for the given time
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                // TODO evaluate how to do alarm etc. Now there will need to be different callbacks depending on setting or cancelling the alarm. May be better to just trigger alarm directly
-                util.activateAlarm(hour, minute)
-            }
-        }
 
         // Update UI if new data!
 
@@ -73,6 +66,8 @@ class PillFragment : Fragment() {
             false
         )
 
+        setAlarmIfConfigured()
+
         // Set 24 hour display
         binding.setAlarm.setIs24HourView(true)
 
@@ -82,6 +77,7 @@ class PillFragment : Fragment() {
             val alarmHour = binding.setAlarm.hour
             val alarmMinute = binding.setAlarm.minute
 
+            Log.d("PillFragment - AlarmButton", "Pressed! $alarmHour:$alarmMinute")
 
             // Store new alarm value in shared preferences
             with(prefs.edit()) {
@@ -98,8 +94,8 @@ class PillFragment : Fragment() {
 
             // Activate the alarm for the given time
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                // TODO evaluate how to do alarm etc. Now there will need to be different callbacks depending on setting or cancelling the alarm. May be better to just trigger alarm directly
-                util.activateAlarm(alarmHour, alarmMinute)
+                // Send alarm to set and handle alarm 5 min before
+                util.activateAlarm(alarmHour, alarmMinute - 5)
             }
         }
 
@@ -137,6 +133,24 @@ class PillFragment : Fragment() {
             }
 
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun setAlarmIfConfigured () {
+        val funcTag = "$logTag setAlarmIfConfigured"
+        // Set the time for the alarm clock to the currently set value
+        val hour = prefs.getInt("alarm_hour", -1)
+        val minute = prefs.getInt("alarm_minute", -1)
+        if (hour != -1 && minute != -1) {
+            Log.d(funcTag, "Alarm time is set in sharedPrefs: $hour:$minute")
+            binding.setAlarm.hour = hour
+            binding.setAlarm.minute = minute
+
+            // Activate the alarm for the given time
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                // Send alarm to set and handle alarm 5 min before
+                util.activateAlarm(hour, minute)
+            }
         }
     }
 }

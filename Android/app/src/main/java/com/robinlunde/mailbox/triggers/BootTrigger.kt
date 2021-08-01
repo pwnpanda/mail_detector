@@ -11,7 +11,7 @@ import com.robinlunde.mailbox.Util
 
 class BootTrigger : BroadcastReceiver() {
     val util: Util = MailboxApp.getUtil()
-    val prefs: SharedPreferences = MailboxApp.getPrefs()
+    private val prefs: SharedPreferences = MailboxApp.getPrefs()
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onReceive(context: Context, intent: Intent) {
@@ -23,7 +23,7 @@ class BootTrigger : BroadcastReceiver() {
             prefs.getInt(
                 "alarm_minute",
                 -1
-            )
+            ) - 5
         )
     }
 }

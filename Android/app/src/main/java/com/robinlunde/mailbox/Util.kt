@@ -31,6 +31,7 @@ class Util {
     private lateinit var myNotificationManager: MyNotificationManager
     private lateinit var alarmPendingIntent: PendingIntent
     private lateinit var alarmManager: AlarmManager
+    val tag = "Util -"
 
     class LogItemViewHolder(val constraintLayout: ConstraintLayout) :
         RecyclerView.ViewHolder(constraintLayout)
@@ -336,47 +337,73 @@ class Util {
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
-    // TODO evaluate how to do alarm etc. Now there will need to be different callbacks depending on setting or cancelling the alarm. May be better to just trigger alarm directly
-    // TODO Maybe set trigger to 1 minute before, immediately send push and then set alarm for 1 minute in the future?
     fun activateAlarm(hourTime: Int, minuteTime: Int) {
-        val hour = if (hourTime == -1) 21 else hourTime
-        val minute =  if (minuteTime == -1) 0 else minuteTime
+        val thisTag = "$tag activateAlarm"
+        val hour = if (hourTime == -1) 20 else hourTime
+        val minute =  if (minuteTime == -1) 55 else minuteTime
+
+        Log.d(thisTag, "Received values: $hour:$minute")
+
+        cancelAlarm()
 
         val context: Context? = MailboxApp.getContext()
 
         alarmManager =
             (context?.getSystemService(Context.ALARM_SERVICE) as? AlarmManager)!!
 
+
         val alarmIntent = Intent(context, RepeatedTrigger::class.java)
             .putExtra("hour", hour)
             .putExtra("minute", minute)
-        val alarmPendingIntent by lazy {
-            PendingIntent.getBroadcast(context, 0, alarmIntent, 0)
-        }
-        val hourToScheduleAlert = 1
 
-        val calendar = Calendar.getInstance().apply {
-            if (get(Calendar.HOUR_OF_DAY) >= hourToScheduleAlert) {
-                add(Calendar.DAY_OF_MONTH, 1)
-            }
+        Log.d(thisTag, "Intent values: ${alarmIntent.getIntExtra("hour", -1)}:${alarmIntent.getIntExtra("minute", -1)}")
+        alarmPendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
 
-            set(Calendar.HOUR_OF_DAY, hourToScheduleAlert)
-            set(Calendar.MINUTE, 0)
+        // When the actual alarm is supposed to go off
+        val trueAlertTime = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute+5)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
         }
 
+        // Current time
+        val timeNow = Calendar.getInstance().timeInMillis
+
+        // The time the alarm is supposed to kick off
+        val preAlertTime = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+
+            Log.d(thisTag, "Cur: $timeNow - PreAlertTime: ${this.timeInMillis} trueAlertTime: ${trueAlertTime.timeInMillis}")
+            // If it is passed the trueAlertTime, add a day
+            if (timeNow >= trueAlertTime.timeInMillis) {
+                Log.d(thisTag, "Time passed - increasing day by 1")
+                add(Calendar.DAY_OF_MONTH, 1)
+            }
+        }
+
         alarmManager.setInexactRepeating(
             AlarmManager.RTC_WAKEUP,
-            calendar.timeInMillis,
+            preAlertTime.timeInMillis,
             AlarmManager.INTERVAL_DAY,
             alarmPendingIntent
         )
     }
 
-    fun cancelAlarm(){
-        // If the alarm has been set, cancel it.
-        alarmManager.cancel(alarmPendingIntent)
+    private fun cancelAlarm(){
+        try {
+            // If the alarm has been set, cancel it.
+            alarmManager.cancel(alarmPendingIntent)
+        }catch (e: UninitializedPropertyAccessException){
+            Log.d( "$tag cancelAlarm", "This is fine - AlertManager has not yet been initialized!")
+        } catch (e: java.lang.Exception){
+            Log.d( "$tag cancelAlarm", e.stackTraceToString())
+            Log.d( "$tag cancelAlarm", "PendingIntent likely not set. WHat type of error??")
+        }
+
     }
 
 }
