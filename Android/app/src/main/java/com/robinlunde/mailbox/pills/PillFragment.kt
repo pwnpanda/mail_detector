@@ -30,13 +30,7 @@ class PillFragment : Fragment() {
     // Create circle as drawable resource
     // https://stackoverflow.com/a/24682125
 
-    /**
-     * TODO MUST CHECK TO CANCEL ACTIVATEALARM INTENT!
-     * // Cancel notification and alarm manually
-     * if (curHour == hour && curMinute > x-5 && time =< x)    cancelNotification(); cancelAlarm();
-     * // Cancel intent
-     * else    cancelCreateAlarm();
-     */
+    // Use util.cancelAlarm() to cancel current alarm
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,13 +39,20 @@ class PillFragment : Fragment() {
 
         // Update UI if new data!
 
-        /** Possible updates:
+        /** Todo: Possible UI updates:
          *   New pill is added
          *   Pill is taken
          *   Pill is disabled
          *   Alarm is changed and/or set
          *   Date changes
          **/
+
+        /** Todo: Check if alarm should be disabled when:
+         *   Pill is disabled
+         *   Pill is taken
+         **/
+
+        // Todo Activate alarm if new pill is added
     }
 
     override fun onCreateView(

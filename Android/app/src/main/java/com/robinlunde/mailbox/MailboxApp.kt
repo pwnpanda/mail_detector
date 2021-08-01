@@ -10,6 +10,7 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.robinlunde.mailbox.alert.AlertViewModel
+import com.robinlunde.mailbox.datamodel.MyMessage
 import com.robinlunde.mailbox.datamodel.PostLogEntry
 import com.robinlunde.mailbox.datamodel.PostUpdateStatus
 import com.robinlunde.mailbox.debug.DebugViewModel
@@ -91,8 +92,6 @@ class MailboxApp : Application() {
 
         // Initialize to signal no data available
         private lateinit var status: PostUpdateStatus
-
-        data class MyMessage(val title: String, val text: String)
 
         // Get context
         fun getContext(): Context? {

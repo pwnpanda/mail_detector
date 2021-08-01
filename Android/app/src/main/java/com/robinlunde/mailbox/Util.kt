@@ -15,6 +15,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.robinlunde.mailbox.datamodel.MyMessage
 import com.robinlunde.mailbox.datamodel.PostLogEntry
 import com.robinlunde.mailbox.datamodel.PostUpdateStatus
 import com.robinlunde.mailbox.debug.ScanType
@@ -31,7 +32,11 @@ class Util {
     private lateinit var myNotificationManager: MyNotificationManager
     private lateinit var alarmPendingIntent: PendingIntent
     private lateinit var alarmManager: AlarmManager
-    val tag = "Util -"
+    private lateinit var preAlertTime: Calendar
+    private lateinit var trueAlertTime: Calendar
+    private var timedTask: TimerTask? = null
+    private var alarmTomorrow: Boolean = false
+    private val tag = "Util -"
 
     class LogItemViewHolder(val constraintLayout: ConstraintLayout) :
         RecyclerView.ViewHolder(constraintLayout)
@@ -44,7 +49,7 @@ class Util {
     // ----------------------------- Notification -------------------------------
 
 
-    fun pushNotification(message: MailboxApp.Companion.MyMessage) {
+    fun pushNotification(message: MyMessage) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             myNotificationManager.createPush(message)
         } else {
@@ -343,6 +348,8 @@ class Util {
         val hour = if (hourTime == -1) 21 else hourTime
         val minute =  if (minuteTime == -1) 0 else minuteTime
 
+        alarmTomorrow = tomorrow
+
         Log.d(thisTag, "Received values: $hour:$minute")
 
         cancelAlarm()
@@ -361,7 +368,7 @@ class Util {
         alarmPendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
 
         // When the actual alarm is supposed to go off
-        val trueAlertTime = Calendar.getInstance().apply {
+        trueAlertTime = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, hour)
             set(Calendar.MINUTE, minute)
             set(Calendar.SECOND, 0)
@@ -372,7 +379,7 @@ class Util {
         val timeNow = Calendar.getInstance().timeInMillis
 
         // The time the alarm is supposed to kick off
-        val preAlertTime = Calendar.getInstance().apply {
+        preAlertTime = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, hour)
             set(Calendar.MINUTE, minute)
             add(Calendar.MINUTE, -5)
@@ -385,6 +392,7 @@ class Util {
                 if (tomorrow)   Log.d(thisTag, "Tomorrow-flag is set - increasing day by 1")
                 else    Log.d(thisTag, "Time passed - increasing day by 1")
                 add(Calendar.DAY_OF_MONTH, 1)
+                alarmTomorrow = true
             }
         }
 
@@ -396,7 +404,33 @@ class Util {
         )
     }
 
-    private fun cancelAlarm(){
+    // Set notification task
+    fun setTask (task: TimerTask){
+        timedTask = task
+    }
+
+    // Clear notification task
+    fun removeTask(){
+        timedTask = null
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    fun cancelAlarm(){
+        // Current time
+        val timeNow = Calendar.getInstance().timeInMillis
+        // If time is between triggering of the preAlert (alarm & notification is set/scheduled), cancel them directly
+        if ( timeNow >= preAlertTime.timeInMillis && timeNow <= trueAlertTime.timeInMillis ) {
+            // Cancel notification
+            timedTask?.cancel()
+            // TODO cancel alarm
+            // Just disable the god damn alarm for the right time!
+        }
+
+        // Try to cancel intent as well, if it is not scheduled for tomorrow
+        if(!alarmTomorrow)   cancelAlarmTrigger()
+    }
+
+    private fun cancelAlarmTrigger(){
         try {
             // If the alarm has been set, cancel it.
             alarmManager.cancel(alarmPendingIntent)
