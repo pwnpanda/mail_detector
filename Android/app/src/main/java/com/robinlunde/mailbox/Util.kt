@@ -337,10 +337,11 @@ class Util {
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
-    fun activateAlarm(hourTime: Int, minuteTime: Int) {
+    // Minute value is 5 minutes before the alarm should trigger. Real value is 5 minutes after
+    fun activateAlarm(hourTime: Int, minuteTime: Int, tomorrow: Boolean = false) {
         val thisTag = "$tag activateAlarm"
-        val hour = if (hourTime == -1) 20 else hourTime
-        val minute =  if (minuteTime == -1) 55 else minuteTime
+        val hour = if (hourTime == -1) 21 else hourTime
+        val minute =  if (minuteTime == -1) 0 else minuteTime
 
         Log.d(thisTag, "Received values: $hour:$minute")
 
@@ -362,7 +363,7 @@ class Util {
         // When the actual alarm is supposed to go off
         val trueAlertTime = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, hour)
-            set(Calendar.MINUTE, minute+5)
+            set(Calendar.MINUTE, minute)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
         }
@@ -374,13 +375,15 @@ class Util {
         val preAlertTime = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, hour)
             set(Calendar.MINUTE, minute)
+            add(Calendar.MINUTE, -5)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
 
             Log.d(thisTag, "Cur: $timeNow - PreAlertTime: ${this.timeInMillis} trueAlertTime: ${trueAlertTime.timeInMillis}")
             // If it is passed the trueAlertTime, add a day
-            if (timeNow >= trueAlertTime.timeInMillis) {
-                Log.d(thisTag, "Time passed - increasing day by 1")
+            if (timeNow >= trueAlertTime.timeInMillis || tomorrow) {
+                if (tomorrow)   Log.d(thisTag, "Tomorrow-flag is set - increasing day by 1")
+                else    Log.d(thisTag, "Time passed - increasing day by 1")
                 add(Calendar.DAY_OF_MONTH, 1)
             }
         }

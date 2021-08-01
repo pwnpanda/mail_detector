@@ -95,7 +95,7 @@ class PillFragment : Fragment() {
             // Activate the alarm for the given time
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 // Send alarm to set and handle alarm 5 min before
-                util.activateAlarm(alarmHour, alarmMinute - 5)
+                util.activateAlarm(alarmHour, alarmMinute)
             }
         }
 
@@ -148,7 +148,7 @@ class PillFragment : Fragment() {
 
             // Activate the alarm for the given time
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                // Send alarm to set and handle alarm 5 min before
+                // Send alarm to set
                 util.activateAlarm(hour, minute)
             }
         }

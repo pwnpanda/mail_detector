@@ -3,7 +3,9 @@ package com.robinlunde.mailbox.triggers
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.util.Log
+import com.robinlunde.mailbox.MailboxApp
 
 class RepeatedTrigger : BroadcastReceiver() {
 
@@ -21,5 +23,8 @@ class RepeatedTrigger : BroadcastReceiver() {
         // Set alarm at hh:mm + 5min
 
         // Set same alarm for next day!!
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            MailboxApp.getUtil().activateAlarm(hour, minute, tomorrow = true)
+        }
     }
 }
