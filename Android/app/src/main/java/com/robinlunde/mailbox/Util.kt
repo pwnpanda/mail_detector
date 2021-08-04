@@ -32,10 +32,6 @@ class Util {
     private lateinit var myNotificationManager: MyNotificationManager
     private lateinit var alarmPendingIntent: PendingIntent
     private lateinit var alarmManager: AlarmManager
-    private lateinit var preAlertTime: Calendar
-    private lateinit var trueAlertTime: Calendar
-    private var timedTask: TimerTask? = null
-    private var alarmTomorrow: Boolean = false
     private val tag = "Util -"
 
     class LogItemViewHolder(val constraintLayout: ConstraintLayout) :
@@ -343,12 +339,10 @@ class Util {
 
     @RequiresApi(Build.VERSION_CODES.N)
     // Minute value is 5 minutes before the alarm should trigger. Real value is 5 minutes after
-    fun activateAlarm(hourTime: Int, minuteTime: Int, tomorrow: Boolean = false) {
+    fun activateAlarm(hourTime: Int, minuteTime: Int) {
         val thisTag = "$tag activateAlarm"
         val hour = if (hourTime == -1) 21 else hourTime
         val minute =  if (minuteTime == -1) 0 else minuteTime
-
-        alarmTomorrow = tomorrow
 
         Log.d(thisTag, "Received values: $hour:$minute")
 
@@ -367,70 +361,34 @@ class Util {
         Log.d(thisTag, "Intent values: ${alarmIntent.getIntExtra("hour", -1)}:${alarmIntent.getIntExtra("minute", -1)}")
         alarmPendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
 
-        // When the actual alarm is supposed to go off
-        trueAlertTime = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, hour)
-            set(Calendar.MINUTE, minute)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }
-
         // Current time
         val timeNow = Calendar.getInstance().timeInMillis
 
-        // The time the alarm is supposed to kick off
-        preAlertTime = Calendar.getInstance().apply {
+        // When the actual alarm is supposed to go off
+        val alertTime = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, hour)
             set(Calendar.MINUTE, minute)
-            add(Calendar.MINUTE, -5)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
 
-            Log.d(thisTag, "Cur: $timeNow - PreAlertTime: ${this.timeInMillis} trueAlertTime: ${trueAlertTime.timeInMillis}")
+            Log.d(thisTag, "Cur: $timeNow - alertTime: ${this.timeInMillis}")
             // If it is passed the trueAlertTime, add a day
-            if (timeNow >= trueAlertTime.timeInMillis || tomorrow) {
-                if (tomorrow)   Log.d(thisTag, "Tomorrow-flag is set - increasing day by 1")
-                else    Log.d(thisTag, "Time passed - increasing day by 1")
+            if (timeNow >= this.timeInMillis ) {
+                Log.d(thisTag, "Time passed - increasing day by 1")
                 add(Calendar.DAY_OF_MONTH, 1)
-                alarmTomorrow = true
             }
         }
 
         alarmManager.setInexactRepeating(
             AlarmManager.RTC_WAKEUP,
-            preAlertTime.timeInMillis,
+            alertTime.timeInMillis,
             AlarmManager.INTERVAL_DAY,
             alarmPendingIntent
         )
     }
 
-    // Set notification task
-    fun setTask (task: TimerTask){
-        timedTask = task
-    }
 
-    // Clear notification task
-    fun removeTask(){
-        timedTask = null
-    }
-
-    @RequiresApi(Build.VERSION_CODES.N)
-    fun cancelAlarm(){
-        // Current time
-        val timeNow = Calendar.getInstance().timeInMillis
-        // If time is between triggering of the preAlert (alarm & notification is set/scheduled), cancel them directly
-        if ( timeNow >= preAlertTime.timeInMillis && timeNow <= trueAlertTime.timeInMillis ) {
-            // Cancel notification
-            timedTask?.cancel()
-            // TODO cancel alarm
-            // Just disable the god damn alarm for the right time!
-        }
-
-        // Try to cancel intent as well, if it is not scheduled for tomorrow
-        if(!alarmTomorrow)   cancelAlarmTrigger()
-    }
-
-    private fun cancelAlarmTrigger(){
+    private fun cancelAlarm(){
         try {
             // If the alarm has been set, cancel it.
             alarmManager.cancel(alarmPendingIntent)
@@ -440,7 +398,5 @@ class Util {
             Log.d( "$tag cancelAlarm", e.stackTraceToString())
             Log.d( "$tag cancelAlarm", "PendingIntent likely not set. WHat type of error??")
         }
-
     }
-
 }

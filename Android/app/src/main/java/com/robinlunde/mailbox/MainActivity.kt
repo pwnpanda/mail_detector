@@ -19,6 +19,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
 import com.robinlunde.mailbox.databinding.ActivityMainBinding
 import com.robinlunde.mailbox.debug.ScanType
 
@@ -112,6 +113,16 @@ class MainActivity : AppCompatActivity() {
         if (intent.getBooleanExtra(getString(R.string.app_name), false)) {
             Log.d("Intent!", "My intent received: $intent")
             // No need to update fragment, as it does so automatically upon intent clicked ^~^
+        }
+        if (intent.getBooleanExtra("pill", false)) {
+            val curFragment: Fragment? = supportFragmentManager.findFragmentByTag("fragment_login")
+            /** TODO If you want pill notification to move to pill fragment! Add boolean to intent and iterate over fragments as follows
+             *  val visible = curFragment!!.isVisible
+             * val curController = NavHostFragment.findNavController(curFragment)
+             *
+             * switch (fragment_tags)
+             *   login -> curController.navigate(LoginFragmentDirections.actionLoginFragmentToPillFragment())
+            */
         }
     }
 

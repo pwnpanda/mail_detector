@@ -1,17 +1,21 @@
 package com.robinlunde.mailbox.triggers
 
 import android.content.BroadcastReceiver
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
-import android.os.Build
-import android.provider.AlarmClock
+import android.media.AudioAttributes
+import android.media.RingtoneManager
+import android.net.Uri
 import android.util.Log
-import androidx.core.content.ContextCompat.startActivity
 import com.robinlunde.mailbox.MailboxApp
+import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.datamodel.MyMessage
-import java.util.*
-import kotlin.concurrent.timerTask
+
+
+
+
 
 class RepeatedTrigger : BroadcastReceiver() {
 
@@ -28,38 +32,29 @@ class RepeatedTrigger : BroadcastReceiver() {
 
         val msg = MyMessage(
             "PILL ALERT!",
-            "You have not taken all your pills for today!! Taken them ASAP"
+            "You have not taken all your pills for today!"
         )
 
-        val timedTask = timerTask {
-            Log.d(myTag, "Timer task triggering - sending push notification")
-            util.pushNotification(msg)
-            util.removeTask()
-        }
-        // Set notification to trigger at hh:mm - 1
-        Timer().schedule(
-            timedTask,
-            Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY, hour)
-                set(Calendar.MINUTE, minute)
-                set(Calendar.MINUTE, -1)
-            }.time
-        )
-        util.setTask(timedTask)
+        util.pushNotification(msg)
 
-        // Set alarm at hh:mm
-        // TODO Test!
-        // TODO maybe implement own alarm directly here, then cancelling the intent will be sufficient and notification does not need to be scheduled
-        // Just set the god damn alarm for the right time, with the right message!
-        val int = Intent(AlarmClock.ACTION_SET_ALARM)
-        int.putExtra(AlarmClock.EXTRA_MESSAGE, "You have not taken all your pills for today!! Taken them ASAP")
-        int.putExtra(AlarmClock.EXTRA_HOUR, hour)
-        int.putExtra(AlarmClock.EXTRA_MINUTES, minute)
-        startActivity(context, int,null)
-
-        // Set same alarm for next day!!
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            util.activateAlarm(hour, minute, tomorrow = true)
+        // Custom alarm
+        var alert: Uri? = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + context.packageName + "/" + R.raw.storm_ambulance)
+        if (alert == null) {
+            // alert is null, using backup
+            alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            if (alert == null) {
+                // alert is null, using backup
+                alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+                if (alert == null) {
+                    // alert backup is null, using 2nd backup
+                    alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
+                }
+            }
         }
+        val ringtone =
+            RingtoneManager.getRingtone(context, alert)
+        ringtone.audioAttributes =
+            AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).build()
+        ringtone!!.play()
     }
 }

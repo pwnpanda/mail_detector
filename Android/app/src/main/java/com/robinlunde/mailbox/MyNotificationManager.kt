@@ -89,12 +89,10 @@ class MyNotificationManager(private val ctx: Context) {
                 this.setSmallIcon(smallIcon)
                 // Set big icon
                 this.setLargeIcon(largeIcon?.toBitmap())
+                // Ex: this.setContentTitle("New mail detected!")
                 this.setContentTitle(message.title)
+                // Ex:  this.setContentText("The mail was delivered at: $timeStamp")
                 this.setContentText(message.text)
-                /*
-                this.setContentTitle("New mail detected!")
-                this.setContentText("The mail was delivered at: $timeStamp")
-                */
                 priority = NotificationCompat.PRIORITY_MAX
                 // Removes notification when pressed
                 this.setAutoCancel(true)
@@ -102,6 +100,8 @@ class MyNotificationManager(private val ctx: Context) {
                 this.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 //Set following intent
                 this.setContentIntent(notifyPendingIntent)
+                // Set big style
+                this.setStyle(NotificationCompat.BigTextStyle().bigText(message.text))
             }
 
             // notificationId is a unique int for each notification that you must define

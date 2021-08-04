@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation"
+    android:label="loginFragment"
     app:startDestination="@id/loginFragment">
     <fragment
         android:id="@+id/pillFragment"
@@ -35,7 +36,7 @@
             app:destination="@id/debugFragment" />
         <action
             android:id="@+id/action_loginFragment_to_pillFragment"
-            app:destination="@+id/pillFragment"/>
+            app:destination="@+id/pillFragment" />
     </fragment>
     <fragment
         android:id="@+id/alertFragment"
@@ -50,7 +51,7 @@
             app:destination="@id/debugFragment" />
         <action
             android:id="@+id/action_alertFragment_to_pillFragment"
-            app:destination="@+id/pillFragment"/>
+            app:destination="@+id/pillFragment" />
     </fragment>
     <fragment
         android:id="@+id/logviewFragment"
@@ -64,13 +65,13 @@
             app:destination="@id/debugFragment" />
         <action
             android:id="@+id/action_logviewFragment_to_pillFragment"
-            app:destination="@+id/pillFragment"/>
+            app:destination="@+id/pillFragment" />
     </fragment>
     <fragment
         android:id="@+id/debugFragment"
         android:name="com.robinlunde.mailbox.debug.DebugFragment"
         android:label="fragment_debug"
-        tools:layout="@layout/fragment_debug" >
+        tools:layout="@layout/fragment_debug">
         <action
             android:id="@+id/action_debugFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
@@ -82,6 +83,6 @@
             app:destination="@id/logviewFragment" />
         <action
             android:id="@+id/action_debugFragment_to_pillFragment"
-            app:destination="@+id/pillFragment"/>
+            app:destination="@+id/pillFragment" />
     </fragment>
 </navigation>
