@@ -51,16 +51,16 @@ class MyNotificationManager(private val ctx: Context) {
     // TODO Small icon needs to be an actual notification icon
     fun createPush(
         message: MyMessage,
-        @DrawableRes smallIconApp: Int = R.mipmap.mailbox_appicon_foreground,
-        @DrawableRes smallIconPill: Int = R.mipmap.mailbox_appicon_foreground,
-        pillAlert: Boolean = false
+        pillAlert: Boolean = false,
+        @DrawableRes smallIconApp: Int = R.drawable.mailbox_thick_outline_icon,
+        @DrawableRes smallIconPill: Int = R.drawable.pill_thick_outline_alert_icon
     ) {
 
         // TODO change values for pill alerts
         val largeIcon = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             var icon: Int = 0
-            if (pillAlert)  icon = R.mipmap.mailbox_appicon_foreground
-            if (!pillAlert) icon = R.mipmap.mailbox_appicon_foreground
+            icon =
+                if (pillAlert) R.drawable.pill_thick_outline_alert_icon else R.drawable.mailbox_thick_outline_icon
             ResourcesCompat.getDrawable(
                 MailboxApp.getInstance().resources,
                 icon,
@@ -77,17 +77,22 @@ class MyNotificationManager(private val ctx: Context) {
                 Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         // Add in order to identify intent from our own app
-        intent.putExtra( MailboxApp.getInstance().getString(R.string.app_name), true)
+        intent.putExtra(MailboxApp.getInstance().getString(R.string.app_name), true)
 
         // Create temporary intent for the push notification
         val notifyPendingIntent =
-            PendingIntent.getActivity(ctx, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+            PendingIntent.getActivity(
+                ctx,
+                0,
+                intent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
 
         // Build intent data for the push notification
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val builder = NotificationCompat.Builder(ctx, channelId).apply {
                 // Set small icon
-                if (pillAlert)  this.setSmallIcon(smallIconPill)
+                if (pillAlert) this.setSmallIcon(smallIconPill)
                 if (!pillAlert) this.setSmallIcon(smallIconApp)
                 // Set big icon
                 this.setLargeIcon(largeIcon?.toBitmap())
@@ -109,8 +114,8 @@ class MyNotificationManager(private val ctx: Context) {
             // notificationId is a unique int for each notification that you must define
             // If static, each notification will overwrite the previous one (PERFECT!! :) )
             // Send it!
-            if (pillAlert)  myNotificationManager.notify(pillNotificationId, builder.build())
-            else    myNotificationManager.notify(mailNotificationId, builder.build())
+            if (pillAlert) myNotificationManager.notify(pillNotificationId, builder.build())
+            else myNotificationManager.notify(mailNotificationId, builder.build())
 
         } else {
             Log.d("Notification", "Android version too old, ignoring push notifications!")

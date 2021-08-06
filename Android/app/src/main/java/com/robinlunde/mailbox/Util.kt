@@ -26,6 +26,7 @@ import java.net.URL
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
+import kotlin.coroutines.suspendCoroutine
 import kotlin.math.pow
 
 // TODO http data has become blocking when changing fragments!!
@@ -47,15 +48,22 @@ class Util {
     // ----------------------------- Notification -------------------------------
 
 
-    fun pushNotification(message: MyMessage) {
+    fun pushNotification(message: MyMessage, pillAlert: Boolean = false) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            myNotificationManager.createPush(message)
+            myNotificationManager.createPush(message, pillAlert)
         } else {
             Log.d("Push", "Android version too old, ignoring push notification!")
         }
     }
 
     // ----------------------------- HTTP -------------------------------
+
+    /** TODO Refactor all http requests to be async
+     * Seems better to be callback based!
+     * THink about how to do it.
+     * https://www.baeldung.com/guide-to-okhttp
+     * https://stackoverflow.com/a/34967554
+     */
 
     fun startDataRenewer() {
         //Log.e("Debug", "Util initiated")
@@ -87,98 +95,103 @@ class Util {
         }
     }
 
-    fun tryRequest(type: String, timestamp: String?, id: Int?, newMail: Boolean?): Boolean {
-        val context = MailboxApp.getInstance()
-        // Do async thread with network request
-        Log.d("TryToRequest", "Type: $type Timestamp: $timestamp Id: $id")
-        var sent = false
-        var tries = 0
-        do {
-            // 5 seconds
-            val base = 5000.0
-            // Exponentially increase wait time between tries
-            val time: Double = base.pow(n = tries)
+    suspend fun tryRequest(type: String, timestamp: String?, id: Int?, newMail: Boolean?): Boolean {
+        return suspendCoroutine {
+            val context = MailboxApp.getInstance()
+            // Do async thread with network request
+            Log.d("TryToRequest", "Type: $type Timestamp: $timestamp Id: $id")
 
-            val thread = Thread {
-                // Try to send web request
-                try {
-                    Log.d("Thread", "Sleeping")
-                    Thread.sleep(time.toLong())
-                    when (type) {
-                        // Send the log off to api after picking it up
-                        context.getString(R.string.sendLogsMethod) -> {
-                            if (timestamp == null) {
-                                Log.d(
-                                    "Error",
-                                    "Timestamp is null when trying to add new post log entry"
-                                )
-                                throw NullPointerException()
+
+            var sent = false
+            var tries = 0
+            do {
+                // 5 seconds
+                val base = 5000.0
+                // Exponentially increase wait time between tries
+                val time: Double = base.pow(n = tries)
+
+                val thread = Thread {
+                    // Try to send web request
+                    try {
+                        Log.d("Thread", "Sleeping")
+                        Thread.sleep(time.toLong())
+                        when (type) {
+                            // Send the log off to api after picking it up
+                            context.getString(R.string.sendLogsMethod) -> {
+                                if (timestamp == null) {
+                                    Log.d(
+                                        "Error",
+                                        "Timestamp is null when trying to add new post log entry"
+                                    )
+                                    throw NullPointerException()
+                                }
+                                sendLog(timestamp).also { sent = it }
                             }
-                            sendLog(timestamp).also { sent = it }
-                        }
 
-                        // Delete an entry
-                        context.getString(R.string.deleteLogsMethod) -> {
-                            if (id == null) {
-                                Log.d("Error", "Id is null when trying to delete log entry")
-                                throw NullPointerException()
+                            // Delete an entry
+                            context.getString(R.string.deleteLogsMethod) -> {
+                                if (id == null) {
+                                    Log.d("Error", "Id is null when trying to delete log entry")
+                                    throw NullPointerException()
+                                }
+                                delLog(id).also { sent = it }
                             }
-                            delLog(id).also { sent = it }
-                        }
 
-                        // Look for new post submitted by others (status)
-                        context.getString(R.string.get_last_status_update_method) -> {
-                            getDataWeb(updateURL).also { sent = it }
-                        }
-
-                        // New communication with BT device / new mail pickup - share with online api
-                        context.getString(R.string.set_last_status_update_method) -> {
-                            if (newMail == null) {
-                                Log.d("Error", "newMail is null when trying to set new status update")
-                                throw NullPointerException()
+                            // Look for new post submitted by others (status)
+                            context.getString(R.string.get_last_status_update_method) -> {
+                                getDataWeb(updateURL).also { sent = it }
                             }
-                            setLastUpdate(
-                                PostUpdateStatus(
-                                    newMail,
-                                    timestamp = getTime(),
-                                    MailboxApp.getUsername()
-                                )
-                            ).also { sent = it }
-                        }
 
-                        // Get update from server (logs
-                       context.getString(R.string.get_logs) -> {
-                            getDataWeb(null).also { sent = it }
-                        }
+                            // New communication with BT device / new mail pickup - share with online api
+                            context.getString(R.string.set_last_status_update_method) -> {
+                                if (newMail == null) {
+                                    Log.d(
+                                        "Error",
+                                        "newMail is null when trying to set new status update"
+                                    )
+                                    throw NullPointerException()
+                                }
+                                setLastUpdate(
+                                    PostUpdateStatus(
+                                        newMail,
+                                        timestamp = getTime(),
+                                        MailboxApp.getUsername()
+                                    )
+                                ).also { sent = it }
+                            }
 
-                        else -> throw java.lang.Exception("Unknown http method!")
+                            // Get update from server (logs)
+                            context.getString(R.string.get_logs) -> {
+                                getDataWeb(null).also { sent = it }
+                            }
+
+                            else -> throw java.lang.Exception("Unknown http method!")
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
                 }
-            }
-            Log.d("Thread", "Trying transmission $tries / 6")
-            thread.start()
-            thread.join()
-            tries++
+                Log.d("Thread", "Trying transmission $tries / 6")
+                thread.start()
+                thread.join()
+                tries++
 
-            // Check if we succeeded or if we are giving up
-            if (tries >= 7 || sent) {
-                if (tries >= 7) {
-                    Log.d("Thread", "Tried 6 transmissions but failed - Giving up! ")
-                    Toast.makeText(
-                        MailboxApp.getInstance().applicationContext,
-                        "Failed to save timestamp! Giving up!",
-                        Toast.LENGTH_LONG
-                    ).show()
-                } else {
-                    Log.d("Thread", "Transmission success for type: $type!")
+                // Check if we succeeded or if we are giving up
+                if (tries >= 7 || sent) {
+                    if (tries >= 7) {
+                        Log.d("Thread", "Tried 6 transmissions but failed - Giving up! ")
+                        Toast.makeText(
+                            MailboxApp.getInstance().applicationContext,
+                            "Failed to save timestamp! Giving up!",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    } else {
+                        Log.d("Thread", "Transmission success for type: $type!")
+                    }
+                    break
                 }
-                break
-            }
-        } while (!sent)
-
-        return sent
+            } while (!sent)
+        }
     }
 
     // Set last time we got info from BT Device
@@ -250,7 +263,7 @@ class Util {
         // Getting Update-data since we specified an URL
         if (myUrl != null && gotValidResult) {
             // Convert data to ArrayList using jackson
-            if ( res.contains("\"timestamp\":\"\"") ){
+            if (res.contains("\"timestamp\":\"\"")) {
                 Log.d("StatusUpdate-data", "Data not yet initialized in server!")
             } else {
                 val dataParsed: PostUpdateStatus = mapper.readValue(res)
@@ -344,7 +357,7 @@ class Util {
     fun activateAlarm(hourTime: Int, minuteTime: Int) {
         val thisTag = "$tag activateAlarm"
         val hour = if (hourTime == -1) 21 else hourTime
-        val minute =  if (minuteTime == -1) 0 else minuteTime
+        val minute = if (minuteTime == -1) 0 else minuteTime
 
         Log.d(thisTag, "Received values: $hour:$minute")
 
@@ -360,8 +373,21 @@ class Util {
             .putExtra("hour", hour)
             .putExtra("minute", minute)
 
-        Log.d(thisTag, "Intent values: ${alarmIntent.getIntExtra("hour", -1)}:${alarmIntent.getIntExtra("minute", -1)}")
-        alarmPendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        Log.d(
+            thisTag,
+            "Intent values: ${
+                alarmIntent.getIntExtra(
+                    "hour",
+                    -1
+                )
+            }:${alarmIntent.getIntExtra("minute", -1)}"
+        )
+        alarmPendingIntent = PendingIntent.getBroadcast(
+            context,
+            0,
+            alarmIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
 
         // Current time
         val timeNow = Calendar.getInstance().timeInMillis
@@ -370,12 +396,10 @@ class Util {
         val alertTime = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, hour)
             set(Calendar.MINUTE, minute)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
 
             Log.d(thisTag, "Cur: $timeNow - alertTime: ${this.timeInMillis}")
             // If it is passed the trueAlertTime, add a day
-            if (timeNow >= this.timeInMillis ) {
+            if (timeNow >= this.timeInMillis) {
                 Log.d(thisTag, "Time passed - increasing day by 1")
                 add(Calendar.DAY_OF_MONTH, 1)
             }
@@ -390,15 +414,15 @@ class Util {
     }
 
 
-    private fun cancelAlarm(){
+    private fun cancelAlarm() {
         try {
             // If the alarm has been set, cancel it.
             alarmManager.cancel(alarmPendingIntent)
-        }catch (e: UninitializedPropertyAccessException){
-            Log.d( "$tag cancelAlarm", "This is fine - AlertManager has not yet been initialized!")
-        } catch (e: java.lang.Exception){
-            Log.d( "$tag cancelAlarm", e.stackTraceToString())
-            Log.d( "$tag cancelAlarm", "PendingIntent likely not set. WHat type of error??")
+        } catch (e: UninitializedPropertyAccessException) {
+            Log.d("$tag cancelAlarm", "This is fine - AlertManager has not yet been initialized!")
+        } catch (e: java.lang.Exception) {
+            Log.d("$tag cancelAlarm", e.stackTraceToString())
+            Log.d("$tag cancelAlarm", "PendingIntent likely not set. WHat type of error??")
         }
     }
 }

@@ -18,6 +18,10 @@ import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.databinding.FragmentAlertBinding
 import com.robinlunde.mailbox.datamodel.PostUpdateStatus
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 class AlertFragment : Fragment() {
     private lateinit var util: Util
@@ -72,18 +76,25 @@ class AlertFragment : Fragment() {
             // }
 
             val timestamp = model.currentStatus.value!!.timestamp
-            // Try to log to web
-            val request1: Boolean =
-                util.tryRequest(getString(R.string.sendLogsMethod), timestamp, null, null)
-            if (!request1) makeToast("Could not register post pickup over Web!")
-            else makeToast("Post pickup registered!")
 
-            val request2: Boolean = util.tryRequest(
-                getString(R.string.set_last_status_update_method), null, null, newMail = false
-            )
-            if (!request2) makeToast("Could not send latest Status Update over web")
-            else makeToast("New status registered!")
+            val nwScope = CoroutineScope(Dispatchers.IO + Job())
 
+            nwScope.launch {
+                // Try to log to web
+                val request1: Boolean =
+                    util.tryRequest(getString(R.string.sendLogsMethod), timestamp, null, null)
+                if (!request1) makeToast("Could not register post pickup over Web!")
+                else makeToast("Post pickup registered!")
+
+                val request2: Boolean = util.tryRequest(
+                    getString(R.string.set_last_status_update_method),
+                    null,
+                    null,
+                    newMail = false
+                )
+                if (!request2) makeToast("Could not send latest Status Update over web")
+                else makeToast("New status registered!")
+            }
         }
 
         return binding.root
@@ -177,7 +188,10 @@ class AlertFragment : Fragment() {
             R.id.logs -> {
                 util.logButtonPress("Alert - logs")
                 // Try to fetch data to update logview - if we fail, we don't care
-                util.tryRequest(getString(R.string.get_logs), null, null, null)
+                CoroutineScope(Dispatchers.IO + Job()).launch {
+                    util.tryRequest(getString(R.string.get_logs), null, null, null)
+                }
+                util.logButtonPress("Alert - logs - after HTTP")
                 // Go to logview (now named PostView)
                 NavHostFragment.findNavController(this)
                     .navigate(AlertFragmentDirections.actionAlertFragmentToLogviewFragment())
@@ -187,7 +201,9 @@ class AlertFragment : Fragment() {
             R.id.bluetooth -> {
                 util.logButtonPress("Alert - bt")
                 // Move to debug view
-                if (MailboxApp.getClickCounter() >= 3)  NavHostFragment.findNavController(this)
+                if (MailboxApp.getClickCounter() >= 3) NavHostFragment.findNavController(
+                    this
+                )
                     .navigate(AlertFragmentDirections.actionAlertFragmentToDebugFragment())
                 super.onOptionsItemSelected(item)
             }
@@ -195,11 +211,12 @@ class AlertFragment : Fragment() {
             R.id.pill -> {
                 util.logButtonPress("Alert - pill")
                 // Move to pill view
-                NavHostFragment.findNavController(this).navigate(AlertFragmentDirections.actionAlertFragmentToPillFragment())
+                NavHostFragment.findNavController(this)
+                    .navigate(AlertFragmentDirections.actionAlertFragmentToPillFragment())
                 true
             }
 
-            else -> return super.onOptionsItemSelected(item)
+            else -> super.onOptionsItemSelected(item)
         }
     }
 }

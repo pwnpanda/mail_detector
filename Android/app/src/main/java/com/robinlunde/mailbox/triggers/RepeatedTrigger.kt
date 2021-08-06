@@ -35,7 +35,7 @@ class RepeatedTrigger : BroadcastReceiver() {
             "You have not taken all your pills for today!"
         )
 
-        util.pushNotification(msg)
+        util.pushNotification(msg, true)
 
         // Custom alarm
         var alert: Uri? = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + context.packageName + "/" + R.raw.storm_ambulance)

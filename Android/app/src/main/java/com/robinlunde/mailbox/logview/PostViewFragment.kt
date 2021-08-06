@@ -15,6 +15,10 @@ import com.robinlunde.mailbox.MailboxApp
 import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.databinding.FragmentLogviewBinding
 import com.robinlunde.mailbox.datamodel.PostLogEntry
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 class PostViewFragment : Fragment() {
     private val model: PostViewModel by viewModels()
@@ -66,7 +70,14 @@ class PostViewFragment : Fragment() {
             R.id.alert -> {
                 util.logButtonPress("Logview - logo")
                 // Try to fetch new data, if we fail we don't care
-                util.tryRequest(getString(R.string.get_last_status_update_method), null, null, null)
+                CoroutineScope(Dispatchers.IO + Job()).launch {
+                    util.tryRequest(
+                        getString(R.string.get_last_status_update_method),
+                        null,
+                        null,
+                        null
+                    )
+                }
                 //Move to Alert fragment
                 findNavController(this).navigate(
                     PostViewFragmentDirections.actionLogviewFragmentToAlertFragment()
@@ -83,7 +94,9 @@ class PostViewFragment : Fragment() {
             R.id.bluetooth -> {
                 util.logButtonPress("Logview - bt")
                 // Move to debug view
-                if (MailboxApp.getClickCounter() >= 3)  findNavController(this).navigate(PostViewFragmentDirections.actionLogviewFragmentToDebugFragment())
+                if (MailboxApp.getClickCounter() >= 3) findNavController(this).navigate(
+                    PostViewFragmentDirections.actionLogviewFragmentToDebugFragment()
+                )
                 super.onOptionsItemSelected(item)
                 //true
             }

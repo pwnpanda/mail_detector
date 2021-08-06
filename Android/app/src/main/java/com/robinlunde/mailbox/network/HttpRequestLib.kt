@@ -19,6 +19,13 @@ class HttpRequestLib {
     private val client = OkHttpClient()
     private var url: URL = URL(context.getString(R.string.normal_url))
 
+    /** TODO Refactor all http requests to be async
+     * Seems better to be callback based!
+     * THink about how to do it.
+     * https://www.baeldung.com/guide-to-okhttp
+     * https://stackoverflow.com/a/34967554
+     */
+
     // Get results for last 14 days
     fun getDataWeb(myUrl: URL?): String {
         val urlNow: URL = myUrl ?: url

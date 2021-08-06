@@ -18,6 +18,10 @@ import com.robinlunde.mailbox.MailboxApp
 import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.databinding.FragmentDebugBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 
 class DebugFragment : Fragment() {
@@ -135,7 +139,9 @@ class DebugFragment : Fragment() {
             R.id.logs -> {
                 util.logButtonPress("Debug - logs")
                 // Try to fetch data to update logview - if we fail, we don't care
-                util.tryRequest(getString(R.string.get_logs), null, null, null)
+                CoroutineScope(Dispatchers.IO + Job()).launch {
+                    util.tryRequest(getString(R.string.get_logs), null, null, null)
+                }
                 // Go to logview (now named PostView)
                 NavHostFragment.findNavController(this)
                     .navigate(DebugFragmentDirections.actionDebugFragmentToLogviewFragment())

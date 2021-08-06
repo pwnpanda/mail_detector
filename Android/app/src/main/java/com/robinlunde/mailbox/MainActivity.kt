@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.alert -> {
                 MailboxApp.setClickCounterZero()
-                MailboxApp.getUtil().logButtonPress("Main - logo")
+                MailboxApp.getUtil().logButtonPress("Main - alarm")
                 false
             }
 

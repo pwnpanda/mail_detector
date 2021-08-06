@@ -75,9 +75,7 @@
                     android:id="@+id/register_pill_button"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="?android:attr/textCheckMarkInverse"
-                    android:backgroundTint="@android:color/holo_green_dark"
-                    android:backgroundTintMode="src_in"
+                    android:background="@mipmap/pill_normal_icon_foreground"
                     app:layout_constraintBottom_toTopOf="@+id/pill_taken_button_text"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -106,7 +104,7 @@
                     android:id="@+id/create_pill_button"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="@android:drawable/ic_input_add"
+                    android:background="@mipmap/pill_add_icon_foreground"
                     app:layout_constraintBottom_toTopOf="@+id/create_pill_button_text"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -135,7 +133,7 @@
                     android:id="@+id/delete_pill_button"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="@android:drawable/ic_menu_delete"
+                    android:background="@mipmap/pill_disable_icon_foreground"
                     app:layout_constraintBottom_toTopOf="@id/delete_pill_button_text"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -173,6 +171,7 @@
             android:orientation="horizontal"
             app:layout_constraintBottom_toTopOf="@+id/pill_screen_title1"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/divider2">
 
@@ -335,10 +334,10 @@
                     android:layout_height="wrap_content"
                     android:text="Tue"
                     android:textSize="7pt"
-                    app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toTopOf="@+id/date_circle_tue"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <Button
                     android:id="@+id/date_circle_tue"
@@ -488,7 +487,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/pill_screen_title1"
             app:layout_constraintVertical_bias="1.0"
-            tools:layout_editor_absoluteX="-18dp" />
+            tools:layout_editor_absoluteX="-89dp" />
 
         <TextView
             android:id="@+id/pill_logs"
