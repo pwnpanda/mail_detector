@@ -28,6 +28,8 @@ import java.time.LocalDateTime
 import java.util.*
 import kotlin.math.pow
 
+// TODO http data has become blocking when changing fragments!!
+
 class Util {
     private lateinit var myNotificationManager: MyNotificationManager
     private lateinit var alarmPendingIntent: PendingIntent

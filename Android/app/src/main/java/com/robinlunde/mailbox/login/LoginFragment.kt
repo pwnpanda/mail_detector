@@ -69,7 +69,7 @@ class LoginFragment : Fragment() {
         val util: Util = MailboxApp.getUtil()
         return when (item.itemId) {
 
-            R.id.logo -> {
+            R.id.alert -> {
                 util.logButtonPress("Login - logo")
 
                 findNavController(this).navigate(

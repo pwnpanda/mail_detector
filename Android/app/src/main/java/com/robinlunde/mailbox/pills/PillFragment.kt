@@ -139,7 +139,7 @@ class PillFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         return when (item.itemId) {
-            R.id.logo -> {
+            R.id.alert -> {
                 util.logButtonPress("Pill - logo")
                 NavHostFragment.findNavController(this)
                     .navigate(PillFragmentDirections.actionPillFragmentToAlertFragment())

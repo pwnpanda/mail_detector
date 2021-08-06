@@ -80,15 +80,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/postbox"
-            android:scaleX="4"
-            android:scaleY="4"
+            android:scaleX="3"
+            android:scaleY="3"
             android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/timestamp_text"
             app:layout_constraintVertical_bias="0.65"
-            app:srcCompat="@mipmap/post_box_foreground" />
+            app:srcCompat="@mipmap/mailbox_appicon_foreground" />
 
         <TextView
             android:id="@+id/status"

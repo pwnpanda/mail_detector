@@ -63,7 +63,7 @@ class PostViewFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.logo -> {
+            R.id.alert -> {
                 util.logButtonPress("Logview - logo")
                 // Try to fetch new data, if we fail we don't care
                 util.tryRequest(getString(R.string.get_last_status_update_method), null, null, null)

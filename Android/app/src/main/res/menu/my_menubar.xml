@@ -29,16 +29,6 @@
         app:iconTint="@color/charcoal_light"/>
 
     <item
-        android:id="@+id/logo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        android:contentDescription="@string/logo_icon_name"
-        android:icon="@drawable/my_icon"
-        android:title="@string/logo_icon_name"
-        app:showAsAction="always" />
-
-    <item
         android:id="@+id/logs"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -46,6 +36,16 @@
         android:contentDescription="@string/logs_icon_name"
         android:icon="@drawable/logs"
         android:title="@string/logs_icon_name"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/alert"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:contentDescription="@string/alert_icon_name"
+        android:icon="@drawable/my_icon"
+        android:title="@string/alert_icon_name"
         app:showAsAction="always" />
 
 </menu>

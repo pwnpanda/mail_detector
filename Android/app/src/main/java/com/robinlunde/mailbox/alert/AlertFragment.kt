@@ -168,7 +168,7 @@ class AlertFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
 
-            R.id.logo -> {
+            R.id.alert -> {
                 // Do nothing, we are in correct view
                 util.logButtonPress("Alert - logo")
                 true

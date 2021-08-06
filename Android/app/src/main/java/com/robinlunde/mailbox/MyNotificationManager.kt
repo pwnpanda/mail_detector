@@ -6,7 +6,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.graphics.drawable.AdaptiveIconDrawable
 import android.os.Build
 import android.util.Log
 import androidx.annotation.DrawableRes
@@ -49,22 +48,24 @@ class MyNotificationManager(private val ctx: Context) {
         }
     }
 
+    // TODO Small icon needs to be an actual notification icon
     fun createPush(
         message: MyMessage,
-        @DrawableRes smallIcon: Int = R.mipmap.ic_launcher,
-        //@DrawableRes largeIcon: Int = R.mipmap.post_box,
+        @DrawableRes smallIconApp: Int = R.mipmap.mailbox_appicon_foreground,
+        @DrawableRes smallIconPill: Int = R.mipmap.mailbox_appicon_foreground,
         pillAlert: Boolean = false
     ) {
-        // TODO replace with logo - icon_mailbox
-        //val largeIcon = BitmapFactory.decodeResource(MailboxApp.getInstance().resources, R.mipmap.post_box)
-        // TODO use different one for pillAlert?
 
+        // TODO change values for pill alerts
         val largeIcon = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            var icon: Int = 0
+            if (pillAlert)  icon = R.mipmap.mailbox_appicon_foreground
+            if (!pillAlert) icon = R.mipmap.mailbox_appicon_foreground
             ResourcesCompat.getDrawable(
                 MailboxApp.getInstance().resources,
-                R.mipmap.ic_launcher,
+                icon,
                 null
-            ) as AdaptiveIconDrawable
+            )
         } else {
             Log.d("Notification", "Android version too old, ignoring push notifications!")
             null
@@ -86,7 +87,8 @@ class MyNotificationManager(private val ctx: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val builder = NotificationCompat.Builder(ctx, channelId).apply {
                 // Set small icon
-                this.setSmallIcon(smallIcon)
+                if (pillAlert)  this.setSmallIcon(smallIconPill)
+                if (!pillAlert) this.setSmallIcon(smallIconApp)
                 // Set big icon
                 this.setLargeIcon(largeIcon?.toBitmap())
                 // Ex: this.setContentTitle("New mail detected!")

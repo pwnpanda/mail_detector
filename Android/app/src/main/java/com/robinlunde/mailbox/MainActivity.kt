@@ -60,6 +60,14 @@ class MainActivity : AppCompatActivity() {
         val inflater = menuInflater
 
         inflater.inflate(R.menu.my_menubar, menu)
+
+        /** Try to find out how to set size! Currently too big an icon
+         * supportActionBar!!.displayOptions = ActionBar.DISPLAY_SHOW_HOME or
+         * ActionBar.DISPLAY_SHOW_TITLE or ActionBar.DISPLAY_USE_LOGO
+         * supportActionBar!!.title = ""
+         * supportActionBar!!.setIcon(R.mipmap.mailbox_border_appicon)
+         */
+
         // return true so that the menu pop up is opened
         return true
     }
@@ -68,7 +76,7 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Always arrives here first
         return when (item.itemId) {
-            R.id.logo -> {
+            R.id.alert -> {
                 MailboxApp.setClickCounterZero()
                 MailboxApp.getUtil().logButtonPress("Main - logo")
                 false
@@ -122,7 +130,7 @@ class MainActivity : AppCompatActivity() {
              *
              * switch (fragment_tags)
              *   login -> curController.navigate(LoginFragmentDirections.actionLoginFragmentToPillFragment())
-            */
+             */
         }
     }
 
@@ -199,9 +207,10 @@ class MainActivity : AppCompatActivity() {
             RequestCodeConst.BothPermissions -> {
                 // Permissions granted
                 if ((grantResults.isNotEmpty() &&
-                            grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                            grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                ) {
                     Log.d("Permission", "Permission for BT and Loc granted")
-                } else{
+                } else {
                     // be unhappy
                     Log.d("Permission", "Permission for BT and Loc DENIED!")
                     permCheckCount++
@@ -211,7 +220,8 @@ class MainActivity : AppCompatActivity() {
             RequestCodeConst.LocationPermission -> {
                 // Permissions granted
                 if ((grantResults.isNotEmpty() &&
-                            grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                            grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                ) {
                     // Be happy
                     Log.d("Permission", "Permission for Loc granted")
 
