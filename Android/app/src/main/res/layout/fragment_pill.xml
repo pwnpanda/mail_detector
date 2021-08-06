@@ -202,7 +202,7 @@
                     android:background="@drawable/round_button"
                     android:clickable="false"
                     android:text="7"
-                    app:layout_constraintBottom_toTopOf="@+id/pills_taken_mon"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/monday" />
@@ -234,7 +234,7 @@
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/monday" />
+                            app:layout_constraintTop_toBottomOf="@+id/pills_taken_mon" />
 
                         <Button
                             android:id="@+id/circle_pill_mon_2"
@@ -245,7 +245,7 @@
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@+id/circle_pill_mon_1"
-                            app:layout_constraintTop_toBottomOf="@+id/monday" />
+                            app:layout_constraintTop_toBottomOf="@+id/pills_taken_mon" />
 
                         <Button
                             android:id="@+id/circle_pill_mon_3"
@@ -256,7 +256,7 @@
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@+id/circle_pill_mon_2"
-                            app:layout_constraintTop_toBottomOf="@+id/monday" />
+                            app:layout_constraintTop_toBottomOf="@+id/pills_taken_mon" />
 
                         <Button
                             android:id="@+id/circle_pill_mon_4"
@@ -267,7 +267,7 @@
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@+id/circle_pill_mon_3"
-                            app:layout_constraintTop_toBottomOf="@+id/monday" />
+                            app:layout_constraintTop_toBottomOf="@+id/pills_taken_mon" />
                     </androidx.appcompat.widget.LinearLayoutCompat>
 
                     <androidx.appcompat.widget.LinearLayoutCompat
@@ -285,7 +285,7 @@
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/monday" />
+                            app:layout_constraintTop_toBottomOf="@+id/pills_taken_mon" />
 
                         <Button
                             android:id="@+id/circle_pill_mon_2_2"
@@ -296,7 +296,7 @@
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@+id/circle_pill_mon_1_2"
-                            app:layout_constraintTop_toBottomOf="@+id/monday" />
+                            app:layout_constraintTop_toBottomOf="@+id/pills_taken_mon" />
 
                         <Button
                             android:id="@+id/circle_pill_mon_3_2"
@@ -307,7 +307,7 @@
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@+id/circle_pill_mon_2_2"
-                            app:layout_constraintTop_toBottomOf="@+id/monday" />
+                            app:layout_constraintTop_toBottomOf="@+id/pills_taken_mon" />
 
                         <Button
                             android:id="@+id/circle_pill_mon_4_2"
@@ -318,7 +318,7 @@
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@+id/circle_pill_mon_3_2"
-                            app:layout_constraintTop_toBottomOf="@+id/monday" />
+                            app:layout_constraintTop_toBottomOf="@+id/pills_taken_mon" />
                     </androidx.appcompat.widget.LinearLayoutCompat>
                 </androidx.appcompat.widget.LinearLayoutCompat>
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -335,10 +335,10 @@
                     android:layout_height="wrap_content"
                     android:text="Tue"
                     android:textSize="7pt"
+                    app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toTopOf="@+id/date_circle_tue"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintStart_toStartOf="parent" />
 
                 <Button
                     android:id="@+id/date_circle_tue"
@@ -347,7 +347,7 @@
                     android:background="@drawable/round_button"
                     android:clickable="false"
                     android:text="8"
-                    app:layout_constraintBottom_toTopOf="@+id/pills_taken_tue"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/tuesday" />
@@ -373,7 +373,7 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/tuesday" />
+                        app:layout_constraintTop_toBottomOf="@+id/pills_taken_tue" />
 
                     <Button
                         android:id="@+id/circle_pill_tue_2"
@@ -384,7 +384,7 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/circle_pill_tue_1"
-                        app:layout_constraintTop_toBottomOf="@+id/tuesday" />
+                        app:layout_constraintTop_toBottomOf="@+id/pills_taken_tue" />
 
                     <Button
                         android:id="@+id/circle_pill_tue_3"
@@ -395,7 +395,7 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/circle_pill_tue_2"
-                        app:layout_constraintTop_toBottomOf="@+id/tuesday" />
+                        app:layout_constraintTop_toBottomOf="@+id/pills_taken_tue" />
 
                     <Button
                         android:id="@+id/circle_pill_tue_4"
@@ -406,7 +406,7 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/circle_pill_tue_3"
-                        app:layout_constraintTop_toBottomOf="@+id/tuesday" />
+                        app:layout_constraintTop_toBottomOf="@+id/pills_taken_tue" />
                 </androidx.appcompat.widget.LinearLayoutCompat>
             </androidx.constraintlayout.widget.ConstraintLayout>
 

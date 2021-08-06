@@ -32,6 +32,8 @@ class PillFragment : Fragment() {
 
     // Use util.cancelAlarm() to cancel current alarm
 
+    // use this and migrate to calendar? https://github.com/kizitonwose/CalendarView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Include top menu
@@ -74,33 +76,64 @@ class PillFragment : Fragment() {
 
         binding.lifecycleOwner = viewLifecycleOwner
 
-        binding.alarmButton.setOnClickListener {
-            val alarmHour = binding.setAlarm.hour
-            val alarmMinute = binding.setAlarm.minute
-
-            Log.d("PillFragment - AlarmButton", "Pressed! $alarmHour:$alarmMinute")
-
-            // Store new alarm value in shared preferences
-            with(prefs.edit()) {
-                putInt(
-                    "alarm_hour",
-                    alarmHour
-                )
-                putInt(
-                    "alarm_minute",
-                    alarmMinute
-                )
-                apply()
-            }
-
-            // Activate the alarm for the given time
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                // Send alarm to set and handle alarm 5 min before
-                util.activateAlarm(alarmHour, alarmMinute)
-            }
-        }
+        // Handle alarm being set
+        binding.alarmButton.setOnClickListener { handleAlarm() }
+        // Handle registration of new pill
+        binding.registerPillButton.setOnClickListener { registerPillTaken() }
+        // Handle creation of new pill
+        binding.createPillButton.setOnClickListener { createPill() }
+        // Handle invalidating existing pill
+        binding.deletePillButton.setOnClickListener { handleDeletePill() }
 
         return binding.root
+    }
+
+    private fun registerPillTaken(){
+        // Show current pills
+        // Clicking one sends relevant API request to register it as taken
+        // Update alarm-setting logic (pill is taken, so cancel alarm if all are taken)
+    }
+
+    private fun createPill(){
+        // Show UI for creating pill
+        // Require necessary information filled in
+        // Send API request
+        // Store name & pillId pair in secureSharedPreferences
+        // Update alarm-setting logic (creating a pill assumes it is taken that day)
+    }
+
+    private fun handleDeletePill(){
+        // Show all pills
+        // Have checkbox for active or inactive
+        // Send API request to activate / deactivate pill if clicked
+        // Update circle-ui to reflect current status
+        // Update alarm-setting logic (more / less pills needed for all to be taken)
+    }
+
+    private fun handleAlarm() {
+        val alarmHour = binding.setAlarm.hour
+        val alarmMinute = binding.setAlarm.minute
+
+        Log.d("PillFragment - AlarmButton", "Pressed! $alarmHour:$alarmMinute")
+
+        // Store new alarm value in shared preferences
+        with(prefs.edit()) {
+            putInt(
+                "alarm_hour",
+                alarmHour
+            )
+            putInt(
+                "alarm_minute",
+                alarmMinute
+            )
+            apply()
+        }
+
+        // Activate the alarm for the given time
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            // Send alarm to set and handle alarm 5 min before
+            util.activateAlarm(alarmHour, alarmMinute)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
