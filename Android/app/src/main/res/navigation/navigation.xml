@@ -19,6 +19,27 @@
         <action
             android:id="@+id/action_pillFragment_to_debugFragment"
             app:destination="@id/debugFragment" />
+        <action
+            android:id="@+id/action_pillFragment_to_pillLogFragment"
+            app:destination="@+id/pillLogFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/pillLogFragment"
+        android:name="com.robinlunde.mailbox.pills.PillLogFragment"
+        android:label="fragment_pill_log"
+        tools:layout="@layout/fragment_pill_log">
+        <action
+            android:id="@+id/action_pillLogFragment_to_alertFragment"
+            app:destination="@id/alertFragment" />
+        <action
+            android:id="@+id/action_pillLogFragment_to_logviewFragment"
+            app:destination="@id/logviewFragment" />
+        <action
+            android:id="@+id/action_pillLogFragment_to_debugFragment"
+            app:destination="@id/debugFragment" />
+        <action
+            android:id="@+id/action_pillLogFragment_to_pillFragment"
+            app:destination="@+id/pillFragment" />
     </fragment>
     <fragment
         android:id="@+id/loginFragment"

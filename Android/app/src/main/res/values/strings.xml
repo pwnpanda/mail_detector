@@ -20,7 +20,7 @@
     <string name="deleteLogsMethod">deleteLog</string>
     <string name="user_header">User</string>
     <string name="delivered_header">Delivered</string>
-    <string name="pickup_header">Picked up</string>
+    <string name="pickup_header">PickUp</string>
     <string name="no_new_post_message">No new post detected!</string>
     <string name="nice_day_message">Have a nice day!</string>
     <string name="channel_name">Mail_Alert_Channel</string>
@@ -44,4 +44,7 @@
     <string name="new_pill">Create pill</string>
     <string name="remove_pill">Disable pill</string>
     <string name="pill_history">Pill log</string>
+    <string name="pill_header">Pill</string>
+    <string name="date_header">Date</string>
+    <string name="taken_header">Taken</string>
 </resources>

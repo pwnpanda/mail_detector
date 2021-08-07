@@ -5,8 +5,8 @@
     android:id="@+id/post_row"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp">
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp">
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -14,8 +14,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintEnd_toStartOf="@id/pill_delete_history_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:paddingBottom="5dp">
@@ -54,17 +53,23 @@
             android:textSize="16sp"
             tools:text="YES" />
 
-        <ImageButton
-            android:id="@+id/pill_delete_history_button"
-            android:layout_width="51dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="?attr/colorOnSecondary"
-            android:contentDescription="@string/delete_button"
-            android:hapticFeedbackEnabled="true"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:src="@android:drawable/ic_menu_delete"
-            tools:ignore="RedundantDescriptionCheck,ImageContrastCheck" />
     </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/pill_delete_history_button"
+        android:layout_width="32dp"
+        android:layout_height="31dp"
+        android:layout_weight="1"
+        android:background="?attr/colorOnSecondary"
+        android:contentDescription="@string/delete_button"
+        android:hapticFeedbackEnabled="true"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:src="@android:drawable/ic_menu_delete"
+        app:layout_constraintBottom_toBottomOf="@id/linearLayout"
+        app:layout_constraintDimensionRatio="56:51"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/linearLayout"
+        app:layout_constraintTop_toTopOf="@id/linearLayout"
+        tools:ignore="RedundantDescriptionCheck,ImageContrastCheck" />
 </androidx.constraintlayout.widget.ConstraintLayout>

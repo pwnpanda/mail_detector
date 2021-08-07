@@ -30,9 +30,7 @@ class PillFragment : Fragment() {
     // Create circle as drawable resource
     // https://stackoverflow.com/a/24682125
 
-    // Use util.cancelAlarm() to cancel current alarm
-
-    // use this and migrate to calendar? https://github.com/kizitonwose/CalendarView
+// Use util.cancelAlarm() to cancel current alarm
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,6 +76,8 @@ class PillFragment : Fragment() {
 
         // Handle alarm being set
         binding.alarmButton.setOnClickListener { handleAlarm() }
+        // Handle alarm being cancelled
+        binding.cancelAlarmButton.setOnClickListener { util.cancelAlarm() }
         // Handle registration of new pill
         binding.pillRegisterButton.setOnClickListener { registerPillTaken() }
         // Handle creation of new pill
@@ -91,7 +91,7 @@ class PillFragment : Fragment() {
         return binding.root
     }
 
-    private fun registerPillTaken(){
+    private fun registerPillTaken() {
         // Show current pills
         // Clicking one sends relevant API request to register it as taken
         // Update alarm-setting logic (pill is taken, so cancel alarm if all are taken)
@@ -99,7 +99,7 @@ class PillFragment : Fragment() {
         // Go to own fragment?
     }
 
-    private fun createPill(){
+    private fun createPill() {
         // Show UI for creating pill
         // Require necessary information filled in
         // Send API request
@@ -109,7 +109,7 @@ class PillFragment : Fragment() {
         // Go to own fragment?
     }
 
-    private fun handleDeletePill(){
+    private fun handleDeletePill() {
         // Show all pills
         // Have checkbox for active or inactive
         // Send API request to activate / deactivate pill if clicked
@@ -119,11 +119,13 @@ class PillFragment : Fragment() {
         // Go to own fragment?
     }
 
-    private fun pillHistory(){
-        // Show all history
+    private fun pillHistory() {
+        // Fetch all all history async
         // This is also needed for the week, but can be done using different API to only get within the last week
 
         // Go to own fragment?
+        NavHostFragment.findNavController(this)
+            .navigate(PillFragmentDirections.actionPillFragmentToPillLogFragment())
     }
 
     private fun handleAlarm() {
@@ -186,7 +188,7 @@ class PillFragment : Fragment() {
         }
     }
 
-    private fun setAlarmIfConfigured () {
+    private fun setAlarmIfConfigured() {
         val funcTag = "$logTag setAlarmIfConfigured"
         // Set the time for the alarm clock to the currently set value
         val hour = prefs.getInt("alarm_hour", -1)

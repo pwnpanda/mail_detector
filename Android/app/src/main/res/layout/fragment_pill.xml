@@ -11,6 +11,27 @@
         tools:context=".pill.PillFragment"
         tools:layout="@layout/fragment_pill">
 
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="?android:attr/listDivider"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/divider_2"/>
+
+        <View
+            android:id="@+id/divider_2"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="?android:attr/listDivider"
+            app:layout_constraintTop_toBottomOf="@id/divider"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+
         <TimePicker
             android:id="@+id/set_alarm"
             android:layout_width="wrap_content"
@@ -19,10 +40,10 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
             android:timePickerMode="spinner"
-            app:layout_constraintBottom_toBottomOf="@+id/divider"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/alarmButton"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@+id/divider_2" />
 
         <Button
             android:id="@+id/alarmButton"
@@ -51,18 +72,6 @@
             app:layout_constraintTop_toBottomOf="@+id/alarmButton"
             tools:text="Cancel alarm" />
 
-        <View
-            android:id="@+id/divider"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:background="?android:attr/listDivider"
-            app:layout_constraintBottom_toTopOf="@+id/pill_button_layout"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/set_alarm" />
-
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/pill_button_layout"
@@ -72,7 +81,7 @@
             android:layout_marginRight="5dp"
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
-            app:layout_constraintBottom_toTopOf="@+id/divider2"
+            app:layout_constraintBottom_toTopOf="@+id/divider_2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/divider">
@@ -81,7 +90,7 @@
                 android:id="@+id/pill_register_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@mipmap/pill_normal_icon_foreground"
+                android:background="@mipmap/pill_taken_icon_foreground"
                 android:hapticFeedbackEnabled="true"
                 app:layout_constraintBottom_toTopOf="@+id/pill_register_button_text"
                 app:layout_constraintDimensionRatio="1:1"
@@ -121,7 +130,7 @@
                 android:id="@+id/pill_history_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@mipmap/pill_disable_icon_foreground"
+                android:background="@mipmap/pill_log_icon_foreground"
                 android:hapticFeedbackEnabled="true"
                 app:layout_constraintBottom_toTopOf="@+id/pill_history_text"
                 app:layout_constraintDimensionRatio="1:1"
@@ -171,29 +180,16 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <View
-            android:id="@+id/divider2"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:background="?android:attr/listDivider"
-            app:layout_constraintBottom_toTopOf="@+id/pill_week"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/pill_button_layout"
-            tools:visibility="invisible" />
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:id="@+id/pill_week"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/divider"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/divider2">
+            app:layout_constraintTop_toTopOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="wrap_content"

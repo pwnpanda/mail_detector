@@ -414,7 +414,7 @@ class Util {
     }
 
 
-    private fun cancelAlarm() {
+    fun cancelAlarm() {
         try {
             // If the alarm has been set, cancel it.
             alarmManager.cancel(alarmPendingIntent)
