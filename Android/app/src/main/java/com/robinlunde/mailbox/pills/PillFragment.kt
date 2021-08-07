@@ -15,6 +15,7 @@ import com.robinlunde.mailbox.MailboxApp
 import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.databinding.FragmentPillBinding
+import java.util.*
 
 
 class PillFragment : Fragment() {
@@ -186,10 +187,93 @@ class PillFragment : Fragment() {
             .navigate(PillFragmentDirections.actionPillFragmentToPillLogFragment())
     }
 
-    fun updateWeekView(binding: FragmentPillBinding){
-        val now = util.getTime()
-        val date_mon = 1
-        binding.dateCircleMon.text = date_mon.toString()
+    fun updateWeekView(binding: FragmentPillBinding) {
+
+        val now: Calendar = Calendar.getInstance()
+        Log.d(
+            "$logTag now",
+            "Weekday ${now.get(Calendar.DAY_OF_WEEK)} Date ${now.get(Calendar.DAY_OF_MONTH)}"
+        )
+
+        val curDate = now.get(Calendar.DAY_OF_MONTH)
+        val testDate: Calendar = now.clone() as Calendar
+        val dates = IntArray(7)
+        val today : Int
+
+        val dateMonday: Int = when (now.get(Calendar.DAY_OF_WEEK)) {
+            Calendar.SUNDAY -> {
+                testDate.add(Calendar.DATE, -6)
+                dates[6] = testDate.get(Calendar.DAY_OF_MONTH)
+                today = 6
+                testDate.get(Calendar.DAY_OF_MONTH)
+            }
+
+            Calendar.MONDAY -> {
+                today = 0
+                curDate
+            }
+
+            Calendar.TUESDAY -> {
+                testDate.add(Calendar.DATE, -1)
+                dates[1] = testDate.get(Calendar.DAY_OF_MONTH)
+                today = 1
+                testDate.get(Calendar.DAY_OF_MONTH)
+            }
+
+            Calendar.WEDNESDAY -> {
+                testDate.add(Calendar.DATE, -2)
+                dates[2] = testDate.get(Calendar.DAY_OF_MONTH)
+                today = 2
+                testDate.get(Calendar.DAY_OF_MONTH)
+            }
+
+            Calendar.THURSDAY -> {
+                testDate.add(Calendar.DATE, -3)
+                dates[3] = testDate.get(Calendar.DAY_OF_MONTH)
+                today = 3
+                testDate.get(Calendar.DAY_OF_MONTH)
+            }
+
+            Calendar.FRIDAY -> {
+                testDate.add(Calendar.DATE, -4)
+                dates[4] = testDate.get(Calendar.DAY_OF_MONTH)
+                today = 4
+                testDate.get(Calendar.DAY_OF_MONTH)
+            }
+
+            Calendar.SATURDAY -> {
+                testDate.add(Calendar.DATE, -5)
+                today = 5
+                dates[5] = testDate.get(Calendar.DAY_OF_MONTH)
+                testDate.get(Calendar.DAY_OF_MONTH)
+            }
+
+            else -> -1
+        }
+        for (i in 1..6) {
+            dates[i] = (now.clone() as Calendar).apply {
+                set(Calendar.DATE, dateMonday)
+                add(Calendar.DATE, i)
+            }
+                .get(Calendar.DAY_OF_MONTH)
+        }
+
+        /** TODO
+         *  Need to find a better way to deal with dates and weekdays
+         *  Create a enum and reference
+         *  Need to set today style based on if date is before or after today
+         *  Should have 1 enum for number to string
+         *  May want an enum from number to object
+         */
+
+        Log.d("$logTag now", "curDate $curDate mondayDate $dateMonday ")
+        binding.dateCircleMon.text = dateMonday.toString()
+        binding.dateCircleTue.text = dates[1].toString()
+        binding.dateCircleWed.text = dates[2].toString()
+        binding.dateCircleThu.text = dates[3].toString()
+        binding.dateCircleFri.text = dates[4].toString()
+        binding.dateCircleSat.text = dates[5].toString()
+        binding.dateCircleSun.text = dates[6].toString()
     }
 
     private fun handleAlarm() {
