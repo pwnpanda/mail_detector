@@ -58,9 +58,7 @@ class MyNotificationManager(private val ctx: Context) {
 
         // TODO change values for pill alerts
         val largeIcon = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            var icon: Int = 0
-            icon =
-                if (pillAlert) R.drawable.pill_thick_outline_alert_icon else R.drawable.mailbox_thick_outline_icon
+            var icon: Int = if (pillAlert) R.drawable.pill_thick_outline_alert_icon else R.drawable.mailbox_thick_outline_icon
             ResourcesCompat.getDrawable(
                 MailboxApp.getInstance().resources,
                 icon,

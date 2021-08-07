@@ -83,10 +83,11 @@ class PillFragment : Fragment() {
         // Handle creation of new pill
         binding.pillButtonLayoutIncl.pillCreateButton.setOnClickListener { createPill() }
         // Handle invalidating existing pill
-        binding.pillButtonLayoutIncl.pillDeleteButton.setOnClickListener { handleDeletePill() }
+        binding.pillButtonLayoutIncl.pillDisableButton.setOnClickListener { handleDisablePill() }
         // Handle pill history button
         binding.pillButtonLayoutIncl.pillHistoryButton.setOnClickListener { pillHistory() }
 
+        updateWeekView(binding)
 
         return binding.root
     }
@@ -96,18 +97,27 @@ class PillFragment : Fragment() {
         // Clicking one sends relevant API request to register it as taken
         // Update alarm-setting logic (pill is taken, so cancel alarm if all are taken)
 
-        // Hide buttons, show input
-        binding.pillButtonLayoutIncl.root.visibility = View.INVISIBLE
-        binding.pillCreateLayoutIncl.pillCreateLayout.visibility = View.VISIBLE
-        binding.pillCreateLayoutIncl.button.setOnClickListener { registerPillTakenAction() }
+        // Hide buttons
+        //binding.pillButtonLayoutIncl.root.visibility = View.GONE
+        binding.pillButtonLayoutIncl.pillButtonLayout.visibility = View.GONE
+        // Show input
+        binding.pillTakenLayoutIncl.pillTakenLayout.visibility = View.VISIBLE
+        //binding.pillTakenLayoutIncl.root.visibility = View.VISIBLE
+
+        // Create click listener
+        binding.pillTakenLayoutIncl.button.setOnClickListener { registerPillTakenAction() }
     }
 
-    private fun registerPillTakenAction(){
-        // Hide buttons, show input
-        binding.pillButtonLayoutIncl.root.visibility = View.VISIBLE
-        binding.pillCreateLayoutIncl.pillCreateLayout.visibility = View.INVISIBLE
+    private fun registerPillTakenAction() {
 
         // TODO actually do operations
+
+        // show Buttons
+        binding.pillButtonLayoutIncl.pillButtonLayout.visibility = View.VISIBLE
+
+        // Hide input
+        binding.pillTakenLayoutIncl.pillTakenLayout.visibility = View.INVISIBLE
+
     }
 
     private fun createPill() {
@@ -117,26 +127,69 @@ class PillFragment : Fragment() {
         // Store name & pillId pair in secureSharedPreferences
         // Update alarm-setting logic (creating a pill assumes it is taken that day)
 
-        // Go to own fragment?
+        // Hide buttons
+        binding.pillButtonLayoutIncl.pillButtonLayout.visibility = View.INVISIBLE
+        // Show create
+        binding.pillCreateLayoutIncl.pillCreateLayout.visibility = View.VISIBLE
+
+        // Create click listener
+        binding.pillCreateLayoutIncl.button.setOnClickListener { createPillAction() }
     }
 
-    private fun handleDeletePill() {
+    private fun createPillAction() {
+
+        // TODO actually do operations
+
+
+        // show Buttons
+        binding.pillButtonLayoutIncl.pillButtonLayout.visibility = View.VISIBLE
+
+        // Hide input
+        binding.pillCreateLayoutIncl.pillCreateLayout.visibility = View.INVISIBLE
+    }
+
+    private fun handleDisablePill() {
         // Show all pills
         // Have checkbox for active or inactive
         // Send API request to activate / deactivate pill if clicked
         // Update circle-ui to reflect current status
         // Update alarm-setting logic (more / less pills needed for all to be taken)
 
-        // Go to own fragment?
+        // Hide buttons
+        binding.pillButtonLayoutIncl.pillButtonLayout.visibility = View.INVISIBLE
+        // Show input
+        binding.pillDisableLayoutIncl.pillDisableLayout.visibility = View.VISIBLE
+
+        // Create click listener
+        binding.pillDisableLayoutIncl.button.setOnClickListener { disablePillAction() }
+    }
+
+    private fun disablePillAction() {
+
+        // TODO actually do operations
+
+
+        // show Buttons
+        binding.pillButtonLayoutIncl.pillButtonLayout.visibility = View.VISIBLE
+
+        // Hide input
+        binding.pillDisableLayoutIncl.pillDisableLayout.visibility = View.INVISIBLE
     }
 
     private fun pillHistory() {
+        // TODO
         // Fetch all all history async
         // This is also needed for the week, but can be done using different API to only get within the last week
 
-        // Go to own fragment?
+        // Go to own fragment
         NavHostFragment.findNavController(this)
             .navigate(PillFragmentDirections.actionPillFragmentToPillLogFragment())
+    }
+
+    fun updateWeekView(binding: FragmentPillBinding){
+        val now = util.getTime()
+        val date_mon = 1
+        binding.dateCircleMon.text = date_mon.toString()
     }
 
     private fun handleAlarm() {
@@ -184,7 +237,7 @@ class PillFragment : Fragment() {
 
             R.id.bluetooth -> {
                 util.logButtonPress("Pill - bt")
-                if (MailboxApp.getClickCounter() >= 3)  NavHostFragment.findNavController(this)
+                if (MailboxApp.getClickCounter() >= 3) NavHostFragment.findNavController(this)
                     .navigate(PillFragmentDirections.actionPillFragmentToDebugFragment())
                 super.onOptionsItemSelected(item)
             }
