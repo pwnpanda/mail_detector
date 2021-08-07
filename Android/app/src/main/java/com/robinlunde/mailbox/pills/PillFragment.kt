@@ -79,24 +79,35 @@ class PillFragment : Fragment() {
         // Handle alarm being cancelled
         binding.cancelAlarmButton.setOnClickListener { util.cancelAlarm() }
         // Handle registration of new pill
-        binding.pillRegisterButton.setOnClickListener { registerPillTaken() }
+        binding.pillButtonLayoutIncl.pillRegisterButton.setOnClickListener { registerPillTakenButton() }
         // Handle creation of new pill
-        binding.pillCreateButton.setOnClickListener { createPill() }
+        binding.pillButtonLayoutIncl.pillCreateButton.setOnClickListener { createPill() }
         // Handle invalidating existing pill
-        binding.pillDeleteButton.setOnClickListener { handleDeletePill() }
+        binding.pillButtonLayoutIncl.pillDeleteButton.setOnClickListener { handleDeletePill() }
         // Handle pill history button
-        binding.pillHistoryButton.setOnClickListener { pillHistory() }
+        binding.pillButtonLayoutIncl.pillHistoryButton.setOnClickListener { pillHistory() }
 
 
         return binding.root
     }
 
-    private fun registerPillTaken() {
+    private fun registerPillTakenButton() {
         // Show current pills
         // Clicking one sends relevant API request to register it as taken
         // Update alarm-setting logic (pill is taken, so cancel alarm if all are taken)
 
-        // Go to own fragment?
+        // Hide buttons, show input
+        binding.pillButtonLayoutIncl.root.visibility = View.INVISIBLE
+        binding.pillCreateLayoutIncl.pillCreateLayout.visibility = View.VISIBLE
+        binding.pillCreateLayoutIncl.button.setOnClickListener { registerPillTakenAction() }
+    }
+
+    private fun registerPillTakenAction(){
+        // Hide buttons, show input
+        binding.pillButtonLayoutIncl.root.visibility = View.VISIBLE
+        binding.pillCreateLayoutIncl.pillCreateLayout.visibility = View.INVISIBLE
+
+        // TODO actually do operations
     }
 
     private fun createPill() {
@@ -173,9 +184,9 @@ class PillFragment : Fragment() {
 
             R.id.bluetooth -> {
                 util.logButtonPress("Pill - bt")
-                NavHostFragment.findNavController(this)
+                if (MailboxApp.getClickCounter() >= 3)  NavHostFragment.findNavController(this)
                     .navigate(PillFragmentDirections.actionPillFragmentToDebugFragment())
-                true
+                super.onOptionsItemSelected(item)
             }
 
             R.id.pill -> {

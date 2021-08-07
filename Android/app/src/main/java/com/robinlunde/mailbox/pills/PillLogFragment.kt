@@ -62,9 +62,9 @@ class PillLogFragment: Fragment() {
 
             R.id.bluetooth -> {
                 util.logButtonPress("PillLog - bt")
-                NavHostFragment.findNavController(this)
+                if (MailboxApp.getClickCounter() >= 3)  NavHostFragment.findNavController(this)
                     .navigate(PillLogFragmentDirections.actionPillLogFragmentToDebugFragment())
-                true
+                super.onOptionsItemSelected(item)
             }
 
             R.id.pill -> {
