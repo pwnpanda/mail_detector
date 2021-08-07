@@ -79,11 +79,14 @@ class PillFragment : Fragment() {
         // Handle alarm being set
         binding.alarmButton.setOnClickListener { handleAlarm() }
         // Handle registration of new pill
-        binding.registerPillButton.setOnClickListener { registerPillTaken() }
+        binding.pillRegisterButton.setOnClickListener { registerPillTaken() }
         // Handle creation of new pill
-        binding.createPillButton.setOnClickListener { createPill() }
+        binding.pillCreateButton.setOnClickListener { createPill() }
         // Handle invalidating existing pill
-        binding.deletePillButton.setOnClickListener { handleDeletePill() }
+        binding.pillDeleteButton.setOnClickListener { handleDeletePill() }
+        // Handle pill history button
+        binding.pillHistoryButton.setOnClickListener { pillHistory() }
+
 
         return binding.root
     }
@@ -92,6 +95,8 @@ class PillFragment : Fragment() {
         // Show current pills
         // Clicking one sends relevant API request to register it as taken
         // Update alarm-setting logic (pill is taken, so cancel alarm if all are taken)
+
+        // Go to own fragment?
     }
 
     private fun createPill(){
@@ -100,6 +105,8 @@ class PillFragment : Fragment() {
         // Send API request
         // Store name & pillId pair in secureSharedPreferences
         // Update alarm-setting logic (creating a pill assumes it is taken that day)
+
+        // Go to own fragment?
     }
 
     private fun handleDeletePill(){
@@ -108,6 +115,15 @@ class PillFragment : Fragment() {
         // Send API request to activate / deactivate pill if clicked
         // Update circle-ui to reflect current status
         // Update alarm-setting logic (more / less pills needed for all to be taken)
+
+        // Go to own fragment?
+    }
+
+    private fun pillHistory(){
+        // Show all history
+        // This is also needed for the week, but can be done using different API to only get within the last week
+
+        // Go to own fragment?
     }
 
     private fun handleAlarm() {

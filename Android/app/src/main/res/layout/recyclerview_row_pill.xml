@@ -55,7 +55,7 @@
             tools:text="YES" />
 
         <ImageButton
-            android:id="@+id/pill_delete_button"
+            android:id="@+id/pill_delete_history_button"
             android:layout_width="51dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

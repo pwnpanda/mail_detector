@@ -39,7 +39,9 @@
     <string name="rssiSignal">RSSI Signal: %1$d</string>
     <string name="pill_icon_name">Pills</string>
     <string name="set_alarm_button">Set alarm</string>
+    <string name="cancel_alarm_button">Cancel alarm</string>
     <string name="pill_taken">Pill taken</string>
     <string name="new_pill">Create pill</string>
     <string name="remove_pill">Disable pill</string>
+    <string name="pill_history">Pill log</string>
 </resources>
