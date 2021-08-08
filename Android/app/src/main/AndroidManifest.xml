@@ -28,7 +28,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <receiver android:name="com.robinlunde.mailbox.triggers.RepeatedTrigger" android:enabled="true"/>
+        <receiver android:name="com.robinlunde.mailbox.triggers.RepeatedTrigger" android:enabled="true" android:exported="false"/>
         <receiver android:name="com.robinlunde.mailbox.triggers.BootTrigger" android:enabled="true"
             android:exported="false">
             <intent-filter>

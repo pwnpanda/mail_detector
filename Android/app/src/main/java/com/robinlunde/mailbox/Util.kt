@@ -353,7 +353,7 @@ class Util {
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
-    // Minute value is 5 minutes before the alarm should trigger. Real value is 5 minutes after
+    // Activate alarm
     fun activateAlarm(hourTime: Int, minuteTime: Int) {
         val thisTag = "$tag activateAlarm"
         val hour = if (hourTime == -1) 21 else hourTime

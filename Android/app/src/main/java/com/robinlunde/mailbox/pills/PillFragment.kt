@@ -1,13 +1,22 @@
 package com.robinlunde.mailbox.pills
 
 import android.content.SharedPreferences
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
+import android.text.Html
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
+import androidx.annotation.ColorRes
+import androidx.annotation.RequiresApi
+import androidx.appcompat.widget.LinearLayoutCompat
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.NavHostFragment
@@ -20,18 +29,18 @@ import java.util.*
 
 class PillFragment : Fragment() {
     private lateinit var binding: FragmentPillBinding
+    private lateinit var dayCircleObjects: Array<Button>
+    private lateinit var dayHeaderObjects: Array<TextView>
+    private lateinit var dayPillTakenObjects: Array<LinearLayoutCompat>
+    private lateinit var todayObject: Calendar
+    private var curWeekDates = IntArray(7)
+    private var todayIndex: Int = -1
+    private var todayDate: Int = -1
     private val prefs: SharedPreferences = MailboxApp.getPrefs()
     private val util: Util = MailboxApp.getUtil()
+    private val timer: Timer = Timer()
     val logTag = "PillFragment -"
 
-    // https://stackoverflow.com/a/34917457
-    // Change color and aspect of single drawable instance
-    // Needed for date circles and for "pill taken" circles
-
-    // Create circle as drawable resource
-    // https://stackoverflow.com/a/24682125
-
-// Use util.cancelAlarm() to cancel current alarm
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +54,7 @@ class PillFragment : Fragment() {
          *   Pill is taken
          *   Pill is disabled
          *   Alarm is changed and/or set
-         *   Date changes
+         *   Date changes - If date changes, check if it is in dates. If it is, update today and call updateWeekView()
          **/
 
         /** Todo: Check if alarm should be disabled when:
@@ -53,9 +62,9 @@ class PillFragment : Fragment() {
          *   Pill is taken
          **/
 
-        // Todo Activate alarm if new pill is added
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -88,9 +97,15 @@ class PillFragment : Fragment() {
         // Handle pill history button
         binding.pillButtonLayoutIncl.pillHistoryButton.setOnClickListener { pillHistory() }
 
-        updateWeekView(binding)
+        updateWeekView()
 
         return binding.root
+    }
+
+    override fun onDestroy() {
+        // Cancel timer if we move out of fragment
+        timer.cancel()
+        super.onDestroy()
     }
 
     private fun registerPillTakenButton() {
@@ -187,100 +202,247 @@ class PillFragment : Fragment() {
             .navigate(PillFragmentDirections.actionPillFragmentToPillLogFragment())
     }
 
-    fun updateWeekView(binding: FragmentPillBinding) {
+    // Set background color for any given button
+    private fun setBackgroundColor(btn: View, @ColorRes color: Int) {
+        btn.backgroundTintList =
+            ContextCompat.getColorStateList(requireContext(), color)
+    }
 
-        val now: Calendar = Calendar.getInstance()
-        Log.d(
-            "$logTag now",
-            "Weekday ${now.get(Calendar.DAY_OF_WEEK)} Date ${now.get(Calendar.DAY_OF_MONTH)}"
+    // Check if all pills are taken for the given date
+    private fun hasTakenAllPills(date: String): Boolean {
+        // todo
+        //return dayData[date.toInt()].allTaken
+        return true
+    }
+
+    // Hide minor buttons
+    private fun handlePillsTaken(buttonList: LinearLayoutCompat) {
+        /*
+        val colors = dayData[date.toInt()].getTakenColors
+        colors.zip(buttonList.children).forEach { (color, child) -> {
+            if (!color) child.visibility = View.Gone
+            setBackgroundColor(child, color)
+            }
+        }
+        */
+    }
+
+    // Set color for if all pills are taken for a given day
+    private fun setIsTakenColor(obj: Button) {
+        val drawable = GradientDrawable()
+        drawable.shape = GradientDrawable.OVAL
+        // Set background color
+        drawable.setColor(requireContext().getColor(R.color.background))
+
+        if (hasTakenAllPills(obj.text.toString())) {
+            // Set border
+            drawable.setStroke(8, requireContext().getColor(R.color.green_pill))
+            // Set text color
+            obj.setTextColor(requireContext().getColor(R.color.charcoal_light))
+        } else {
+            //Set border
+            drawable.setStroke(8, requireContext().getColor(R.color.top))
+            // Set text color
+            obj.setTextColor(requireContext().getColor(R.color.charcoal_light))
+        }
+        obj.background = drawable
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun dayUIUpdate() {
+        Log.d("$logTag dayUIUpdate", "Today $todayDate All Dates ${curWeekDates.joinToString(",")}")
+        // TODO change - just for testing
+        todayDate = 4
+        for (i in 0..6) {
+
+            // Today
+            if (curWeekDates[i] == todayDate) {
+                val drawable = GradientDrawable()
+                drawable.shape = GradientDrawable.OVAL
+                // Set border
+                drawable.setStroke(8, requireContext().getColor(R.color.charcoal_light))
+                // Set background color
+                drawable.setColor(requireContext().getColor(R.color.highlight))
+                dayCircleObjects[i].background = drawable
+                // Set bold font
+                dayCircleObjects[i].text = Html.fromHtml("<b>${dayCircleObjects[i].text}</b>", 0)
+                // Set underline on header
+                dayHeaderObjects[i].text = Html.fromHtml("<u>${dayHeaderObjects[i].text}</u>", 0)
+                // Set color black for current day in header
+                dayHeaderObjects[i].setTextColor(Color.BLACK)
+                handlePillsTaken(dayPillTakenObjects[i])
+            }
+
+            // Day has passed
+            if (curWeekDates[i] < todayDate) {
+                setIsTakenColor(dayCircleObjects[i])
+                handlePillsTaken(dayPillTakenObjects[i])
+            }
+
+            // Day is in the future
+            if (curWeekDates[i] > todayDate) {
+                setBackgroundColor(dayCircleObjects[i], R.color.grey)
+                dayCircleObjects[i].setTextColor(requireContext().getColor(R.color.background))
+                dayPillTakenObjects[i].visibility = View.GONE
+            }
+        }
+    }
+
+    private fun detectNewDay() {
+        val tomorrowObject =
+            (todayObject.clone() as Calendar).apply {
+                add(Calendar.DATE, 1)
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
+
+        timer.schedule(
+            object : TimerTask() {
+                @RequiresApi(Build.VERSION_CODES.N)
+                override fun run() {
+                    // If tomorrow is this week, just log it
+                    if (tomorrowObject.get(Calendar.DATE) in curWeekDates) Log.d(
+                        "$logTag detectNewDay",
+                        "Date ${tomorrowObject.get(Calendar.DATE)} is this week (in ${curWeekDates.joinToString { "," }})"
+                    )
+                    // If not, update the WeekView
+                    else updateWeekView()
+
+                    // Set new today values
+                    todayObject = Calendar.getInstance()
+                    todayIndex += 1
+                }
+            },
+            tomorrowObject.time
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    fun updateWeekView() {
+
+        dayCircleObjects = arrayOf(
+            binding.dateCircleMon,
+            binding.dateCircleTue,
+            binding.dateCircleWed,
+            binding.dateCircleThu,
+            binding.dateCircleFri,
+            binding.dateCircleSat,
+            binding.dateCircleSun
         )
 
-        val curDate = now.get(Calendar.DAY_OF_MONTH)
-        val testDate: Calendar = now.clone() as Calendar
-        val dates = IntArray(7)
-        val today : Int
+        dayHeaderObjects = arrayOf(
+            binding.monday,
+            binding.tuesday,
+            binding.wednesday,
+            binding.thursday,
+            binding.friday,
+            binding.saturday,
+            binding.sunday
+        )
 
-        val dateMonday: Int = when (now.get(Calendar.DAY_OF_WEEK)) {
+        dayPillTakenObjects = arrayOf(
+            binding.pillsTakenMon,
+            binding.pillsTakenTue,
+            binding.pillsTakenWed,
+            binding.pillsTakenThu,
+            binding.pillsTakenFri,
+            binding.pillsTakenSat,
+            binding.pillsTakenSun
+        )
+
+        todayObject = Calendar.getInstance()
+        Log.d(
+            "$logTag updateWeekView",
+            "Weekday ${todayObject.get(Calendar.DAY_OF_WEEK)} Date ${todayObject.get(Calendar.DAY_OF_MONTH)}"
+        )
+
+        todayDate = todayObject.get(Calendar.DAY_OF_MONTH)
+        val testDate: Calendar = todayObject.clone() as Calendar
+
+        // Get index of today's date and the date for monday this week
+        val dateMonday: Int = when (todayObject.get(Calendar.DAY_OF_WEEK)) {
             Calendar.SUNDAY -> {
                 testDate.add(Calendar.DATE, -6)
-                dates[6] = testDate.get(Calendar.DAY_OF_MONTH)
-                today = 6
+                curWeekDates[6] = testDate.get(Calendar.DAY_OF_MONTH)
+                todayIndex = 6
                 testDate.get(Calendar.DAY_OF_MONTH)
             }
 
             Calendar.MONDAY -> {
-                today = 0
-                curDate
+                todayIndex = 0
+                todayDate
             }
 
             Calendar.TUESDAY -> {
                 testDate.add(Calendar.DATE, -1)
-                dates[1] = testDate.get(Calendar.DAY_OF_MONTH)
-                today = 1
+                curWeekDates[1] = testDate.get(Calendar.DAY_OF_MONTH)
+                todayIndex = 1
                 testDate.get(Calendar.DAY_OF_MONTH)
             }
 
             Calendar.WEDNESDAY -> {
                 testDate.add(Calendar.DATE, -2)
-                dates[2] = testDate.get(Calendar.DAY_OF_MONTH)
-                today = 2
+                curWeekDates[2] = testDate.get(Calendar.DAY_OF_MONTH)
+                todayIndex = 2
                 testDate.get(Calendar.DAY_OF_MONTH)
             }
 
             Calendar.THURSDAY -> {
                 testDate.add(Calendar.DATE, -3)
-                dates[3] = testDate.get(Calendar.DAY_OF_MONTH)
-                today = 3
+                curWeekDates[3] = testDate.get(Calendar.DAY_OF_MONTH)
+                todayIndex = 3
                 testDate.get(Calendar.DAY_OF_MONTH)
             }
 
             Calendar.FRIDAY -> {
                 testDate.add(Calendar.DATE, -4)
-                dates[4] = testDate.get(Calendar.DAY_OF_MONTH)
-                today = 4
+                curWeekDates[4] = testDate.get(Calendar.DAY_OF_MONTH)
+                todayIndex = 4
                 testDate.get(Calendar.DAY_OF_MONTH)
             }
 
             Calendar.SATURDAY -> {
                 testDate.add(Calendar.DATE, -5)
-                today = 5
-                dates[5] = testDate.get(Calendar.DAY_OF_MONTH)
+                todayIndex = 5
+                curWeekDates[5] = testDate.get(Calendar.DAY_OF_MONTH)
                 testDate.get(Calendar.DAY_OF_MONTH)
             }
 
             else -> -1
         }
+        // Fill correct dates
+        curWeekDates[0] = dateMonday
+        dayCircleObjects[0].text = curWeekDates[0].toString()
         for (i in 1..6) {
-            dates[i] = (now.clone() as Calendar).apply {
+            // Get current date
+            val tmpCurDate = (todayObject.clone() as Calendar).apply {
                 set(Calendar.DATE, dateMonday)
                 add(Calendar.DATE, i)
             }
                 .get(Calendar.DAY_OF_MONTH)
+
+            // Store date in correct place
+            curWeekDates[i] = tmpCurDate
+            // Fill information in correct circle
+            dayCircleObjects[i].text = tmpCurDate.toString()
         }
 
-        /** TODO
-         *  Need to find a better way to deal with dates and weekdays
-         *  Create a enum and reference
-         *  Need to set today style based on if date is before or after today
-         *  Should have 1 enum for number to string
-         *  May want an enum from number to object
-         */
+        Log.d("$logTag updateWeekView", "curDate $todayDate mondayDate $dateMonday ")
 
-        Log.d("$logTag now", "curDate $curDate mondayDate $dateMonday ")
-        binding.dateCircleMon.text = dateMonday.toString()
-        binding.dateCircleTue.text = dates[1].toString()
-        binding.dateCircleWed.text = dates[2].toString()
-        binding.dateCircleThu.text = dates[3].toString()
-        binding.dateCircleFri.text = dates[4].toString()
-        binding.dateCircleSat.text = dates[5].toString()
-        binding.dateCircleSun.text = dates[6].toString()
+        // Organize days and color correctly
+        dayUIUpdate()
+
+        // Detect if there's a new day
+        detectNewDay()
     }
 
     private fun handleAlarm() {
         val alarmHour = binding.setAlarm.hour
         val alarmMinute = binding.setAlarm.minute
 
-        Log.d("PillFragment - AlarmButton", "Pressed! $alarmHour:$alarmMinute")
+        Log.d("PillFragment - handleAlarm", "Pressed! $alarmHour:$alarmMinute")
 
         // Store new alarm value in shared preferences
         with(prefs.edit()) {

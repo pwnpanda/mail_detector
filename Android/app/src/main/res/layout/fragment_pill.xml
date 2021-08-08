@@ -70,7 +70,8 @@
                 app:layout_constraintBottom_toBottomOf="@id/weekview"
                 app:layout_constraintEnd_toStartOf="@id/date_circle_tue"
                 app:layout_constraintStart_toStartOf="@id/weekview"
-                app:layout_constraintTop_toTopOf="@+id/weekview" />
+                app:layout_constraintTop_toTopOf="@+id/weekview"
+                app:layout_constraintVertical_bias="0.41000003" />
 
             <androidx.appcompat.widget.LinearLayoutCompat
                 android:id="@+id/pills_taken_mon"
@@ -82,7 +83,7 @@
                 app:layout_constraintBottom_toBottomOf="@id/weekview"
                 app:layout_constraintEnd_toEndOf="@id/date_circle_mon"
                 app:layout_constraintStart_toStartOf="@id/date_circle_mon"
-                app:layout_constraintTop_toBottomOf="@+id/date_circle_mon">
+                app:layout_constraintTop_toTopOf="@+id/date_circle_mon">
 
                 <androidx.appcompat.widget.LinearLayoutCompat
                     android:layout_width="match_parent"
@@ -743,13 +744,13 @@
 
             <include
                 android:id="@+id/pill_button_layout_incl"
+                layout="@layout/pill_buttons_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                layout="@layout/pill_buttons_layout"/>
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
