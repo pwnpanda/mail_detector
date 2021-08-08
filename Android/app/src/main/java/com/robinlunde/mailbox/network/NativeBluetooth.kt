@@ -110,9 +110,12 @@ class NativeBluetooth {
             }, delay.toLong())
         } catch (nullPointer: NullPointerException) {
             // Might want to try to detect exactly what is throwing null pointer!
-            Log.d(logTag, "Caught NullPointerException in rescan function. Likely due to client disconnect. Stacktrace: ${nullPointer.localizedMessage}")
+            Log.d(
+                logTag,
+                "Caught NullPointerException in rescan function. Likely due to client disconnect. Stacktrace: ${nullPointer.localizedMessage}"
+            )
         } catch (e: Exception) {
-            Log.d(logTag,"Caught exception: ${e.printStackTrace()} - Need to be handled?")
+            Log.d(logTag, "Caught exception: ${e.printStackTrace()} - Need to be handled?")
             throw e
         }
     }
@@ -192,7 +195,7 @@ class NativeBluetooth {
                                 // Characteristic exists, lets have fun
                                 // Get notified if characteristic changes / has a value
                                 gatt.setCharacteristicNotification(characteristic, true)
-                            } else if (CHARACTERISTIC_DEBUG_UUID == characteristic.uuid){
+                            } else if (CHARACTERISTIC_DEBUG_UUID == characteristic.uuid) {
                                 // Register for debug data
                                 gatt.setCharacteristicNotification(characteristic, true)
                             }
@@ -228,7 +231,7 @@ class NativeBluetooth {
                 logTag,
                 "Characteristic ${characteristic!!.uuid} changed. New value: ${characteristic.value.decodeToString()}"
             )
-            if (characteristic.uuid == CHARACTERISTIC_REAL_UUID){
+            if (characteristic.uuid == CHARACTERISTIC_REAL_UUID) {
                 val valFromSensor = characteristic.value.decodeToString()
                 // Send ack
                 characteristic.value = ack
@@ -320,7 +323,8 @@ class NativeBluetooth {
     fun requestDebugData() {
         val debugService = localGatt?.getService(SERVICE_UUID)
         val debugCharacteristic = debugService?.getCharacteristic(
-            CHARACTERISTIC_DEBUG_UUID)
+            CHARACTERISTIC_DEBUG_UUID
+        )
         debugCharacteristic?.value = ack
         localGatt?.writeCharacteristic(debugCharacteristic)
     }

@@ -252,7 +252,7 @@ class PillFragment : Fragment() {
     private fun dayUIUpdate() {
         Log.d("$logTag dayUIUpdate", "Today $todayDate All Dates ${curWeekDates.joinToString(",")}")
         // TODO change - just for testing
-        todayDate = 4
+        // todayDate = 4
         for (i in 0..6) {
 
             // Today

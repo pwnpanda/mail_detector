@@ -7,6 +7,7 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.robinlunde.mailbox.alert.AlertViewModel
@@ -24,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class MailboxApp : Application() {
 
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate() {
         super.onCreate()
         mailboxApp = this
@@ -44,7 +46,20 @@ class MailboxApp : Application() {
 
         // BT
         btConnection = NativeBluetooth()
-        //btConnection = BlueToothLib()
+        // TODO needed?
+        // btConnection = BlueToothLib()
+
+        //Create alarm
+        util.activateAlarm(
+            prefs.getInt(
+                "alarm_hour",
+                -1
+            ),
+            prefs.getInt(
+                "alarm_minute",
+                -1
+            )
+        )
 
         appScope.launch {
             // Setup refresher on API to update data every 30min
@@ -68,10 +83,6 @@ class MailboxApp : Application() {
             }
         }
 
-    }
-
-    public fun getContext(): Context {
-        return applicationContext
     }
 
     companion object {
@@ -241,7 +252,10 @@ class MailboxApp : Application() {
             // TODO
             // ensure correct format
             // "timestamp":"2021-04-03T23:26:55.108"
-            Log.d("Main function", "New data from device received: $time, only update the timestamp? $onlyTimestamp")
+            Log.d(
+                "Main function",
+                "New data from device received: $time, only update the timestamp? $onlyTimestamp"
+            )
 
             // If we only update the current check timestamp and know nothing of the status of mail
             if (onlyTimestamp) {
@@ -250,7 +264,8 @@ class MailboxApp : Application() {
                         getStatus().newMail,
                         time,
                         getUsername()
-                ) )
+                    )
+                )
                 return
             }
 
@@ -261,7 +276,7 @@ class MailboxApp : Application() {
              * val pickupTime = now()
              */
             val postTime = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                LocalDateTime.now().minusSeconds( time.toLong() ).toString()
+                LocalDateTime.now().minusSeconds(time.toLong()).toString()
             } else {
                 Log.e("Time calculation", "Android version too low! Please upgrade your os")
                 throw error("Android version too low!")
@@ -275,24 +290,28 @@ class MailboxApp : Application() {
                     newMail = true,
                     postTime,
                     getUsername()
-                ) )
+                )
+            )
         }
 
         // increment clickCounter
         fun incrementClickCounter(): Int {
-            Log.d("MailboxApp","Increment counter +1! Value before increment: ${clickCounter.get()}")
+            Log.d(
+                "MailboxApp",
+                "Increment counter +1! Value before increment: ${clickCounter.get()}"
+            )
             return clickCounter.incrementAndGet()
         }
 
         // set clickCounter 0
         fun setClickCounterZero() {
-            Log.d("MailboxApp","Set to 0! Current value of counter: ${clickCounter.get()}.")
+            Log.d("MailboxApp", "Set to 0! Current value of counter: ${clickCounter.get()}.")
             clickCounter.set(0)
         }
 
         // get clickCounter
         fun getClickCounter(): Int {
-            Log.d("MailboxApp","Value of counter: ${clickCounter.get()}")
+            Log.d("MailboxApp", "Value of counter: ${clickCounter.get()}")
             return clickCounter.get()
         }
 

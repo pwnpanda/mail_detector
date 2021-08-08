@@ -7,7 +7,7 @@ class PostUpdateStatus(
     val newMail: Boolean,
     val timestamp: String,
     val username: String
-){
+) {
     @JsonIgnore
     val util = MailboxApp.getUtil()
     val date = reverseDate(util.getMyDate(timestamp))

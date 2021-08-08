@@ -14,9 +14,6 @@ import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.datamodel.MyMessage
 
 
-
-
-
 class RepeatedTrigger : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -38,7 +35,8 @@ class RepeatedTrigger : BroadcastReceiver() {
         util.pushNotification(msg, true)
 
         // Custom alarm
-        var alert: Uri? = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + context.packageName + "/" + R.raw.storm_ambulance)
+        var alert: Uri? =
+            Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + context.packageName + "/" + R.raw.storm_ambulance)
         if (alert == null) {
             // alert is null, using backup
             alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)

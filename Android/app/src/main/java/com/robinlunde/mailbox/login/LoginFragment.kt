@@ -89,8 +89,9 @@ class LoginFragment : Fragment() {
             R.id.bluetooth -> {
                 util.logButtonPress("Login - bt")
 
-                if (MailboxApp.getClickCounter() >= 3)  findNavController(this).navigate(
-                    LoginFragmentDirections.actionLoginFragmentToDebugFragment())
+                if (MailboxApp.getClickCounter() >= 3) findNavController(this).navigate(
+                    LoginFragmentDirections.actionLoginFragmentToDebugFragment()
+                )
                 super.onOptionsItemSelected(item)
             }
 

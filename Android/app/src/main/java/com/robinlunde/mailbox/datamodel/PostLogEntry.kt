@@ -6,10 +6,10 @@ import com.robinlunde.mailbox.MailboxApp
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class PostLogEntry(
-        val id: Int,
-        val username: String,
-        val delivered: String,
-        val pickup: String
+    val id: Int,
+    val username: String,
+    val delivered: String,
+    val pickup: String
 ) {
     @JsonIgnore
     val util = MailboxApp.getUtil()

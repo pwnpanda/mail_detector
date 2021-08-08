@@ -415,6 +415,7 @@ class Util {
 
 
     fun cancelAlarm() {
+        Log.d("$tag cancelAlarm", "Trying to cancel alarm")
         try {
             // If the alarm has been set, cancel it.
             alarmManager.cancel(alarmPendingIntent)

@@ -15,7 +15,7 @@ import com.robinlunde.mailbox.databinding.FragmentPillLogBinding
 
 // use this and migrate to calendar? https://github.com/kizitonwose/CalendarView
 
-class PillLogFragment: Fragment() {
+class PillLogFragment : Fragment() {
     private lateinit var binding: FragmentPillLogBinding
     private val util: Util = MailboxApp.getUtil()
     val logTag = "PillLogFragment -"
@@ -62,7 +62,7 @@ class PillLogFragment: Fragment() {
 
             R.id.bluetooth -> {
                 util.logButtonPress("PillLog - bt")
-                if (MailboxApp.getClickCounter() >= 3)  NavHostFragment.findNavController(this)
+                if (MailboxApp.getClickCounter() >= 3) NavHostFragment.findNavController(this)
                     .navigate(PillLogFragmentDirections.actionPillLogFragmentToDebugFragment())
                 super.onOptionsItemSelected(item)
             }

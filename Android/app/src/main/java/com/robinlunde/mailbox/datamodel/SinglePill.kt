@@ -12,23 +12,23 @@ import java.util.*
  * Name should be local only
  */
 
-class SinglePill (
-    val id : UUID,
-    val taken : Boolean,
+class SinglePill(
+    val id: UUID,
+    val taken: Boolean,
     val color: ColorRes,
     private val timestamp: String
-    ){
+) {
 
     val util = MailboxApp.getUtil()
     val date = util.getMyDate(timestamp)
     val time = util.getMyTime(timestamp)
     val name = getName(id)
 
-    private fun reverseDate(str:String): String {
+    private fun reverseDate(str: String): String {
         return str.split("-").reversed().joinToString("-")
     }
 
-    fun getName(uuid:UUID) : String {
+    fun getName(uuid: UUID): String {
         // TODO Lookup UUID in sharedEncryptedPrefs, return associated value
         return ""
     }

@@ -47,8 +47,8 @@ class DebugFragment : Fragment() {
                 // do something with new data
                 updateFragment(newData)
             } catch (e: ConcurrentModificationException) {
-                Log.d(logTag,"Got data too quickly, just error out and update next time")
-            } catch (e: Exception){
+                Log.d(logTag, "Got data too quickly, just error out and update next time")
+            } catch (e: Exception) {
                 Log.e(logTag, "Got some fatal error! Crash in order to debug further")
                 throw e
             }
@@ -100,7 +100,7 @@ class DebugFragment : Fragment() {
         }
 
         // Add scroll on more than 6 datapoints, up to 30!
-        if (newData.size > 30)  graph.viewport.isScalable = true
+        if (newData.size > 30) graph.viewport.isScalable = true
 
         // Set data name
         data.title = "Sensor data"
@@ -152,14 +152,15 @@ class DebugFragment : Fragment() {
                 util.logButtonPress("Debug - bt")
                 // Do nothing, we are in this view
                 // Start collecting debug data           
-                if (MailboxApp.getClickCounter() >= 3)  MailboxApp.getBTConn().requestDebugData()
+                if (MailboxApp.getClickCounter() >= 3) MailboxApp.getBTConn().requestDebugData()
                 super.onOptionsItemSelected(item)
             }
 
             R.id.pill -> {
                 util.logButtonPress("Debug - pill")
                 // Move to pill view
-                NavHostFragment.findNavController(this).navigate(DebugFragmentDirections.actionDebugFragmentToPillFragment())
+                NavHostFragment.findNavController(this)
+                    .navigate(DebugFragmentDirections.actionDebugFragmentToPillFragment())
                 true
             }
 

@@ -632,7 +632,7 @@
                 app:layout_constraintBottom_toBottomOf="@id/date_circle_sat"
                 app:layout_constraintEnd_toEndOf="@id/weekview"
                 app:layout_constraintStart_toEndOf="@id/date_circle_sat"
-                app:layout_constraintTop_toTopOf="@+id/date_circle_sat"/>
+                app:layout_constraintTop_toTopOf="@+id/date_circle_sat" />
 
             <androidx.appcompat.widget.LinearLayoutCompat
                 android:id="@+id/pills_taken_sun"
