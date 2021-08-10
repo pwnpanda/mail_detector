@@ -13,7 +13,8 @@
 .env
 
 #secret
-WebAPI/secret.txt
+WebAPI/mail/secret.txt
+WebAPI/pill/secret.txt
 
 # Research data only - do not include
 RaspberryPi/research_project

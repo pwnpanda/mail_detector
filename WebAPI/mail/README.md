@@ -6,7 +6,11 @@
 4. `rake app:update:bin`
 4.  Follow (this article)[https://gorails.com/deploy/ubuntu/18.04#ruby]
 
-### Backup:
+### Built:
+- https://medium.com/@oliver.seq/creating-a-rest-api-with-rails-2a07f548e5dc
+- https://codebrains.io/build-todolist-rest-api-ruby-rails/
+
+### Run:
 Follow (this article)[https://medium.com/@mshostdrive/how-to-run-a-rails-app-in-production-locally-f29f6556d786]
 	- `RAILS_ENV=production rake db:create db:migrate db:seed`
 	- Copy output from: `rake secret`

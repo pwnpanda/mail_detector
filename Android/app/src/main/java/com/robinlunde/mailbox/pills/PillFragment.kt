@@ -215,7 +215,7 @@ class PillFragment : Fragment() {
         return true
     }
 
-    // Hide minor buttons
+    // Show only taken pills
     private fun handlePillsTaken(buttonList: LinearLayoutCompat) {
         /*
         val colors = dayData[date.toInt()].getTakenColors

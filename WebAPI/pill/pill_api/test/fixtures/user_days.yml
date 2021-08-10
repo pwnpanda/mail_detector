@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  day: one
+  user: one
+  taken: MyString
+  pill: one
+
+two:
+  day: two
+  user: two
+  taken: MyString
+  pill: two

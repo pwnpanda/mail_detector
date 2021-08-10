@@ -40,5 +40,7 @@ https://www.raspberrypi.org/forums/viewtopic.php?t=242665
 
 curl -v -XPOST https://robinlunde.com/api/post/status -H "Content-Type: application/json" -d '{"newMail":false,"username":"Robin","timestamp":"2021-03-23T22:53:16.686Z"}'
 
+curl -v -XPOST https://robinlunde.com/api/posts -H "Content-Type: application/json" -d '{"delivered": "2021-03-10T12:13:16.686Z", "username":"Robin", "pickup":"2021-03-10T13:14:16.686Z"}'
+
 curl -v https://robinlunde.com/api/post/status
 
