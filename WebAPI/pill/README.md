@@ -1,17 +1,25 @@
 ## Create
 
-rails new pill_api --api --database=postgresql
-rails generate model User username:string password:string
-rails generate model Pill uuid:string color:string user:references active:boolean created:datetime
-rails generate model UserDay day:references user:references taken:string pill:references
-rails generate model Day today:datetime
+- rails new pill_api --api --database=postgresql
+- rails generate model User username:string password:string
+- rails generate model Pill uuid:string color:string user:references active:boolean created:datetime
+- rails generate model UserDay day:references user:references taken:string pill:references
+- rails generate model Day today:datetime
 
-rails db:setup
-rails db:migrate
+- rails db:setup
+- rails db:migrate
 
-rails g controller api/v1/Users
-rails g controller api/v1/Days
-rails g controller api/v1/Pills
+- rails g controller api/v1/Users
+- rails g controller api/v1/Days
+- rails g controller api/v1/Pills
+
+- Change user to this? YES
+    - rails g model User username:uniq password:digest
+
+- bundle install (after adding bcrypt, simple_command and jwt to Gemfile)
+- rails g controller api/v1/authentication
+
+- CHANGE TO THIS!! https://github.com/hggeorgiev/rails-jwt-auth-tutorial, https://www.pluralsight.com/guides/token-based-authentication-with-ruby-on-rails-5-api
 
 #### TODO
 - Run the above - do we need postgresql?
@@ -31,7 +39,9 @@ rails g controller api/v1/Pills
 - HABTM: https://www.seancdavis.com/blog/why-i-dont-use-has-and-belongs-to-many-in-rails/
 - HABTM: https://guides.rubyonrails.org/association_basics.html#choosing-between-has-many-through-and-has-and-belongs-to-many
 - HABTM: https://medium.com/rubycademy/habtm-to-has-many-through-43f68f50e50e
-- 
+- Login: https://dev.to/kpete2017/how-to-create-user-authentication-in-a-ruby-on-rails-api-5ajf
+- JWT login: https://github.com/hggeorgiev/rails-jwt-auth-tutorial, https://www.pluralsight.com/guides/token-based-authentication-with-ruby-on-rails-5-api
+- Best login guide: https://scotch.io/tutorials/build-a-restful-json-api-with-rails-5-part-two
 
 ## Based on
 - https://pamit.medium.com/todo-list-building-a-react-app-with-rails-api-7a3027907665

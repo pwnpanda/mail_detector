@@ -1,4 +1,5 @@
 class Api::V1::UsersController < ApplicationController
+    skip_before_action :authenticate_request, only: :create
     before_action :set_user, only: [:show, :update, :destroy]
 
     # GET /api/v1/users
@@ -14,14 +15,10 @@ class Api::V1::UsersController < ApplicationController
 
     # POST /api/v1/users
     def create
-        @user = User.new(user_params)
-        if @user.save
-            payload = {user_id: @user.id}
-            token = create_token(payload)
-            render json: @user, status: :created, location: @user
-        else
-            json_response(@user.errors, :unprocessable_entity)
-        end
+        user = User.create!(user_params)
+        response = AuthenticateUser.new(user.username, user.password).call
+        auth_token = response.result
+        json_response({message: "User #{user.username} created!", token: auth_token}, :created)
     end
 
     # PUT /api/v1/users
@@ -40,9 +37,7 @@ class Api::V1::UsersController < ApplicationController
     private
 
     def user_params
-        params.require(:username).permit(:password).tap do |user_params|
-            user_params.require(:password)
-        end
+        params.permit(:password, :username)
     end
 
     def set_user
