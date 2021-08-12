@@ -4,7 +4,7 @@ class Api::V1::UsersController < ApplicationController
 
     # GET /api/v1/users
     def index
-        @users = User.all
+        @users = current_user
         json_response(@users)
     end
 
@@ -24,13 +24,13 @@ class Api::V1::UsersController < ApplicationController
     # PUT /api/v1/users
     # use json_response(@xx) for response
     def update
-        @user.update(user_params)
+        current_user.update(user_params)
         json_response({message: "User updated!"})
     end
 
     # DELETE /api/v1/users/:id
     def destroy
-        @user.destroy
+        current_user.destroy
         json_response({message: "User deleted!"})
     end
 
@@ -38,9 +38,5 @@ class Api::V1::UsersController < ApplicationController
 
     def user_params
         params.permit(:password, :username)
-    end
-
-    def set_user
-        @user = User.find(params[:id])
     end
 end
