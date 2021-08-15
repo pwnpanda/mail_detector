@@ -1,4 +1,6 @@
 class Api::V1::DaysController < ApplicationController
+    before_action :set_day, only: [:show, :update, :destroy]
+
     # GET /api/v1/user/:user_id/days
     def index
         0
@@ -22,5 +24,9 @@ class Api::V1::DaysController < ApplicationController
     # DELETE /api/v1/user/:user_id/days/:id
     def destroy
         0
+    end
+
+    def set_day
+        @day = Day.find(params[:id])
     end
 end

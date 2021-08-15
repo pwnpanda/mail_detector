@@ -37,5 +37,7 @@ module PillApi
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
     config.autoload_paths << Rails.root.join('lib')
+    # Works, needed to fix zeitwork error
+    config.autoloader = :classic
   end
 end

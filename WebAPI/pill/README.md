@@ -49,7 +49,9 @@
 - https://medium.com/@oliver.seq/creating-a-rest-api-with-rails-2a07f548e5dc
 
 ## Operate
-
+- Register: `curl -H "Content-Type: application/json" -X POST -d '{"username":"xxxx","password":"1"}' http://localhost:3000/api/v1/signup`
+- Login: `curl -H "Content-Type: application/json" -X POST -d '{"username":"x","password":"1"}' http://localhost:3000/api/v1/login`
+- Query: `curl -v -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxMSwiZXhwIjoxNjI4ODg0MjkxfQ.WfuUQECmU9HEx0YlOiQRQ3Hm4YehgUopsoCoin0CFcc" http://127.0.0.1:3000/api/v1/users`
 
 ### Run:
 Follow (this article)[https://medium.com/@mshostdrive/how-to-run-a-rails-app-in-production-locally-f29f6556d786]
