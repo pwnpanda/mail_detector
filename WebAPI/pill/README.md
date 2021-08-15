@@ -19,12 +19,9 @@
 
 - CHANGE TO THIS!! https://github.com/hggeorgiev/rails-jwt-auth-tutorial, https://www.pluralsight.com/guides/token-based-authentication-with-ruby-on-rails-5-api
 
-#### TODO
-- Run the above - do we need postgresql? NO
-- Make taken and pill arrays for "Day"
-    - Taken is array of pill uuids OR direct references to pills
-    - Pill is array of pills
-- Change from sqlite to postgres to support arrays? 
+#### NOTES
+- OBJECT.records returns a CollectionProxy, which is an array. Each item can be grabbed if you get the relevant entry:
+    * d1.records.first.day, where d1 is a Day object
 
 ## References for multiple fields
 - Arrays: https://stackoverflow.com/questions/32409820/add-an-array-column-in-rails
@@ -54,6 +51,7 @@
 - Login: `curl -H "Content-Type: application/json" -X POST -d '{"username":"x","password":"1"}' http://localhost:3000/api/v1/login`
 - Query: `curl -v -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJleHAiOjE2MjkxNDU4ODR9.XXwI7IPAWWKb8BZ3KJixhmRHCfXQQfoaOeBuKmca3eo" http://127.0.0.1:3000/api/v1/users`
 - Query ID `curl -v -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJleHAiOjE2MjkxNDU4ODR9.XXwI7IPAWWKb8BZ3KJixhmRHCfXQQfoaOeBuKmca3eo" http://127.0.0.1:3000/api/v1/users/1`
+
 ##### Routes:
 - /api/v1/login                     (POST)
 - /api/v1/signup                    (POST)
@@ -70,6 +68,7 @@
 ### DB Schema
 
 ```
+  
   create_table "days", force: :cascade do |t|
     t.datetime "today"
     t.datetime "created_at", precision: 6, null: false
@@ -79,23 +78,23 @@
   create_table "pills", force: :cascade do |t|
     t.string "uuid"
     t.string "color"
-    t.integer "user_id", null: false
     t.boolean "active"
+    t.integer "user_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["user_id"], name: "index_pills_on_user_id"
   end
 
-  create_table "user_days", force: :cascade do |t|
+  create_table "records", force: :cascade do |t|
     t.integer "day_id", null: false
     t.integer "user_id", null: false
-    t.string "taken"
     t.integer "pill_id", null: false
+    t.string "taken"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["day_id"], name: "index_user_days_on_day_id"
-    t.index ["pill_id"], name: "index_user_days_on_pill_id"
-    t.index ["user_id"], name: "index_user_days_on_user_id"
+    t.index ["day_id"], name: "index_records_on_day_id"
+    t.index ["pill_id"], name: "index_records_on_pill_id"
+    t.index ["user_id"], name: "index_records_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -107,9 +106,9 @@
   end
 
   add_foreign_key "pills", "users"
-  add_foreign_key "user_days", "days"
-  add_foreign_key "user_days", "pills"
-  add_foreign_key "user_days", "users"
+  add_foreign_key "records", "days"
+  add_foreign_key "records", "pills"
+  add_foreign_key "records", "users"
 ```
 
 ### Run:

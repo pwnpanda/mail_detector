@@ -1,6 +1,7 @@
 class Api::V1::PillsController < ApplicationController
     before_action :set_pill, only: [:show, :update, :destroy]
     
+    
     # GET /api/v1/user/:user_id/pills
     def index
         pills = Pill.where(user_id: current_user.id.to_i)
