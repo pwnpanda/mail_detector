@@ -5,3 +5,6 @@
 #
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
+u1 = User.find(username: "User")
+d1 = Day.find_or_create_by!("2021-08-12 19:48:19.800489")
+p1 = Pill.find_or_create_by!(uuid: "uuid-123", color: "blue", active: true, user: u1)

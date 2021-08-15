@@ -10,6 +10,13 @@
 - https://medium.com/@oliver.seq/creating-a-rest-api-with-rails-2a07f548e5dc
 - https://codebrains.io/build-todolist-rest-api-ruby-rails/
 
+### Requests
+curl -v -XPOST https://robinlunde.com/api/post/status -H "Content-Type: application/json" -d '{"newMail":false,"username":"Robin","timestamp":"2021-03-23T22:53:16.686Z"}'
+
+curl -v -XPOST https://robinlunde.com/api/posts -H "Content-Type: application/json" -d '{"delivered": "2021-03-10T12:13:16.686Z", "username":"Robin", "pickup":"2021-03-10T13:14:16.686Z"}'
+
+curl -v https://robinlunde.com/api/post/status
+
 ### Run:
 Follow (this article)[https://medium.com/@mshostdrive/how-to-run-a-rails-app-in-production-locally-f29f6556d786]
 	- `RAILS_ENV=production rake db:create db:migrate db:seed`

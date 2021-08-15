@@ -3,30 +3,42 @@ class Api::V1::DaysController < ApplicationController
 
     # GET /api/v1/user/:user_id/days
     def index
-        0
+        days = Day.order("created_at DESC")
+        json_response(days)
     end
 
     # GET /api/v1/user/:user_id/days/:id
     def show
-        #json_response(@obj)
+        json_response(@day)
     end
 
     # POST /api/v1/user/:user_id/days
     def create
-        0
+        day = Day.create!(day_params)
+        json_response(day, :created)
     end
 
     # PUT /api/v1/user/:user_id/days
     def update
-        0
+        @day.update(day_params)
+        json_response( { message: "Day #{@day.today} updated!" } )
     end
 
     # DELETE /api/v1/user/:user_id/days/:id
     def destroy
-        0
+        today = @day.today
+        @day.destroy
+        json_response( { message: "Day #{today} deleted!" }, :accepted )
     end
+
+    private
 
     def set_day
         @day = Day.find(params[:id])
     end
+
+    def day_params
+        params.permit(:today)
+    end
+
 end

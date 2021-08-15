@@ -3,11 +3,11 @@
 one:
   day: one
   user: one
-  taken: MyString
   pill: one
+  taken: MyString
 
 two:
   day: two
   user: two
-  taken: MyString
   pill: two
+  taken: MyString

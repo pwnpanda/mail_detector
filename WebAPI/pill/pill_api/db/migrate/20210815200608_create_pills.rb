@@ -3,9 +3,8 @@ class CreatePills < ActiveRecord::Migration[6.1]
     create_table :pills do |t|
       t.string :uuid
       t.string :color
-      t.references :user, null: false, foreign_key: true
       t.boolean :active
-      t.datetime :created
+      t.belongs_to :user, null: false, foreign_key: true
 
       t.timestamps
     end

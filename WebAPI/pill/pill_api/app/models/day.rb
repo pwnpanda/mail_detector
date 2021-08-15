@@ -1,4 +1,4 @@
 class Day < ApplicationRecord
-    has_many :user_days
-    has_many :pills, :through => :user_days
+    has_many :records
+    has_many :pills, :through => :records
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_08_11_204335) do
+ActiveRecord::Schema.define(version: 2021_08_15_200708) do
 
   create_table "days", force: :cascade do |t|
     t.datetime "today"
@@ -21,23 +21,23 @@ ActiveRecord::Schema.define(version: 2021_08_11_204335) do
   create_table "pills", force: :cascade do |t|
     t.string "uuid"
     t.string "color"
-    t.integer "user_id", null: false
     t.boolean "active"
+    t.integer "user_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["user_id"], name: "index_pills_on_user_id"
   end
 
-  create_table "user_days", force: :cascade do |t|
+  create_table "records", force: :cascade do |t|
     t.integer "day_id", null: false
     t.integer "user_id", null: false
-    t.string "taken"
     t.integer "pill_id", null: false
+    t.string "taken"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["day_id"], name: "index_user_days_on_day_id"
-    t.index ["pill_id"], name: "index_user_days_on_pill_id"
-    t.index ["user_id"], name: "index_user_days_on_user_id"
+    t.index ["day_id"], name: "index_records_on_day_id"
+    t.index ["pill_id"], name: "index_records_on_pill_id"
+    t.index ["user_id"], name: "index_records_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -49,7 +49,7 @@ ActiveRecord::Schema.define(version: 2021_08_11_204335) do
   end
 
   add_foreign_key "pills", "users"
-  add_foreign_key "user_days", "days"
-  add_foreign_key "user_days", "pills"
-  add_foreign_key "user_days", "users"
+  add_foreign_key "records", "days"
+  add_foreign_key "records", "pills"
+  add_foreign_key "records", "users"
 end

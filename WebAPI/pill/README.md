@@ -1,32 +1,30 @@
 ## Create
 
-- rails new pill_api --api --database=postgresql
-- rails generate model User username:string password:string
-- rails generate model Pill uuid:string color:string user:references active:boolean created:datetime
-- rails generate model UserDay day:references user:references taken:string pill:references
+- rails new pill_api --api
+- rails generate model User username:uniq password:digest
+- rails generate model Pill uuid:string color:string active:boolean user:belongs_to
+- rails generate model Record day:belongs_to user:belongs_to pill:belongs_to taken:string
 - rails generate model Day today:datetime
 
-- rails db:setup
 - rails db:migrate
+- rails db:setup
 
 - rails g controller api/v1/Users
 - rails g controller api/v1/Days
 - rails g controller api/v1/Pills
-
-- Change user to this? YES
-    - rails g model User username:uniq password:digest
+- rails g controller authentication
 
 - bundle install (after adding bcrypt, simple_command and jwt to Gemfile)
-- rails g controller api/v1/authentication
+
 
 - CHANGE TO THIS!! https://github.com/hggeorgiev/rails-jwt-auth-tutorial, https://www.pluralsight.com/guides/token-based-authentication-with-ruby-on-rails-5-api
 
 #### TODO
-- Run the above - do we need postgresql?
+- Run the above - do we need postgresql? NO
 - Make taken and pill arrays for "Day"
     - Taken is array of pill uuids OR direct references to pills
     - Pill is array of pills
-- Change from sqlite to postgres to support arrays
+- Change from sqlite to postgres to support arrays? 
 
 ## References for multiple fields
 - Arrays: https://stackoverflow.com/questions/32409820/add-an-array-column-in-rails
@@ -42,6 +40,9 @@
 - Login: https://dev.to/kpete2017/how-to-create-user-authentication-in-a-ruby-on-rails-api-5ajf
 - JWT login: https://github.com/hggeorgiev/rails-jwt-auth-tutorial, https://www.pluralsight.com/guides/token-based-authentication-with-ruby-on-rails-5-api
 - Best login guide: https://scotch.io/tutorials/build-a-restful-json-api-with-rails-5-part-two
+- HTTP-codes: https://gist.github.com/mlanett/a31c340b132ddefa9cca
+- DB actions: https://medium.com/@woodpecker21/rails-6-how-to-search-and-filter-index-results-2b7d4b348393
+- How to build: https://meaganwaller.com/use-a-nested-dynamic-form-with-a-hasmany-through-association-in-rails
 
 ## Based on
 - https://pamit.medium.com/todo-list-building-a-react-app-with-rails-api-7a3027907665
@@ -49,9 +50,67 @@
 - https://medium.com/@oliver.seq/creating-a-rest-api-with-rails-2a07f548e5dc
 
 ## Operate
-- Register: `curl -H "Content-Type: application/json" -X POST -d '{"username":"xxxx","password":"1"}' http://localhost:3000/api/v1/signup`
+- Signup: `curl -H "Content-Type: application/json" -X POST -d '{"username":"x","password":"1"}' http://localhost:3000/api/v1/signup`
 - Login: `curl -H "Content-Type: application/json" -X POST -d '{"username":"x","password":"1"}' http://localhost:3000/api/v1/login`
-- Query: `curl -v -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxMSwiZXhwIjoxNjI4ODg0MjkxfQ.WfuUQECmU9HEx0YlOiQRQ3Hm4YehgUopsoCoin0CFcc" http://127.0.0.1:3000/api/v1/users`
+- Query: `curl -v -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJleHAiOjE2MjkxNDU4ODR9.XXwI7IPAWWKb8BZ3KJixhmRHCfXQQfoaOeBuKmca3eo" http://127.0.0.1:3000/api/v1/users`
+- Query ID `curl -v -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJleHAiOjE2MjkxNDU4ODR9.XXwI7IPAWWKb8BZ3KJixhmRHCfXQQfoaOeBuKmca3eo" http://127.0.0.1:3000/api/v1/users/1`
+##### Routes:
+- /api/v1/login                     (POST)
+- /api/v1/signup                    (POST)
+
+- /api/v1/users                     (GET, POST)
+- /api/v1/users/:id                 (GET, PUT, DELETE)
+
+- /api/v1/users/:user_id/pills      (GET, POST)
+- /api/v1/users/:user_id/pills/:id  (GET, PUT, DELETE)
+
+- /api/v1/users/:user_id/days       (GET, POST)
+- /api/v1/users/:user_id/days/:id   (GET, PUT, DELETE)
+
+### DB Schema
+
+```
+  create_table "days", force: :cascade do |t|
+    t.datetime "today"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "pills", force: :cascade do |t|
+    t.string "uuid"
+    t.string "color"
+    t.integer "user_id", null: false
+    t.boolean "active"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_id"], name: "index_pills_on_user_id"
+  end
+
+  create_table "user_days", force: :cascade do |t|
+    t.integer "day_id", null: false
+    t.integer "user_id", null: false
+    t.string "taken"
+    t.integer "pill_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["day_id"], name: "index_user_days_on_day_id"
+    t.index ["pill_id"], name: "index_user_days_on_pill_id"
+    t.index ["user_id"], name: "index_user_days_on_user_id"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string "username"
+    t.string "password_digest"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["username"], name: "index_users_on_username", unique: true
+  end
+
+  add_foreign_key "pills", "users"
+  add_foreign_key "user_days", "days"
+  add_foreign_key "user_days", "pills"
+  add_foreign_key "user_days", "users"
+```
 
 ### Run:
 Follow (this article)[https://medium.com/@mshostdrive/how-to-run-a-rails-app-in-production-locally-f29f6556d786]
