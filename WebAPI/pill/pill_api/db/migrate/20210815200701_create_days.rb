@@ -1,7 +1,7 @@
 class CreateDays < ActiveRecord::Migration[6.1]
   def change
     create_table :days do |t|
-      t.datetime :today
+      t.date :today
 
       t.timestamps
     end
