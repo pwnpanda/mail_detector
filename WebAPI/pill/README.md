@@ -4,7 +4,7 @@
 - rails generate model User username:uniq password:digest
 - rails generate model Pill uuid:string color:string active:boolean user:belongs_to
 - rails generate model Record day:belongs_to user:belongs_to pill:belongs_to taken:string
-- rails generate model Day today:datetime
+- rails generate model Day today:date
 
 - rails db:migrate
 - rails db:setup
@@ -17,12 +17,14 @@
 - bundle install (after adding bcrypt, simple_command and jwt to Gemfile)
 
 
-- CHANGE TO THIS!! https://github.com/hggeorgiev/rails-jwt-auth-tutorial, https://www.pluralsight.com/guides/token-based-authentication-with-ruby-on-rails-5-api
-
 #### NOTES
 - OBJECT.records returns a CollectionProxy, which is an array. Each item can be grabbed if you get the relevant entry:
     * d1.records.first.day, where d1 is a Day object
 
+###### How to change db schema
+- Make change directly in original migration, then:
+    - rake db:migrate:reset
+    - rake db:setup
 ## References for multiple fields
 - Arrays: https://stackoverflow.com/questions/32409820/add-an-array-column-in-rails
 - UUID: https://pawelurbanek.com/uuid-order-rails
