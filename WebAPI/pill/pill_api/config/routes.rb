@@ -7,6 +7,7 @@ Rails.application.routes.draw do
       resources :users do
         resources :pills
         resources :days
+        resources :records
       end
     end
   end
