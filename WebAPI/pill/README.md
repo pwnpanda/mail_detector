@@ -70,9 +70,8 @@
 ### DB Schema
 
 ```
-  
   create_table "days", force: :cascade do |t|
-    t.datetime "today"
+    t.date "today"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
@@ -91,7 +90,7 @@
     t.integer "day_id", null: false
     t.integer "user_id", null: false
     t.integer "pill_id", null: false
-    t.string "taken"
+    t.boolean "taken"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["day_id"], name: "index_records_on_day_id"

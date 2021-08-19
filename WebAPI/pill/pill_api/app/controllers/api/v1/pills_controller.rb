@@ -16,6 +16,7 @@ class Api::V1::PillsController < ApplicationController
     # POST /api/v1/user/:user_id/pills
     def create
         pill = Pill.create!(pill_params)
+        pill.user = current_user.id
         json_response(pill, :created)
     end
 
@@ -37,7 +38,7 @@ class Api::V1::PillsController < ApplicationController
     def set_pill
         @pill = Pill.find(params[:id])
         if @pill.user_id != current_user.id.to_i
-            json_response({message: "Pill #{params[:id]} not found!"}, :not_found)
+            json_response( { message: "Pill #{params[:id]} not found!" }, :not_found )
         end
     end
 
