@@ -34,7 +34,7 @@ class Api::V1::RecordsController < ApplicationController
     # PUT /api/v1/user/:user_id/records
     def update
         @record.update(record_params)
-        json_response( { message: "Record #{@record.TODO} updated!" } )
+        json_response( { message: "Record #{@record.day.today} - #{@record.user.username} - #{@record.pill.uuid} updated!" } )
     end
 
     # DELETE /api/v1/user/:user_id/records/:id
@@ -44,7 +44,7 @@ class Api::V1::RecordsController < ApplicationController
         pill = @record.pill.uuid
         day = @record.day.today
         @record.destroy
-        json_response( { message: "Record for #{day} - #{user} - #{pill} deleted!" }, :accepted )
+        json_response( { message: "Record for #{day.today} - #{user.username} - #{pill.uuid} deleted!" }, :accepted )
     end
 
     private
@@ -53,9 +53,11 @@ class Api::V1::RecordsController < ApplicationController
         @record = Record.find(params[:id])
         if @record.user.id != current_user.id.to_i
             json_response( {message: "Record #{params[:id]} not found!"}, :not_found )
+        end
     end
 
     def record_params
         params.permit(:day_id, :today, :pill_id, :taken)
     end
+
 end
