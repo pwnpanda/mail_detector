@@ -3,7 +3,16 @@ class Api::V1::RecordsController < ApplicationController
 
     # GET /api/v1/user/:user_id/records
     def index
-        records = Record.where(user_id: current_user.id.to_i)
+        records = records = Record.where(user_id: current_user.id.to_i)
+        
+        # Get records by pill
+        if params[:pill].present?
+            records = records.where(pill_id: params[:pill].to_i)
+        # Get records by day
+        elsif params[:day].present?
+            records = records.where(day_id: params[:day].to_i)
+        end
+
         json_response(records)
     end
 
@@ -11,11 +20,6 @@ class Api::V1::RecordsController < ApplicationController
     def show
         json_response(@record)
     end
-
-    # TODO
-    # Get records by day
-    # Get records by user
-    # Get records by pill
 
     # POST /api/v1/user/:user_id/records
     def create

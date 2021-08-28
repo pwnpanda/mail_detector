@@ -55,7 +55,10 @@
 - Query ID `curl -v -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJleHAiOjE2MjkxNDU4ODR9.XXwI7IPAWWKb8BZ3KJixhmRHCfXQQfoaOeBuKmca3eo" http://127.0.0.1:3000/api/v1/users/1`
 - Create pill: `curl -v -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJleHAiOjE2MzAyNTI3NTh9.aYa56YwrMnvMJ6uoHxOGlsmRpkiWsYEONpfMssWbLWM" -H "Content-Type: application/json" -POST "http://127.0.0.1:3000/api/v1/users/2/pills" -d '{"color":"azure", "active":true}'`
 - Create day: `curl -v -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJleHAiOjE2MzAyNTI3NTh9.aYa56YwrMnvMJ6uoHxOGlsmRpkiWsYEONpfMssWbLWM" -POST http://127.0.0.1:3000/api/v1/users/2/days -d "{ 'today': 2021-08-15 }"`
-- 
+- Get records: `curl -v -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJleHAiOjE2MzAyNTI3NTh9.aYa56YwrMnvMJ6uoHxOGlsmRpkiWsYEONpfMssWbLWM" http://127.0.0.1:3000/api/v1/users/2/record`
+    - Optional parameters for filtering:
+        * ?pill=PILL_ID `http://127.0.0.1:3000/api/v1/users/2/record?pill=1`
+        * ?day=DAY_ID: `http://127.0.0.1:3000/api/v1/users/2/record?day=1`
 ##### Routes:
 - /api/v1/login                     (POST)
 - /api/v1/signup                    (POST)
