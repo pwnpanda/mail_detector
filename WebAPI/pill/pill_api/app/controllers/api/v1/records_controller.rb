@@ -12,6 +12,11 @@ class Api::V1::RecordsController < ApplicationController
         json_response(@record)
     end
 
+    # TODO
+    # Get records by day
+    # Get records by user
+    # Get records by pill
+
     # POST /api/v1/user/:user_id/records
     def create
         params = record_params
@@ -57,7 +62,7 @@ class Api::V1::RecordsController < ApplicationController
     end
 
     def record_params
-        params.permit(:day_id, :today, :pill_id, :taken)
+        params.require(:record).permit(:day_id, :today, :pill_id, :taken)
     end
 
 end

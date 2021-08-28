@@ -1,9 +1,11 @@
 class Api::V1::PillsController < ApplicationController
+    require 'securerandom'
     before_action :set_pill, only: [:show, :update, :destroy]
     
     
     # GET /api/v1/user/:user_id/pills
     def index
+        puts current_user
         pills = Pill.where(user_id: current_user.id.to_i)
         json_response(pills)
     end
@@ -15,8 +17,10 @@ class Api::V1::PillsController < ApplicationController
 
     # POST /api/v1/user/:user_id/pills
     def create
-        pill = Pill.create!(pill_params)
-        pill.user = current_user.id
+        local_params = pill_params
+        local_params[:uuid] = SecureRandom.uuid
+        local_params[:user] = current_user
+        pill = Pill.find_or_create_by!(local_params)
         json_response(pill, :created)
     end
 
@@ -43,6 +47,6 @@ class Api::V1::PillsController < ApplicationController
     end
 
     def pill_params
-        params.permit(:color, :active, :uuid)
+        params.require(:pill).permit(:color, :active)
     end
 end

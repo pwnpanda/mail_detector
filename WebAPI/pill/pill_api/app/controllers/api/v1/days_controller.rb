@@ -14,7 +14,7 @@ class Api::V1::DaysController < ApplicationController
 
     # POST /api/v1/user/:user_id/days
     def create
-        day = Day.create!(day_params)
+        day = Day.find_or_create_by!(day_params)
         json_response(day, :created)
     end
 
@@ -38,7 +38,7 @@ class Api::V1::DaysController < ApplicationController
     end
 
     def day_params
-        params.permit(:today)
+        params.require(:day).permit(:today)
     end
 
 end
