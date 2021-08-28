@@ -104,3 +104,7 @@ lint/tmp/
 # lint/reports/
 
 # Android Profilin
+
+# Secrets
+WebApi/mail/secret.txt
+WebApi/pill/secret.txt
