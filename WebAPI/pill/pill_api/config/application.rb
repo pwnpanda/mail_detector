@@ -36,7 +36,8 @@ module PillApi
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
-    config.autoload_paths << Rails.root.join('lib')
+    # https://stackoverflow.com/a/54474058, https://www.bigbinary.com/blog/rails-5-disables-autoloading-after-booting-the-app-in-production
+    config.eager_load_paths << Rails.root.join('lib')
     # Works, needed to fix zeitwork error
     config.autoloader = :classic
   end

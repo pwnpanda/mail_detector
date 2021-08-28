@@ -18,4 +18,5 @@ RUN chown -R www-data:www-data /pill_api
 
 EXPOSE 12122
 ENV RAILS_ENV=production
+#ENV RAILS_LOG_TO_STDOUT=TRUE - for debug
 ENTRYPOINT ["rails", "s", "-p", "12122", "-b", "0.0.0.0", "-e", "production"]

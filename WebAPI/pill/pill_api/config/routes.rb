@@ -10,5 +10,15 @@ Rails.application.routes.draw do
         resources :pills
       end
     end
+    # All other gets 404'd
+    get '*unmatched_route', to: 'errors#show'
+    post '*unmatched_route', to: 'errors#show'
+    delete '*unmatched_route', to: 'errors#show'
+    put '*unmatched_route', to: 'errors#show'
   end
+  # All other gets 404'd
+  get '*unmatched_route', to: 'errors#show'
+  post '*unmatched_route', to: 'errors#show'
+  delete '*unmatched_route', to: 'errors#show'
+  put '*unmatched_route', to: 'errors#show'
 end
