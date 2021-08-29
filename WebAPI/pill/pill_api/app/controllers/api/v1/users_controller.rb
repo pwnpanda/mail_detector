@@ -37,7 +37,7 @@ class Api::V1::UsersController < ApplicationController
     # PUT /api/v1/users
     # use json_response(@xx) for response
     def update
-        current_user.update(user_params)
+        current_user.update!(user_params)
         json_response({message: "User #{current_user.username} updated!"})
     end
 
@@ -51,6 +51,6 @@ class Api::V1::UsersController < ApplicationController
     private
 
     def user_params
-        params.permit(:password, :username)
+        params.permit(:password, :username, :id)
     end
 end

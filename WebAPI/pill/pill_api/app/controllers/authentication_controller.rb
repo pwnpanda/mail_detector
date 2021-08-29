@@ -6,7 +6,7 @@ class Api::V1::AuthenticationController < ApplicationController
         command = AuthenticateUser.new(params[:username], params[:password]).call
       
         if command.success?
-            render json: { auth_token: command.result }
+            render json: { token: command.result }
         else
             render json: { error: command.errors }, status: :unauthorized
         end
