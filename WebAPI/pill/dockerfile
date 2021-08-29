@@ -8,15 +8,19 @@ WORKDIR pill_api/
 copy pill_api/ ./
 
 ENV BUNDLER_VERSION=2.2.3
+ENV RAILS_ENV=production
 
 RUN gem update --system
 RUN gem install rails
 RUN gem install bundler -v 2.2.3
 RUN bundle install
 RUN rake app:update:bin
+RUN bundle exec rake db:setup
+RUN bundle exec rake db:migrate
+RUN cp -n db/development.sqlite3 db/production.sqlite3
 RUN chown -R www-data:www-data /pill_api
 
 EXPOSE 12122
-ENV RAILS_ENV=production
-#ENV RAILS_LOG_TO_STDOUT=TRUE - for debug
+#for debug
+# ENV RAILS_LOG_TO_STDOUT=TRUE 
 ENTRYPOINT ["rails", "s", "-p", "12122", "-b", "0.0.0.0", "-e", "production"]
