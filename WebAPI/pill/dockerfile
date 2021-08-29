@@ -17,10 +17,9 @@ RUN bundle install
 RUN rake app:update:bin
 RUN bundle exec rake db:setup
 RUN bundle exec rake db:migrate
-RUN cp -n db/development.sqlite3 db/production.sqlite3
 RUN chown -R www-data:www-data /pill_api
 
 EXPOSE 12122
 #for debug
-# ENV RAILS_LOG_TO_STDOUT=TRUE 
+#ENV RAILS_LOG_TO_STDOUT=TRUE 
 ENTRYPOINT ["rails", "s", "-p", "12122", "-b", "0.0.0.0", "-e", "production"]

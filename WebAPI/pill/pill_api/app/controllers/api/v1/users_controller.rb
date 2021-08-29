@@ -22,10 +22,16 @@ class Api::V1::UsersController < ApplicationController
 
     # POST /api/v1/users
     def create
-        user = User.find_or_create_by!(user_params)
-        response = AuthenticateUser.new(user.username, user.password).call
-        auth_token = response.result
-        json_response({message: "User #{user.username} created!", token: auth_token}, :created)
+        begin
+            user = User.create!(user_params)
+            response = AuthenticateUser.new(user.username, user.password).call
+            auth_token = response.result
+            json_response({message: "User #{user.username} created!", token: auth_token}, :created)
+        rescue ActiveRecord::RecordNotUnique
+            json_response( {message: "User not created! An error occurred - Username may be taken"}, :bad_request)
+        rescue
+            json_response( {message: "User not created! An error occurred - Username may be taken"}, :bad_request)
+        end
     end
 
     # PUT /api/v1/users
