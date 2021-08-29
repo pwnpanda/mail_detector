@@ -22,7 +22,7 @@ class Api::V1::UsersController < ApplicationController
 
     # POST /api/v1/users
     def create
-        user = User.create!(user_params)
+        user = User.find_or_create_by!(user_params)
         response = AuthenticateUser.new(user.username, user.password).call
         auth_token = response.result
         json_response({message: "User #{user.username} created!", token: auth_token}, :created)

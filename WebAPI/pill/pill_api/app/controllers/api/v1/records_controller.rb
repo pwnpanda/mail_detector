@@ -34,7 +34,7 @@ class Api::V1::RecordsController < ApplicationController
         if params[:day_id]
             day = Day.find!(params[:day_id])
         else
-            day = Day.find_or_create_by(params[:today])
+            day = Day.find_or_create_by!(params[:today])
         end
         record = Record.find_or_create_by!(user: current_user, day: day, pill: params[:pill_id], taken: params[:taken])
         json_response(day, :created)
