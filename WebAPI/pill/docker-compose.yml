@@ -1,6 +1,6 @@
 version: "3.8"
 services:
-  web:
+  pill:
     build: .
     working_dir: /pill_api
     volumes:
