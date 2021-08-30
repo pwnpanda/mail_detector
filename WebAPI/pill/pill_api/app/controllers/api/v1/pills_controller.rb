@@ -32,8 +32,8 @@ class Api::V1::PillsController < ApplicationController
 
     # DELETE /api/v1/user/:user_id/pills/:id
     def destroy
-        uuid = @Pill.uuid
-        @Pill.destroy
+        uuid = @pill.uuid
+        @pill.destroy
         json_response( {message: "Pill #{uuid} deleted!"}, :accepted)
     end
 

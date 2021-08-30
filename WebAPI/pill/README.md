@@ -21,6 +21,8 @@
 - OBJECT.records returns a CollectionProxy, which is an array. Each item can be grabbed if you get the relevant entry:
     * d1.records.first.day, where d1 is a Day object
 
+- TODO: Must check all updates manually and add error handling
+
 ###### How to change db schema
 - Make change directly in original migration, then:
     - rake db:migrate:reset
@@ -42,6 +44,9 @@
 - HTTP-codes: https://gist.github.com/mlanett/a31c340b132ddefa9cca
 - DB actions: https://medium.com/@woodpecker21/rails-6-how-to-search-and-filter-index-results-2b7d4b348393
 - How to build: https://meaganwaller.com/use-a-nested-dynamic-form-with-a-hasmany-through-association-in-rails
+- Complex, nested objects in API - https://medium.com/@lushiyun/rails-api-for-triple-nested-resources-with-fast-json-api-and-javascript-frontend-6ca1e97eb00a 
+- Complex, nested objects directly - https://dev.to/lberge17/posting-nested-resources-to-your-rails-api-he8
+- Ruby updates suck because they never fail - https://www.ruby-forum.com/t/how-do-you-detect-if-activerecord-update-fails/54424/3
 
 ## Based on
 - https://pamit.medium.com/todo-list-building-a-react-app-with-rails-api-7a3027907665

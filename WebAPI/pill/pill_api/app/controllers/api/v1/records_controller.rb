@@ -31,18 +31,28 @@ class Api::V1::RecordsController < ApplicationController
         # Created by referencing a day, a user, a pill and if it is taken (boolean)
         day = ""
         # Find or create day object
+
         if params[:day_id]
-            day = Day.find!(params[:day_id])
+            day = Day.find(params[:day_id])
         else
-            day = Day.find_or_create_by!(params[:today])
+            puts "Creating day #{params[:today]}"
+            day = Day.find_or_create_by!(today: params[:today])
         end
-        record = Record.find_or_create_by!(user: current_user, day: day, pill: params[:pill_id], taken: params[:taken])
+
+        puts day.to_json
+
+        pill = Pill.find(params[:pill_id])
+
+        record = Record.find_or_create_by!(user: current_user, day: day, pill: pill, taken: params[:taken])
         json_response(day, :created)
     end
 
     # PUT /api/v1/user/:user_id/records
     def update
-        @record.update(record_params)
+        params = record_params
+        # TODO Must check if valid update manually
+        validate
+        @record.update(params)
         json_response( { message: "Record #{@record.day.today} - #{@record.user.username} - #{@record.pill.uuid} updated!" } )
     end
 
@@ -66,7 +76,28 @@ class Api::V1::RecordsController < ApplicationController
     end
 
     def record_params
-        params.require(:record).permit(:day_id, :today, :pill_id, :taken)
+        params.permit(:day_id, :today, :pill_id, :taken)
     end
 
+    # TODO
+    def validate
+        if record_params[:day_id]
+            pass
+        else
+            json_response ( { message: "Cannot update the record with these parameters - Try again!" }, :unprocessable_entity )
+        end
+        
+        if record_params[:today]
+            pass
+        else
+            json_response ( { message: "Cannot update the record with these parameters - Try again!" }, :unprocessable_entity )
+
+        end
+
+        if record_params[:pill_id]
+            pass
+        else
+            json_response ( { message: "Cannot update the record with these parameters - Try again!" }, :unprocessable_entity )
+        end
+    end
 end
