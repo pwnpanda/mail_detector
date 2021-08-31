@@ -20,8 +20,8 @@
 #### NOTES
 - OBJECT.records returns a CollectionProxy, which is an array. Each item can be grabbed if you get the relevant entry:
     * d1.records.first.day, where d1 is a Day object
+- Must check all updates manually and add error handling - only relevant for records! DONE
 
-- TODO: Must check all updates manually and add error handling
 - TODO: Move all tests to postman? Easier and better automation!
 
 ###### How to change db schema

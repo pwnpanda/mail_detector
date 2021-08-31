@@ -26,7 +26,8 @@ class Api::V1::UsersController < ApplicationController
             user = User.create!(user_params)
             response = AuthenticateUser.new(user.username, user.password).call
             auth_token = response.result
-            json_response({message: "User #{user.username} created!", token: auth_token}, :created)
+            user.password_digest = "REDACTED"
+            json_response({id: user.id, username: user.username, token: auth_token}, :created)
         rescue ActiveRecord::RecordNotUnique
             json_response( {message: "User not created! An error occurred - Username may be taken"}, :bad_request)
         rescue
@@ -38,7 +39,8 @@ class Api::V1::UsersController < ApplicationController
     # use json_response(@xx) for response
     def update
         current_user.update!(user_params)
-        json_response({message: "User #{current_user.username} updated!"})
+        current_user.password_digest = "REDACTED"
+        json_response({User: current_user, message: "User updated!"})
     end
 
     # DELETE /api/v1/users/:id

@@ -43,15 +43,20 @@ class Api::V1::RecordsController < ApplicationController
         pill = Pill.find(params[:pill_id])
 
         record = Record.find_or_create_by!(user: current_user, day: day, pill: pill, taken: params[:taken])
-        json_response(day, :created)
+        json_response(record, :created)
     end
 
     # PUT /api/v1/user/:user_id/records
     def update
         params = record_params
-        validate
+        params2 = validate
+        # If check found today, remove it and set day_id to new day
+        if params[:today]
+            params.delete(:today)
+            params[:day_id] = params2
+        end
         @record.update(params)
-        json_response( { message: "Record #{@record.day.today} - #{@record.user.username} - #{@record.pill.uuid} updated!" } )
+        json_response( {record: @record, message: "Record updated!" } )
     end
 
     # DELETE /api/v1/user/:user_id/records/:id
@@ -78,17 +83,17 @@ class Api::V1::RecordsController < ApplicationController
     end
 
     def validate
-        if record_params[:day_id]
-            res = Day.find(record_params[:day_id])
-        end
-        
-        if record_params[:today]
-            new_day = Day.find_or_create_by!(today: record_params[:today])
-            record_params[:day_id] = new_day.id
+        if params[:pill_id]
+            Pill.find(params[:pill_id])
         end
 
-        if record_params[:pill_id]
-            Pill.find(record_params[:pill_id])
+        if params[:day_id]
+            Day.find(params[:day_id])
+        end
+
+        if params[:today]
+            new_day = Day.find_or_create_by!(today: params[:today])
+            new_day.id
         end
     end
 end

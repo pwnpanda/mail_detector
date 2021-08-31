@@ -21,7 +21,7 @@ class Api::V1::DaysController < ApplicationController
     # PUT /api/v1/user/:user_id/days
     def update
         @day.update(day_params)
-        json_response( { message: "Day #{@day.today} updated!" } )
+        json_response( { day: @day, message: "Day updated!" } )
     end
 
     # DELETE /api/v1/user/:user_id/days/:id
