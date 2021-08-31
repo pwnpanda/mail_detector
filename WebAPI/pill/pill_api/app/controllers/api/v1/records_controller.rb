@@ -35,7 +35,6 @@ class Api::V1::RecordsController < ApplicationController
         if params[:day_id]
             day = Day.find(params[:day_id])
         else
-            puts "Creating day #{params[:today]}"
             day = Day.find_or_create_by!(today: params[:today])
         end
 
@@ -50,7 +49,6 @@ class Api::V1::RecordsController < ApplicationController
     # PUT /api/v1/user/:user_id/records
     def update
         params = record_params
-        # TODO Must check if valid update manually
         validate
         @record.update(params)
         json_response( { message: "Record #{@record.day.today} - #{@record.user.username} - #{@record.pill.uuid} updated!" } )
@@ -59,9 +57,9 @@ class Api::V1::RecordsController < ApplicationController
     # DELETE /api/v1/user/:user_id/records/:id
     def destroy
         # Some identification
-        user = @record.user.username
-        pill = @record.pill.uuid
-        day = @record.day.today
+        user = @record.user
+        pill = @record.pill
+        day = @record.day
         @record.destroy
         json_response( { message: "Record for #{day.today} - #{user.username} - #{pill.uuid} deleted!" }, :accepted )
     end
@@ -76,28 +74,22 @@ class Api::V1::RecordsController < ApplicationController
     end
 
     def record_params
-        params.permit(:day_id, :today, :pill_id, :taken)
+        params.permit(:day_id, :today, :pill_id, :taken, :record, :id)
     end
 
     # TODO
     def validate
         if record_params[:day_id]
-            pass
-        else
-            json_response ( { message: "Cannot update the record with these parameters - Try again!" }, :unprocessable_entity )
+            res = Day.find(record_params[:day_id])
         end
         
         if record_params[:today]
-            pass
-        else
-            json_response ( { message: "Cannot update the record with these parameters - Try again!" }, :unprocessable_entity )
-
+            new_day = Day.find_or_create_by!(today: record_params[:today])
+            record_params[:day_id] = new_day.id
         end
 
         if record_params[:pill_id]
-            pass
-        else
-            json_response ( { message: "Cannot update the record with these parameters - Try again!" }, :unprocessable_entity )
+            Pill.find(record_params[:pill_id])
         end
     end
 end

@@ -310,8 +310,8 @@ check_records() {
     echo "-----------**--------------"
 
     # Update record
-    REC=$(curl -s -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -XPUT "$PROTO://$URL/api/v1/users/2/records/1" -d '{"day_id":2, "taken":false, "pill_id": 1 }' | jq -r .message)
-    if [ "$REC" = "Record 2021-01-22 - x - $UUID updated" ]; then
+    REC=$(curl -s -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -XPUT "$PROTO://$URL/api/v1/users/2/records/1" -d '{"day_id":3, "taken":false, "pill_id": 1 }' | jq -r .message)
+    if [ "$REC" = "Record 2021-01-22 - x - $UUID updated!" ]; then
         echo "24 OK - Update record from day 1 to 2 - REC: $REC"
     else
         echo "24 fail"
@@ -320,6 +320,17 @@ check_records() {
 
     echo "-----------**--------------"
 
+    # Update record
+    # day_id: 3 is correct, but need a failure test for ID 2 that is supposed to fail
+    REC=$(curl -s -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -XPUT "$PROTO://$URL/api/v1/users/2/records/1" -d '{"day_id":2, "taken":false, "pill_id": 1 }' | jq -r .message)
+    if [ "$REC" = "Couldn't find Day with 'id'=2" ]; then
+        echo "24b OK - Record not accepted due to day not existing!"
+    else
+        echo "24b fail - update accepted, but should not be"
+        exit
+    fi
+
+    echo "-----------**--------------"
 
     # Delete record
     REC=$(curl -s -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -XDELETE "$PROTO://$URL/api/v1/users/1/records/2" | jq -r .message)
@@ -339,3 +350,7 @@ check_user
 check_days
 check_pills
 check_records
+
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+echo "All tests passed!!!"
