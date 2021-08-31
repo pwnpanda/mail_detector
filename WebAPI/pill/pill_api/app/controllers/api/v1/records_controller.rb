@@ -77,7 +77,6 @@ class Api::V1::RecordsController < ApplicationController
         params.permit(:day_id, :today, :pill_id, :taken, :record, :id)
     end
 
-    # TODO
     def validate
         if record_params[:day_id]
             res = Day.find(record_params[:day_id])
