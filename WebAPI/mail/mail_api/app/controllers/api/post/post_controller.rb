@@ -6,7 +6,6 @@ class Api::Post::PostController < ApplicationController
 
     # GET /api/post/status
     def get_status
-        puts @@newMail
         render json: {newMail: @@newMail, username: @@username, timestamp: @@timestamp }, status: 200
     end
 

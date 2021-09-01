@@ -5,7 +5,6 @@ class Api::V1::PillsController < ApplicationController
     
     # GET /api/v1/user/:user_id/pills
     def index
-        puts current_user
         pills = Pill.where(user_id: current_user.id.to_i)
         json_response(pills)
     end

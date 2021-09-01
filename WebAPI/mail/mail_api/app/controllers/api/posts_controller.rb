@@ -20,7 +20,6 @@ class Api::PostsController < ApplicationController
             post[:delivered] = DateTime.parse(params[:delivered])
             # create
             @post = Post.new(post)
-            puts post_params
             if @post.save
                 render json: @post
             else

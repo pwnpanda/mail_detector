@@ -38,8 +38,6 @@ class Api::V1::RecordsController < ApplicationController
             day = Day.find_or_create_by!(today: params[:today])
         end
 
-        puts day.to_json
-
         pill = Pill.find(params[:pill_id])
 
         record = Record.find_or_create_by!(user: current_user, day: day, pill: pill, taken: params[:taken])
