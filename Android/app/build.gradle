@@ -58,6 +58,10 @@ dependencies {
     // JSON parsing
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.12.2"
 
+    // Retrofit & jackson binding
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-jackson:2.9.0'
+
     // Lifecycle dependencies
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
