@@ -21,8 +21,7 @@
 - OBJECT.records returns a CollectionProxy, which is an array. Each item can be grabbed if you get the relevant entry:
     * d1.records.first.day, where d1 is a Day object
 - Must check all updates manually and add error handling - only relevant for records! DONE
-
-- TODO: Move all tests to postman? Easier and better automation!
+- Move all tests to postman? Easier and better automation! DONE
 
 ###### How to change db schema
 - Make change directly in original migration, then:
@@ -65,7 +64,27 @@
     - Optional parameters for filtering:
         * ?pill=PILL_ID `http://127.0.0.1:3000/api/v1/users/2/record?pill=1`
         * ?day=DAY_ID: `http://127.0.0.1:3000/api/v1/users/2/record?day=1`
-##### Routes:
+
+
+##### JSON Data
+* All put operations return: {<entity>: <data>, message: <status>}, example: {"pill": {<pill_fields>}, "message": Pill updated!"}
+
+- Signup
+`{"id":3,"username":"testme","token":"eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjozLCJleHAiOjE2MzA2Njg0Mjh9.mFuPlFU500faHangh1xiqJwHvg38ryJ2G5wFWS9KPKE"}`
+- Login
+`{"token":"eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjozLCJleHAiOjE2MzA2Njg0Mjl9.O5f1aupLegMhxpi-xLdUo3ecpO1DUd-fxQEIR_J5c_s"}`
+- User:
+`{"id":3,"username":"testme","password_digest":"REDACTED","created_at":"2021-09-02T11:27:07.635Z","updated_at":"2021-09-02T11:27:07.635Z"}`
+- Day:
+`{"id":4,"today":"2021-08-15","created_at":"2021-09-02T11:27:14.397Z","updated_at":"2021-09-02T11:27:14.397Z"}`
+- Pill:
+`{"id":1,"uuid":"1d749fdd-2d2f-4877-8046-0e69612f3668","color":"#000000","active":true,"user_id":3,"created_at":"2021-09-02T11:27:18.717Z","updated_at":"2021-09-02T11:27:18.717Z"}`
+`{"color":"#999999","active":false,"id":1,"uuid":"1d749fdd-2d2f-4877-8046-0e69612f3668","user_id":3,"created_at":"2021-09-02T11:27:18.717Z","updated_at":"2021-09-02T11:27:21.977Z"}`
+- Record:
+`{"id":2,"day_id":2,"user_id":3,"pill_id":1,"taken":false,"created_at":"2021-09-02T11:27:24.269Z","updated_at":"2021-09-02T11:27:24.269Z"}`
+`{"id":1,"day_id":4,"user_id":3,"pill_id":1,"taken":true,"created_at":"2021-09-02T11:27:23.121Z","updated_at":"2021-09-02T11:27:23.121Z"}`
+
+##### Routes
 - /api/v1/login                     (POST)
 - /api/v1/signup                    (POST)
 
