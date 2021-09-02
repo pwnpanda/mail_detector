@@ -17,7 +17,7 @@ class HttpRequestLib {
     var context: Context = MailboxApp.getInstance()
 
     private val client = OkHttpClient()
-    private var url: URL = URL(context.getString(R.string.normal_url))
+    private var url: URL = URL(context.getString(R.string.post_info_url))
 
     /** TODO Refactor all http requests to be async
      * Seems better to be callback based!
@@ -96,7 +96,7 @@ class HttpRequestLib {
 
     // Send latest data to Server
     fun setNewUpdateWeb(data: PostUpdateStatus): Boolean {
-        val urlNow: URL = URL(MailboxApp.getInstance().getString(R.string.update_url))
+        val urlNow: URL = URL(MailboxApp.getInstance().getString(R.string.post_update_url))
         //Using jackson to get string to JSON
         val mapperAll = ObjectMapper()
         val jacksonObj = mapperAll.createObjectNode()

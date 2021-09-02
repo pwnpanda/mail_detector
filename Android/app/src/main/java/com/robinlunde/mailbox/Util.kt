@@ -18,8 +18,12 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.robinlunde.mailbox.datamodel.MyMessage
 import com.robinlunde.mailbox.datamodel.PostLogEntry
 import com.robinlunde.mailbox.datamodel.PostUpdateStatus
+import com.robinlunde.mailbox.datamodel.pill.User
 import com.robinlunde.mailbox.debug.ScanType
 import com.robinlunde.mailbox.network.HttpRequestLib
+import com.robinlunde.mailbox.repository.DayRepository
+import com.robinlunde.mailbox.repository.PillRepository
+import com.robinlunde.mailbox.repository.RecordRepository
 import com.robinlunde.mailbox.triggers.RepeatedTrigger
 import kotlinx.coroutines.*
 import java.net.URL
@@ -42,8 +46,13 @@ class Util {
 
     private val httpRequests = HttpRequestLib()
     private val updateURL: URL = URL(
-        MailboxApp.getInstance().getString(R.string.update_url)
+        MailboxApp.getInstance().getString(R.string.post_update_url)
     )
+
+    var user: User? = null
+    val dayrepo: DayRepository = DayRepository()
+    val pillrepo: PillRepository = PillRepository()
+    val recordrepo: RecordRepository = RecordRepository()
 
     // ----------------------------- Notification -------------------------------
 
@@ -425,5 +434,11 @@ class Util {
             Log.d("$tag cancelAlarm", e.stackTraceToString())
             Log.d("$tag cancelAlarm", "PendingIntent likely not set. WHat type of error??")
         }
+    }
+
+    fun userCheck(id: Int?): User? {
+        return if (id != null) {
+            if (id == user?.id) user else null
+        } else null
     }
 }

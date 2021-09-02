@@ -13,8 +13,9 @@
     <string name="username">Username</string>
     <string name="username_button">Continue</string>
     <string name="username_pref">username</string>
-    <string name="normal_url">https://robinlunde.com/api/posts</string>
-    <string name="update_url">https://robinlunde.com/api/post/status</string>
+    <string name="base_url">https://robinlunde.com/api/</string>
+    <string name="post_info_url">https://robinlunde.com/api/posts</string>
+    <string name="post_update_url">https://robinlunde.com/api/post/status</string>
     <string name="sendLogsMethod">sendLog</string>
     <string name="get_logs">getLogs</string>
     <string name="deleteLogsMethod">deleteLog</string>
