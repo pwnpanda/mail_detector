@@ -22,6 +22,9 @@
         <action
             android:id="@+id/action_pillFragment_to_pillLogFragment"
             app:destination="@+id/pillLogFragment" />
+        <action
+            android:id="@+id/action_pillFragment_to_LoginFragment"
+            app:destination="@+id/loginFragment" />
     </fragment>
     <fragment
         android:id="@+id/pillLogFragment"

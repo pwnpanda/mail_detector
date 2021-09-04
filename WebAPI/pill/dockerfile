@@ -1,4 +1,4 @@
-from ruby:3.0.0 as runtime
+FROM ruby:3.0.0 as runtime
 
 #RUN bundle config --global frozen 1
 RUN apt-get update -y && apt-get upgrade -y

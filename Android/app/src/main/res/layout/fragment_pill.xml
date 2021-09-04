@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frag_pill"
+    tools:context="com.robinlunde.mailbox.pills.PillFragment"
+    tools:layout="@layout/fragment_pill">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/frag_pill"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?attr/colorSecondary"
-        tools:context=".pill.PillFragment"
-        tools:layout="@layout/fragment_pill">
+        android:background="?attr/colorSecondary">
 
         <View
             android:id="@+id/divider"

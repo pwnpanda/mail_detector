@@ -77,6 +77,7 @@ class PillFragment : Fragment() {
             false
         )
 
+        checkLogin()
         setAlarmIfConfigured()
 
         // Set 24 hour display
@@ -106,6 +107,11 @@ class PillFragment : Fragment() {
         // Cancel timer if we move out of fragment
         timer.cancel()
         super.onDestroy()
+    }
+
+    private fun checkLogin() {
+        if (util.user == null) NavHostFragment.findNavController(this)
+            .navigate(PillFragmentDirections.actionPillFragmentToLoginFragment())
     }
 
     private fun registerPillTakenButton() {
@@ -274,13 +280,11 @@ class PillFragment : Fragment() {
             }
 
             // Day has passed
-            if (curWeekDates[i] < todayDate) {
+            if (curWeekDates[i] < todayDate || todayDate < 7 && curWeekDates[i] > 29) {
                 setIsTakenColor(dayCircleObjects[i])
                 handlePillsTaken(dayPillTakenObjects[i])
-            }
-
-            // Day is in the future
-            if (curWeekDates[i] > todayDate) {
+                // Day is in the future
+            } else if (curWeekDates[i] > todayDate) {
                 setBackgroundColor(dayCircleObjects[i], R.color.grey)
                 dayCircleObjects[i].setTextColor(requireContext().getColor(R.color.background))
                 dayPillTakenObjects[i].visibility = View.GONE

@@ -7,11 +7,11 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment.findNavController
-import com.google.android.material.textfield.TextInputEditText
 import com.robinlunde.mailbox.MailboxApp
 import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.Util
@@ -37,7 +37,10 @@ class LoginFragment : Fragment() {
             false
         )
         val username = MailboxApp.getUsername()
-        if (username != "") {
+        // Set text in field to username if previously stored
+        if (username != "") binding.usernameInput.setText(username)
+        // If username is set and we have a valid user from previously, rock and roll
+        if (username != "" && MailboxApp.getUtil().user != null) {
             // Move past login screen if username is registered
             findNavController(this).navigate(
                 LoginFragmentDirections.actionLoginFragmentToAlertFragment()
@@ -52,13 +55,33 @@ class LoginFragment : Fragment() {
             imm.hideSoftInputFromWindow(view.windowToken, 0)
 
             // Get username from field
-            val newUsername: String =
-                container?.rootView?.findViewById<TextInputEditText>(R.id.username_input)?.text.toString()
-            // store username for later
-            MailboxApp.setUsername(newUsername)
-            // Move - Send with username
-            view.findNavController()
-                .navigate(LoginFragmentDirections.actionLoginFragmentToAlertFragment())
+            val newUsername: String = binding.usernameInput.text.toString()
+            val password: String = binding.passwordInput.text.toString()
+            if (newUsername == "null" || password == "null"){
+                Toast.makeText(
+                    context,
+                    "Please input a valid username or password!",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                // store username for later
+                MailboxApp.setUsername(newUsername)
+
+                // TODO make sure login works for pill API!
+                // TODO If user is valid, just use token (refresh every 23 hrs)
+                // TODO If not, force re-login
+                /**
+                 * 1. Issue http request with pw and username
+                 * 2. Await call-back from request
+                 * 3A. If success, set Util.user and store token
+                 * 3B. If failure, stop here
+                 */
+
+
+                // Move - Send with username
+                view.findNavController()
+                    .navigate(LoginFragmentDirections.actionLoginFragmentToAlertFragment())
+            }
         }
 
         return binding.root
