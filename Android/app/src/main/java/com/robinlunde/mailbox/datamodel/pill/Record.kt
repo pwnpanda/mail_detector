@@ -3,13 +3,12 @@ package com.robinlunde.mailbox.datamodel.pill
 import com.robinlunde.mailbox.MailboxApp
 
 class Record(
-    override val id: Int?,
     day_id: Int?,
     user_id: Int?,
     pill_id: Int?,
     val taken: Boolean,
     updated: String?
-): GenericType<Record> {
+): GenericType<Record>() {
     val util = MailboxApp.getUtil()
     val updateDate = util.getMyDate(updated!!)
     val updateTime = util.getMyTime(updated!!)

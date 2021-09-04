@@ -1,8 +1,11 @@
 package com.robinlunde.mailbox.network
 
 import com.robinlunde.mailbox.datamodel.pill.Day
+import com.robinlunde.mailbox.datamodel.pill.GenericType
 import retrofit2.Call
+import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface ApiInterfaceDay {
@@ -12,16 +15,23 @@ interface ApiInterfaceDay {
 
     // Get day by id
     @GET("/v1/users/{user}/days/{day}")
-    fun getDay(@Path("user") user_id: Int,
-               @Path("day") day_id: Int): Call<MutableList<Day>>
+    fun getDay(
+        @Path("user") user_id: Int,
+        @Path("day") day_id: Int
+    ): Call<Day>
 
-    /*
-    @PUT(/v1/users/{user}/days/{day})
-    fun updateDay(@Path("user") user_id: Int,
-     @Path("day") day_id: Int): Call<MutableList<Day>> // Will not be correct - how to handle?
-    @DELETE(/v1/users/{user}/days/{day})
-    fun deleteDay(@Path("user") user_id: Int,
-     @Path("day") day_id: Int): // What kind of return value?
-    */
+    // Update day by ID
+    @PUT("/v1/users/{user}/days/{day}")
+    fun updateDay(
+        @Path("user") user_id: Int,
+        @Path("day") day_id: Int
+    ): Call<Day>
+
+    // Delete day by ID
+    @DELETE("/v1/users/{user}/days/{day}")
+    fun deleteDay(
+        @Path("user") user_id: Int,
+        @Path("day") day_id: Int
+    ): Call<GenericType<Day>>
 
 }

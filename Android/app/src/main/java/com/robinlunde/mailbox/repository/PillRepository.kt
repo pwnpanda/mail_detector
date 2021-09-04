@@ -5,4 +5,6 @@ import com.robinlunde.mailbox.datamodel.pill.Pill
 
 class PillRepository() : RepositoryInterface<Pill> {
     override var data = MutableLiveData<MutableList<Pill>>()
+
+
 }

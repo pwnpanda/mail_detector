@@ -5,17 +5,19 @@ RUN apt-get update -y && apt-get upgrade -y
 
 WORKDIR mail_api/
 
-copy mail_api/ ./
+COPY mail_api/ ./
 
 ENV BUNDLER_VERSION=2.2.3
+ENV RAILS_ENV=production
 
 RUN gem update --system
 RUN gem install rails
 RUN gem install bundler -v 2.2.3
 RUN bundle install
 RUN rake app:update:bin
+RUN bundle exec rake db:setup
+RUN bundle exec rake db:migrate
 RUN chown -R www-data:www-data /mail_api
 
 EXPOSE 12121
-ENV RAILS_ENV=production
 ENTRYPOINT ["rails", "s", "-p", "12121", "-b", "0.0.0.0", "-e", "production"]

@@ -5,13 +5,12 @@ import com.robinlunde.mailbox.MailboxApp
 import java.util.*
 
 class Pill(
-    override val id: Int?,
     val uuid: UUID?,
     val color: ColorRes,
     val active: Boolean,
     private val timestamp: String?,
-    private val userid: Int?
-): GenericType<Pill> {
+    private val userid: Int?,
+): GenericType<Pill>() {
 
     val util = MailboxApp.getUtil()
     val date = util.getMyDate(timestamp!!)

@@ -139,7 +139,8 @@ class MailboxApp : Application() {
 
         // Get mutable data only, for instantiating LiveData
         fun getPostEntries(): MutableList<PostLogEntry> {
-            return postLogEntryList
+            return if (::postLogEntryList.isInitialized) postLogEntryList
+            else mutableListOf()
         }
 
         // Update data in view, by updating postEntries object

@@ -10,6 +10,7 @@
     <string name="postbox">postbox</string>
     <string name="delete_button">Delete button</string>
     <string name="username_guidance">Username: </string>
+    <string name="password_guidance">Password</string>
     <string name="username">Username</string>
     <string name="username_button">Continue</string>
     <string name="username_pref">username</string>
