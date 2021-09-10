@@ -9,10 +9,11 @@
     <string name="logs_icon_name">Logs</string>
     <string name="postbox">postbox</string>
     <string name="delete_button">Delete button</string>
+    <string name="signup_button">Signup</string>
     <string name="username_guidance">Username: </string>
     <string name="password_guidance">Password</string>
     <string name="username">Username</string>
-    <string name="username_button">Continue</string>
+    <string name="login_button">Login</string>
     <string name="username_pref">username</string>
     <string name="base_url">https://robinlunde.com/api/</string>
     <string name="post_info_url">https://robinlunde.com/api/posts</string>

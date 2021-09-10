@@ -2,6 +2,7 @@ package com.robinlunde.mailbox.login
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -10,14 +11,17 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment.findNavController
 import com.robinlunde.mailbox.MailboxApp
 import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.databinding.FragmentLoginBinding
+import com.robinlunde.mailbox.datamodel.pill.User
+import kotlinx.coroutines.*
 
 class LoginFragment : Fragment() {
+
+    lateinit var binding: FragmentLoginBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,7 +34,7 @@ class LoginFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val binding = DataBindingUtil.inflate<FragmentLoginBinding>(
+        binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_login,
             container,
@@ -39,54 +43,105 @@ class LoginFragment : Fragment() {
         val username = MailboxApp.getUsername()
         // Set text in field to username if previously stored
         if (username != "") binding.usernameInput.setText(username)
+
+        val util = MailboxApp.getUtil()
+
         // If username is set and we have a valid user from previously, rock and roll
-        if (username != "" && MailboxApp.getUtil().user != null) {
-            // Move past login screen if username is registered
-            findNavController(this).navigate(
-                LoginFragmentDirections.actionLoginFragmentToAlertFragment()
-            )
-            return binding.root
+        if (username != "" && util.user != null) {
+            /**
+             * 1. Try access with token in user object
+             * 2. if fail, bail out
+             * 3. if success, continue
+             */
+            // todo
+            val user = null //util.getUser()
+            if (user != null) {
+                // Move past login screen if username is registered
+                findNavController(this).navigate(
+                    LoginFragmentDirections.actionLoginFragmentToAlertFragment()
+                )
+                return binding.root
+            }
         }
 
-        binding.usernameButton.setOnClickListener { view: View ->
-            // Hide keyboard
-            val imm: InputMethodManager =
-                activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(view.windowToken, 0)
+        // Login
+        binding.loginButton.setOnClickListener { view: View ->
+            doAuthentication("login", view)
+        }
 
-            // Get username from field
-            val newUsername: String = binding.usernameInput.text.toString()
-            val password: String = binding.passwordInput.text.toString()
-            if (newUsername == "null" || password == "null"){
-                Toast.makeText(
-                    context,
-                    "Please input a valid username or password!",
-                    Toast.LENGTH_SHORT
-                ).show()
-            } else {
-                // store username for later
-                MailboxApp.setUsername(newUsername)
-
-                // TODO make sure login works for pill API!
-                // TODO If user is valid, just use token (refresh every 23 hrs)
-                // TODO If not, force re-login
-                /**
-                 * 1. Issue http request with pw and username
-                 * 2. Await call-back from request
-                 * 3A. If success, set Util.user and store token
-                 * 3B. If failure, stop here
-                 */
-
-
-                // Move - Send with username
-                view.findNavController()
-                    .navigate(LoginFragmentDirections.actionLoginFragmentToAlertFragment())
-            }
+        // Signup
+        binding.signupButton.setOnClickListener { view: View ->
+            doAuthentication("signup", view)
         }
 
         return binding.root
 
     }
+
+    private fun doAuthentication(func: String, view: View){
+        val util = MailboxApp.getUtil()
+
+        // Hide keyboard
+        val imm: InputMethodManager =
+            activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
+
+        // Get username from field
+        val newUsername: String = binding.usernameInput.text.toString()
+        val password: String = binding.passwordInput.text.toString()
+        if (newUsername == "null" || password == "null"){
+            Toast.makeText(
+                context,
+                "Please input a valid username or password!",
+                Toast.LENGTH_SHORT
+            ).show()
+        } else {
+            // store username for later
+            MailboxApp.setUsername(newUsername)
+
+            // setup coroutine
+            val mainActivityJob = Job()
+            val errorHandler = CoroutineExceptionHandler { _, exception ->
+                Log.d("Login - $func", "Received error: ${exception.message}!")
+                Log.e("Login - $func", "Trace: ${exception.printStackTrace()}!")
+                Toast.makeText(
+                    context,
+                    "Login or signup failed! Please try again",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+
+            val coroutineScope = CoroutineScope(mainActivityJob + Dispatchers.Main)
+
+            /**
+             * 1. Issue http request with pw and username
+             * 2. Await call-back from request
+             * 3A. If success, set Util.user and store token
+             * 3B. If failure, stop here
+             */
+
+            val user = User(newUsername, password)
+            Log.d("Login - $func", "$user ${user.password}")
+            if (func == "signup")   coroutineScope.launch(errorHandler){
+                util.user = util.signup(user)
+                moveUponResult()
+            }
+            if (func == "login")    coroutineScope.launch(errorHandler){
+                util.user = util.login(user)
+                moveUponResult()
+            }
+        }
+    }
+
+    private fun moveUponResult() {
+        Log.d("Login - moveUponResult", "Successful callback")
+        if (MailboxApp.getUtil().user != null) {
+            // Move to AlertFragment
+            findNavController(this)
+                .navigate(LoginFragmentDirections.actionLoginFragmentToAlertFragment())
+        }
+    }
+
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val util: Util = MailboxApp.getUtil()

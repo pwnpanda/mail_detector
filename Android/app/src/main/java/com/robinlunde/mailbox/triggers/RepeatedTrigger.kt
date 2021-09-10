@@ -54,5 +54,7 @@ class RepeatedTrigger : BroadcastReceiver() {
         ringtone.audioAttributes =
             AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).build()
         ringtone!!.play()
+
+
     }
 }

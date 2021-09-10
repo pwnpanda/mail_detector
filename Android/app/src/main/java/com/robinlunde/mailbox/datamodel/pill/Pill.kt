@@ -5,19 +5,22 @@ import com.robinlunde.mailbox.MailboxApp
 import java.util.*
 
 class Pill(
-    val uuid: UUID?,
     val color: ColorRes,
-    val active: Boolean,
-    private val timestamp: String?,
-    private val userid: Int?,
+    val active: Boolean
 ): GenericType<Pill>() {
+    private lateinit var timestamp: String
+    lateinit var uuid: UUID
+    private var userid: Int? = null
 
-    val util = MailboxApp.getUtil()
-    val date = util.getMyDate(timestamp!!)
-    val time = util.getMyTime(timestamp!!)
-    val name = uuid?.let { getName(it) } ?: ""
-    val user: User? = util.userCheck(userid)
+
     val pill: Pill = this
+    val util = MailboxApp.getUtil()
+    val name = getName(uuid)
+
+    var user: User? = if (userid != null)  util.userCheck(userid) else null
+    val date = if (::timestamp.isInitialized) util.getMyDate(timestamp) else ""
+    val time = if (::timestamp.isInitialized) util.getMyTime(timestamp) else ""
+
 
     private fun reverseDate(str: String): String {
         return str.split("-").reversed().joinToString("-")

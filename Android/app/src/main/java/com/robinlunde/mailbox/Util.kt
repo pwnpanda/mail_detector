@@ -20,7 +20,9 @@ import com.robinlunde.mailbox.datamodel.PostLogEntry
 import com.robinlunde.mailbox.datamodel.PostUpdateStatus
 import com.robinlunde.mailbox.datamodel.pill.User
 import com.robinlunde.mailbox.debug.ScanType
+import com.robinlunde.mailbox.network.ApiInterfaceUser
 import com.robinlunde.mailbox.network.HttpRequestLib
+import com.robinlunde.mailbox.network.HttpRequestLib2
 import com.robinlunde.mailbox.repository.DayRepository
 import com.robinlunde.mailbox.repository.PillRepository
 import com.robinlunde.mailbox.repository.RecordRepository
@@ -45,6 +47,10 @@ class Util {
         RecyclerView.ViewHolder(constraintLayout)
 
     private val httpRequests = HttpRequestLib()
+
+    private var apiInterfaceUser: ApiInterfaceUser =
+        HttpRequestLib2.getClient().create(ApiInterfaceUser::class.java)
+
     private val updateURL: URL = URL(
         MailboxApp.getInstance().getString(R.string.post_update_url)
     )
@@ -414,6 +420,8 @@ class Util {
             }
         }
 
+        // TODO should this not repeat daily? Does it cancel somewhere?
+        // Maybe it needs to run in background thread that is always alive?
         alarmManager.setInexactRepeating(
             AlarmManager.RTC_WAKEUP,
             alertTime.timeInMillis,
@@ -441,4 +449,17 @@ class Util {
             if (id == user?.id) user else null
         } else null
     }
+
+    suspend fun signup(user: User): User {
+        Log.d("$tag signup", "Arrived")
+
+        return apiInterfaceUser.signup(user)
+    }
+
+    suspend fun login(user: User): User {
+        Log.d("$tag login", "Arrived")
+
+        return apiInterfaceUser.login(user)
+    }
+
 }

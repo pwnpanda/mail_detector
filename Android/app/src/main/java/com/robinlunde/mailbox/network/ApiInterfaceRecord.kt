@@ -3,10 +3,7 @@ package com.robinlunde.mailbox.network
 import com.robinlunde.mailbox.datamodel.pill.GenericType
 import com.robinlunde.mailbox.datamodel.pill.Record
 import retrofit2.Call
-import retrofit2.http.DELETE
-import retrofit2.http.GET
-import retrofit2.http.PUT
-import retrofit2.http.Path
+import retrofit2.http.*
 
 interface ApiInterfaceRecord {
     // Get all records
@@ -37,7 +34,8 @@ interface ApiInterfaceRecord {
     @PUT("/v1/users/{user}/records/{record}")
     fun updateRecord(
         @Path("user") user_id: Int,
-        @Path("record") record_id: Int
+        @Path("record") record_id: Int,
+        @Body record: Record
     ): Call<Record>
 
     @DELETE("/v1/users/{user}/records/{record}")

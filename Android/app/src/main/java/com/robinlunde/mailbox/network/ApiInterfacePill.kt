@@ -3,10 +3,7 @@ package com.robinlunde.mailbox.network
 import com.robinlunde.mailbox.datamodel.pill.GenericType
 import com.robinlunde.mailbox.datamodel.pill.Pill
 import retrofit2.Call
-import retrofit2.http.DELETE
-import retrofit2.http.GET
-import retrofit2.http.PUT
-import retrofit2.http.Path
+import retrofit2.http.*
 
 interface ApiInterfacePill {
     // Get pills
@@ -24,7 +21,8 @@ interface ApiInterfacePill {
     @PUT("/v1/users/{user}/pills/{pill}")
     fun updatePill(
         @Path("user") user_id: Int,
-        @Path("pill") pill_id: Int
+        @Path("pill") pill_id: Int,
+        @Body pill: Pill
     ): Call<Pill>
 
     // Delete pill by ID

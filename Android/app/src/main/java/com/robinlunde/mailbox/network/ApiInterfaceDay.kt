@@ -3,10 +3,7 @@ package com.robinlunde.mailbox.network
 import com.robinlunde.mailbox.datamodel.pill.Day
 import com.robinlunde.mailbox.datamodel.pill.GenericType
 import retrofit2.Call
-import retrofit2.http.DELETE
-import retrofit2.http.GET
-import retrofit2.http.PUT
-import retrofit2.http.Path
+import retrofit2.http.*
 
 interface ApiInterfaceDay {
     // Get days
@@ -24,7 +21,8 @@ interface ApiInterfaceDay {
     @PUT("/v1/users/{user}/days/{day}")
     fun updateDay(
         @Path("user") user_id: Int,
-        @Path("day") day_id: Int
+        @Path("day") day_id: Int,
+        @Body day: Day
     ): Call<Day>
 
     // Delete day by ID
