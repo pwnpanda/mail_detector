@@ -5,17 +5,28 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include
 
 @JsonInclude(Include.NON_NULL)
 class User (
-    val username: String,
-    val password: String,
+    val username: String? = null,
+    var password: String? = null,
+    var token: String? = null,
+    id: Int? = null,
+    msg: String? = null
 ): GenericType<User>() {
-    var token: String? = null
 
     override fun get(): User {
         return this
     }
 
     override fun toString(): String {
-        return "User: $username"
-        //return super.toString()
+        var temp = ""
+
+        if (id != null) temp += "ID $id"
+        if (username != null)  temp += "Username $username "
+        if (password != null)  temp += "Password $password "
+        if (token != null)  temp += "Token $token "
+        if (msg != null)  temp += "Message $msg "
+
+        if (temp == "") temp = super.toString()
+
+        return temp
     }
 }

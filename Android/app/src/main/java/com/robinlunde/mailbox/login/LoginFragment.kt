@@ -78,7 +78,7 @@ class LoginFragment : Fragment() {
 
     }
 
-    private fun doAuthentication(func: String, view: View){
+    private fun doAuthentication(func: String, view: View) {
         val util = MailboxApp.getUtil()
 
         // Hide keyboard
@@ -89,7 +89,7 @@ class LoginFragment : Fragment() {
         // Get username from field
         val newUsername: String = binding.usernameInput.text.toString()
         val password: String = binding.passwordInput.text.toString()
-        if (newUsername == "null" || password == "null"){
+        if (newUsername == "null" || password == "null") {
             Toast.makeText(
                 context,
                 "Please input a valid username or password!",
@@ -119,15 +119,25 @@ class LoginFragment : Fragment() {
              * 3A. If success, set Util.user and store token
              * 3B. If failure, stop here
              */
-
+            
             val user = User(newUsername, password)
             Log.d("Login - $func", "$user ${user.password}")
-            if (func == "signup")   coroutineScope.launch(errorHandler){
-                util.user = util.signup(user)
+            if (func == "signup") coroutineScope.launch(errorHandler) {
+                val userLoc: User = util.signup(user)
+                Log.d("Login - $func", "Returned $userLoc")
+
+                util.user = userLoc
+                util.user!!.password = user.password
+                Log.d("Login - $func", "Final user: ${util.user}")
                 moveUponResult()
             }
-            if (func == "login")    coroutineScope.launch(errorHandler){
-                util.user = util.login(user)
+            if (func == "login") coroutineScope.launch(errorHandler) {
+                val userLoc: User = util.login(user)
+                Log.d("Login - $func", "Returned $userLoc")
+
+                util.user = user
+                util.user!!.token = userLoc.token
+                Log.d("Login - $func", "Final user: ${util.user}")
                 moveUponResult()
             }
         }

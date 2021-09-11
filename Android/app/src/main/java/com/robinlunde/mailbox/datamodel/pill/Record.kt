@@ -1,7 +1,9 @@
 package com.robinlunde.mailbox.datamodel.pill
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.robinlunde.mailbox.MailboxApp
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 class Record(
     day_id: Int?,
     user_id: Int?,

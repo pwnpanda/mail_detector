@@ -1,9 +1,11 @@
 package com.robinlunde.mailbox.datamodel.pill
 
 import androidx.annotation.ColorRes
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.robinlunde.mailbox.MailboxApp
 import java.util.*
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 class Pill(
     val color: ColorRes,
     val active: Boolean
