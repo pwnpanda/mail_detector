@@ -40,6 +40,9 @@ class PillLogFragment : Fragment() {
             false
         )
 
+        // If not logged in, jump to login view
+        if (util.user == null)  util.moveToLoginFragment("pillLog",this)
+
         return binding.root
     }
 

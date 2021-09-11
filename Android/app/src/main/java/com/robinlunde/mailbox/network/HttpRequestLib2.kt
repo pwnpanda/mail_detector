@@ -1,5 +1,6 @@
 package com.robinlunde.mailbox.network
 
+import com.robinlunde.mailbox.MailboxApp
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -19,7 +20,11 @@ class HttpRequestLib2 {
             val interceptor = HttpLoggingInterceptor()
             interceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
 
+            val authInterceptor = AuthenticationInterceptor()
+            MailboxApp.getUtil().authInterceptor = authInterceptor
+
             val client = OkHttpClient.Builder().addInterceptor(interceptor)
+                .addInterceptor(authInterceptor)
                 .readTimeout(10, TimeUnit.SECONDS)
                 .connectTimeout(10, TimeUnit.SECONDS).build()
             val factory = JacksonConverterFactory.create()

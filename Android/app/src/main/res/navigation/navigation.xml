@@ -43,6 +43,9 @@
         <action
             android:id="@+id/action_pillLogFragment_to_pillFragment"
             app:destination="@+id/pillFragment" />
+        <action
+            android:id="@+id/action_pillLogFragment_to_LoginFragment"
+            app:destination="@+id/loginFragment" />
     </fragment>
     <fragment
         android:id="@+id/loginFragment"
@@ -76,6 +79,9 @@
         <action
             android:id="@+id/action_alertFragment_to_pillFragment"
             app:destination="@+id/pillFragment" />
+        <action
+            android:id="@+id/action_alertFragment_to_LoginFragment"
+            app:destination="@+id/loginFragment" />
     </fragment>
     <fragment
         android:id="@+id/logviewFragment"
@@ -90,6 +96,9 @@
         <action
             android:id="@+id/action_logviewFragment_to_pillFragment"
             app:destination="@+id/pillFragment" />
+        <action
+            android:id="@+id/action_logviewFragment_to_LoginFragment"
+            app:destination="@+id/loginFragment" />
     </fragment>
     <fragment
         android:id="@+id/debugFragment"
@@ -108,5 +117,8 @@
         <action
             android:id="@+id/action_debugFragment_to_pillFragment"
             app:destination="@+id/pillFragment" />
+        <action
+            android:id="@+id/action_debugFragment_to_LoginFragment"
+            app:destination="@+id/loginFragment" />
     </fragment>
 </navigation>

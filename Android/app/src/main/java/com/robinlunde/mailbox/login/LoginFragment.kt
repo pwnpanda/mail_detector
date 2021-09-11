@@ -53,15 +53,31 @@ class LoginFragment : Fragment() {
              * 2. if fail, bail out
              * 3. if success, continue
              */
-            // todo
-            val user = null //util.getUser()
-            if (user != null) {
-                // Move past login screen if username is registered
-                findNavController(this).navigate(
-                    LoginFragmentDirections.actionLoginFragmentToAlertFragment()
-                )
-                return binding.root
+            val frag = this
+            CoroutineScope(Job() + Dispatchers.Main).launch(CoroutineExceptionHandler { _, exception ->
+                Log.d("Login - Checking user", "Received error: ${exception.message}!")
+                Log.e("Login - Checking user", "Trace: ${exception.printStackTrace()}!")
+                Toast.makeText(
+                    context,
+                    "User-check failed! Please login or signup!",
+                    Toast.LENGTH_LONG
+                ).show()
+            }) {
+                // User is current user
+                val user = util.user
+                // If not null, check if we are logged in by accessing user
+                if (user != null) {
+                    val locUser = util.getUser(util.user!!.id!!)
+                    // If result is there, move
+                    if (locUser.id != null) {
+                        // Move past login screen if username is registered
+                        findNavController(frag).navigate(
+                            LoginFragmentDirections.actionLoginFragmentToAlertFragment()
+                        )
+                    }
+                }
             }
+            return binding.root
         }
 
         // Login
@@ -119,9 +135,10 @@ class LoginFragment : Fragment() {
              * 3A. If success, set Util.user and store token
              * 3B. If failure, stop here
              */
-            
+
             val user = User(newUsername, password)
             Log.d("Login - $func", "$user ${user.password}")
+
             if (func == "signup") coroutineScope.launch(errorHandler) {
                 val userLoc: User = util.signup(user)
                 Log.d("Login - $func", "Returned $userLoc")
@@ -129,6 +146,7 @@ class LoginFragment : Fragment() {
                 util.user = userLoc
                 util.user!!.password = user.password
                 Log.d("Login - $func", "Final user: ${util.user}")
+                util.authInterceptor.Token(util.user!!.token.toString())
                 moveUponResult()
             }
             if (func == "login") coroutineScope.launch(errorHandler) {
@@ -138,6 +156,7 @@ class LoginFragment : Fragment() {
                 util.user = user
                 util.user!!.token = userLoc.token
                 Log.d("Login - $func", "Final user: ${util.user}")
+                util.authInterceptor.Token(util.user!!.token.toString())
                 moveUponResult()
             }
         }

@@ -8,10 +8,12 @@ interface ApiInterfaceUser {
 
     // Signup
     @POST("v1/signup")
+    @Headers("No-Auth: true")
     suspend fun signup(@Body user: User): User
 
     // Login
     @POST("v1/login")
+    @Headers("No-Auth: true")
     suspend fun login(@Body user: User): User
 
     // Get users
@@ -23,10 +25,10 @@ interface ApiInterfaceUser {
     suspend fun getUser(@Path("user") user_id: Int): User
 
     // Update user by ID
-    @PUT("v1/users/{user}/users/{user}")
+    @PUT("v1/users/{user}")
     suspend fun updateUser(@Path("user") user_id: Int, @Body user: User): User
 
     // Delete user by ID
-    @DELETE("v1/users/{user}/users/{user}")
+    @DELETE("v1/users/{user}")
     suspend fun deleteUser(@Path("user") user_id: Int): GenericType<User>
 }

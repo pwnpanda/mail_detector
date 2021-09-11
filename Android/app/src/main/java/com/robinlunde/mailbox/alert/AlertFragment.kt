@@ -57,6 +57,9 @@ class AlertFragment : Fragment() {
         )
         binding.lifecycleOwner = viewLifecycleOwner
 
+        // If not logged in, jump to login view
+        if (util.user == null)  util.moveToLoginFragment("alert",this)
+
         // This happens every time the fragment is re-rendered, which is perfect
         // Incl. pressing of notifications
 

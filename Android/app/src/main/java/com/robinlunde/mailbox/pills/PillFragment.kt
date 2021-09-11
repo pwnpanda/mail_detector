@@ -77,7 +77,9 @@ class PillFragment : Fragment() {
             false
         )
 
-        checkLogin()
+        // If not logged in, jump to login view
+        if (util.user == null)  util.moveToLoginFragment("pill",this)
+
         setAlarmIfConfigured()
 
         // Set 24 hour display
@@ -107,11 +109,6 @@ class PillFragment : Fragment() {
         // Cancel timer if we move out of fragment
         timer.cancel()
         super.onDestroy()
-    }
-
-    private fun checkLogin() {
-        if (util.user == null) NavHostFragment.findNavController(this)
-            .navigate(PillFragmentDirections.actionPillFragmentToLoginFragment())
     }
 
     private fun registerPillTakenButton() {

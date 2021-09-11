@@ -12,17 +12,26 @@ import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.RecyclerView
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.robinlunde.mailbox.alert.AlertFragmentDirections
 import com.robinlunde.mailbox.datamodel.MyMessage
 import com.robinlunde.mailbox.datamodel.PostLogEntry
 import com.robinlunde.mailbox.datamodel.PostUpdateStatus
+import com.robinlunde.mailbox.datamodel.pill.GenericType
 import com.robinlunde.mailbox.datamodel.pill.User
+import com.robinlunde.mailbox.debug.DebugFragmentDirections
 import com.robinlunde.mailbox.debug.ScanType
+import com.robinlunde.mailbox.logview.PostViewFragmentDirections
 import com.robinlunde.mailbox.network.ApiInterfaceUser
+import com.robinlunde.mailbox.network.AuthenticationInterceptor
 import com.robinlunde.mailbox.network.HttpRequestLib
 import com.robinlunde.mailbox.network.HttpRequestLib2
+import com.robinlunde.mailbox.pills.PillFragmentDirections
+import com.robinlunde.mailbox.pills.PillLogFragmentDirections
 import com.robinlunde.mailbox.repository.DayRepository
 import com.robinlunde.mailbox.repository.PillRepository
 import com.robinlunde.mailbox.repository.RecordRepository
@@ -50,6 +59,7 @@ class Util {
 
     private var apiInterfaceUser: ApiInterfaceUser =
         HttpRequestLib2.getClient().create(ApiInterfaceUser::class.java)
+    lateinit var authInterceptor: AuthenticationInterceptor
 
     private val updateURL: URL = URL(
         MailboxApp.getInstance().getString(R.string.post_update_url)
@@ -462,4 +472,30 @@ class Util {
         return apiInterfaceUser.login(user)
     }
 
+    suspend fun getUser(id: Int): User {
+        return apiInterfaceUser.getUser(id)
+    }
+
+    suspend fun getUsers(): User {
+        return apiInterfaceUser.getUsers()
+    }
+
+    suspend fun updateUser(user: User): User {
+        return apiInterfaceUser.updateUser(user.id!!, user)
+    }
+
+    suspend fun deleteUser(id: Int): GenericType<User> {
+        return apiInterfaceUser.deleteUser(id)
+    }
+
+    fun moveToLoginFragment(name: String, frag: Fragment) {
+        val navcontroller = NavHostFragment.findNavController(frag)
+        if (name == "alert")    navcontroller.navigate(AlertFragmentDirections.actionAlertFragmentToLoginFragment())
+        if (name == "debug")    navcontroller.navigate(DebugFragmentDirections.actionDebugFragmentToLoginFragment())
+        if (name == "postView")    navcontroller.navigate(PostViewFragmentDirections.actionLogviewFragmentToLoginFragment())
+        if (name == "pillLog")    navcontroller.navigate(PillLogFragmentDirections.actionPillLogFragmentToLoginFragment())
+        if (name == "pill")    navcontroller.navigate(PillFragmentDirections.actionPillFragmentToLoginFragment())
+
+        Log.e("Util - moveToLoginFragment", "Name $name not found - cannot redirect to login fragment")
+    }
 }

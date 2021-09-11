@@ -75,6 +75,9 @@ class DebugFragment : Fragment() {
 
         binding.lifecycleOwner = viewLifecycleOwner
 
+        // If not logged in, jump to login view
+        if (util.user == null)  util.moveToLoginFragment("debug",this)
+
         val sensorData = model.sensorData.value!!
         updateFragment(sensorData)
 

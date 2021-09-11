@@ -57,6 +57,10 @@ class PostViewFragment : Fragment() {
             container,
             false
         )
+
+        // If not logged in, jump to login view
+        if (util.user == null)  util.moveToLoginFragment("postView",this)
+
         this.binding = binding
         val adapter = model.mutablePostEntries.value?.let { PostAdapter(it) }
         binding.postEntries.adapter = adapter
