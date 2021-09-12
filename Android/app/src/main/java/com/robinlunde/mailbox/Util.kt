@@ -50,15 +50,16 @@ class Util {
     private lateinit var myNotificationManager: MyNotificationManager
     private lateinit var alarmPendingIntent: PendingIntent
     private lateinit var alarmManager: AlarmManager
-    private val tag = "Util -"
+    private val logTag = "Util -"
 
     class LogItemViewHolder(val constraintLayout: ConstraintLayout) :
         RecyclerView.ViewHolder(constraintLayout)
 
     private val httpRequests = HttpRequestLib()
 
+    val http2 = HttpRequestLib2.getClient(this)
     private var apiInterfaceUser: ApiInterfaceUser =
-        HttpRequestLib2.getClient().create(ApiInterfaceUser::class.java)
+        http2.create(ApiInterfaceUser::class.java)
     lateinit var authInterceptor: AuthenticationInterceptor
 
     private val updateURL: URL = URL(
@@ -66,16 +67,17 @@ class Util {
     )
 
     var user: User? = null
-    val dayrepo: DayRepository = DayRepository()
-    val pillrepo: PillRepository = PillRepository()
-    val recordrepo: RecordRepository = RecordRepository()
+    val dayrepo: DayRepository = DayRepository(this)
+    val pillrepo: PillRepository = PillRepository(this)
+    val recordrepo: RecordRepository = RecordRepository(this)
 
     // ----------------------------- Notification -------------------------------
 
 
     fun pushNotification(message: MyMessage, pillAlert: Boolean = false) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            myNotificationManager.createPush(message, pillAlert)
+            if (::myNotificationManager.isInitialized)  myNotificationManager.createPush(message, pillAlert)
+            else    MyNotificationManager(MailboxApp.getContext()!!).createPush(message, pillAlert)
         } else {
             Log.d("Push", "Android version too old, ignoring push notification!")
         }
@@ -380,7 +382,8 @@ class Util {
     @RequiresApi(Build.VERSION_CODES.N)
     // Activate alarm
     fun activateAlarm(hourTime: Int, minuteTime: Int) {
-        val thisTag = "$tag activateAlarm"
+
+        val thisTag = "$logTag activateAlarm"
         val hour = if (hourTime == -1) 21 else hourTime
         val minute = if (minuteTime == -1) 0 else minuteTime
 
@@ -397,6 +400,7 @@ class Util {
         val alarmIntent = Intent(context, RepeatedTrigger::class.java)
             .putExtra("hour", hour)
             .putExtra("minute", minute)
+        alarmIntent.action = "AlarmAction"
 
         Log.d(
             thisTag,
@@ -431,7 +435,15 @@ class Util {
         }
 
         // TODO should this not repeat daily? Does it cancel somewhere?
-        // Maybe it needs to run in background thread that is always alive?
+        //  Maybe it needs to run in background thread that is always alive?
+        //  It runs if app is open - need to allow running in background?
+        /**
+         * alarmManager.setExactAndAllowWhileIdle(
+         * AlarmManager.RTC_WAKEUP,
+         * alertTime.timeInMillis,
+         * alarmPendingIntent
+         * )
+         */
         alarmManager.setInexactRepeating(
             AlarmManager.RTC_WAKEUP,
             alertTime.timeInMillis,
@@ -442,15 +454,15 @@ class Util {
 
 
     fun cancelAlarm() {
-        Log.d("$tag cancelAlarm", "Trying to cancel alarm")
+        Log.d("$logTag cancelAlarm", "Trying to cancel alarm")
         try {
             // If the alarm has been set, cancel it.
             alarmManager.cancel(alarmPendingIntent)
         } catch (e: UninitializedPropertyAccessException) {
-            Log.d("$tag cancelAlarm", "This is fine - AlertManager has not yet been initialized!")
+            Log.d("$logTag cancelAlarm", "This is fine - AlertManager has not yet been initialized!")
         } catch (e: java.lang.Exception) {
-            Log.d("$tag cancelAlarm", e.stackTraceToString())
-            Log.d("$tag cancelAlarm", "PendingIntent likely not set. WHat type of error??")
+            Log.d("$logTag cancelAlarm", e.stackTraceToString())
+            Log.d("$logTag cancelAlarm", "PendingIntent likely not set. WHat type of error??")
         }
     }
 
@@ -461,13 +473,13 @@ class Util {
     }
 
     suspend fun signup(user: User): User {
-        Log.d("$tag signup", "Arrived")
+        Log.d("$logTag signup", "Arrived")
 
         return apiInterfaceUser.signup(user)
     }
 
     suspend fun login(user: User): User {
-        Log.d("$tag login", "Arrived")
+        Log.d("$logTag login", "Arrived")
 
         return apiInterfaceUser.login(user)
     }
@@ -489,6 +501,7 @@ class Util {
     }
 
     fun moveToLoginFragment(name: String, frag: Fragment) {
+        Log.d("Util - moveToLoginFragment", "Not logged in, so moving from $name fragment to loginFragment")
         val navcontroller = NavHostFragment.findNavController(frag)
         if (name == "alert")    navcontroller.navigate(AlertFragmentDirections.actionAlertFragmentToLoginFragment())
         if (name == "debug")    navcontroller.navigate(DebugFragmentDirections.actionDebugFragmentToLoginFragment())
@@ -497,5 +510,27 @@ class Util {
         if (name == "pill")    navcontroller.navigate(PillFragmentDirections.actionPillFragmentToLoginFragment())
 
         Log.e("Util - moveToLoginFragment", "Name $name not found - cannot redirect to login fragment")
+    }
+
+    fun fetchRepoData() {
+        // setup coroutine
+        val mainActivityJob = Job()
+        val errorHandler = CoroutineExceptionHandler { _, exception ->
+            Log.d("$logTag fetchRepoData", "Received error: ${exception.message}!")
+            Log.e("$logTag fetchRepoData", "Trace: ${exception.printStackTrace()}!")
+            Toast.makeText(
+                MailboxApp.getContext(),
+                "Login or signup failed! Please try again",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+
+        val coroutineScope = CoroutineScope(mainActivityJob + Dispatchers.Main)
+        coroutineScope.launch(errorHandler) {
+            // fetch data in the background
+            dayrepo.getDays()
+            pillrepo.getPills()
+            recordrepo.getRecords()
+        }
     }
 }

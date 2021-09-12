@@ -17,6 +17,7 @@ import com.robinlunde.mailbox.datamodel.MyMessage
 class RepeatedTrigger : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action != "AlarmAction")    return;
         val myTag = "Repeating alarm trigger"
         val util: Util = MailboxApp.getUtil()
         val hour = intent.getIntExtra("hour", -1)
@@ -31,6 +32,7 @@ class RepeatedTrigger : BroadcastReceiver() {
             "PILL ALERT!",
             "You have not taken all your pills for today!"
         )
+
 
         util.pushNotification(msg, true)
 

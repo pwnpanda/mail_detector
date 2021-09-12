@@ -1,9 +1,12 @@
 package com.robinlunde.mailbox.datamodel.pill
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.robinlunde.mailbox.MailboxApp
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
+// TODO evaluate if I need to add more fields
 class Record(
     day_id: Int?,
     user_id: Int?,

@@ -1,11 +1,15 @@
 package com.robinlunde.mailbox.datamodel.pill
 
 import androidx.annotation.ColorRes
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.robinlunde.mailbox.MailboxApp
 import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
+// TODO evaluate if I need to add more fields
+
 class Pill(
     val color: ColorRes,
     val active: Boolean

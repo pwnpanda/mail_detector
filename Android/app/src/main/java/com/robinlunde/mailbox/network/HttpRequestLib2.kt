@@ -1,6 +1,6 @@
 package com.robinlunde.mailbox.network
 
-import com.robinlunde.mailbox.MailboxApp
+import com.robinlunde.mailbox.Util
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -14,14 +14,14 @@ const val BASEURL = "https://robinlunde.com/api/"
 class HttpRequestLib2 {
     companion object {
         private var retrofit: Retrofit? = null
-        fun getClient(): Retrofit {
+        fun getClient(util: Util): Retrofit {
 
             // TODO remove in prod
             val interceptor = HttpLoggingInterceptor()
             interceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
 
             val authInterceptor = AuthenticationInterceptor()
-            MailboxApp.getUtil().authInterceptor = authInterceptor
+            util.authInterceptor = authInterceptor
 
             val client = OkHttpClient.Builder().addInterceptor(interceptor)
                 .addInterceptor(authInterceptor)

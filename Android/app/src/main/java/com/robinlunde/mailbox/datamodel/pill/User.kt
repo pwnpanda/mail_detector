@@ -1,9 +1,11 @@
 package com.robinlunde.mailbox.datamodel.pill
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include
 
 @JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 class User (
     val username: String? = null,
     var password: String? = null,

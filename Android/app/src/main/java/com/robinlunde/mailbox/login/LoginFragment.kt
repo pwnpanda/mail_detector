@@ -147,6 +147,8 @@ class LoginFragment : Fragment() {
                 util.user!!.password = user.password
                 Log.d("Login - $func", "Final user: ${util.user}")
                 util.authInterceptor.Token(util.user!!.token.toString())
+                // Fetch data in the background
+                util.fetchRepoData()
                 moveUponResult()
             }
             if (func == "login") coroutineScope.launch(errorHandler) {
@@ -154,9 +156,14 @@ class LoginFragment : Fragment() {
                 Log.d("Login - $func", "Returned $userLoc")
 
                 util.user = user
-                util.user!!.token = userLoc.token
                 Log.d("Login - $func", "Final user: ${util.user}")
-                util.authInterceptor.Token(util.user!!.token.toString())
+                util.authInterceptor.Token(userLoc.token.toString())
+                var tmpUser = util.getUsers()
+                util.user = tmpUser
+                util.user!!.password = user.password
+                util.user!!.token = userLoc.token
+                // fetch data in the background
+                util.fetchRepoData()
                 moveUponResult()
             }
         }

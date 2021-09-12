@@ -1,21 +1,57 @@
 package com.robinlunde.mailbox.repository
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import com.robinlunde.mailbox.Util
+import com.robinlunde.mailbox.datamodel.pill.GenericType
 import com.robinlunde.mailbox.datamodel.pill.Record
+import com.robinlunde.mailbox.network.ApiInterfaceRecord
 
-class RecordRepository() : RepositoryInterface<Record> {
+class RecordRepository(val util: Util) : RepositoryInterface<Record> {
     override var data = MutableLiveData<MutableList<Record>>()
+    private val logTag = "RecordRepository -"
+
+    private var recordInterface: ApiInterfaceRecord = this.util.http2.create(ApiInterfaceRecord::class.java)
+
+    suspend fun getRecord(rec_id: Int): Record {
+        val record =  recordInterface.getRecord(util.user!!.id!!, rec_id)
+        if (findObject(record) == null)    addEntry(record)
+        Log.d(logTag, "Found record $record in getRecord")
+        return record
+    }
+
+    suspend fun getRecords(): MutableList<Record> {
+        val records = recordInterface.getRecords(util.user!!.id!!)
+        data.value?.clear()
+        data.value = records
+        Log.d(logTag, "Found records $records in getRecords")
+        return records
+    }
+
+    suspend fun updateRecord(record: Record): Record {
+        findAndRemoveItemById(record.id!!)
+        val newRecord =  recordInterface.updateRecord(util.user!!.id!!, record.id, record)
+        addEntry(newRecord)
+        Log.d(logTag, "Updated record $record in updateRecord")
+        return record
+    }
+
+    suspend fun deleteRecord(rec_id: Int): GenericType<Record> {
+        findAndRemoveItemById(rec_id)
+        Log.d(logTag, "Removed record ${find(rec_id)} in deleteRecord")
+        return recordInterface.deleteRecord(util.user!!.id!!, rec_id)
+    }
     /**
     To be used for guidance
 
-    val allTaken: Boolean = isAllTaken(allPills)
+    val allTaken: Boolean = isAllTaken(allRecords)
 
-    private fun isAllTaken(pills: Array<Pill>): Boolean {
-    return pills.all { pill -> pill.taken }
+    private fun isAllTaken(records: Array<Record>): Boolean {
+    return records.all { record -> record.taken }
     }
 
     fun getTakenColors() {
-    return allPills.filter { pill -> pill.taken }.forEach { pill -> pill.color }
+    return allRecords.filter { record -> record.taken }.forEach { record -> record.color }
     }
      */
 }
