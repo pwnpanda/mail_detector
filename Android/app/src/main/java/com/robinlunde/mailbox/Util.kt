@@ -57,9 +57,9 @@ class Util {
 
     private val httpRequests = HttpRequestLib()
 
-    val http2 = HttpRequestLib2.getClient(this)
+
     private var apiInterfaceUser: ApiInterfaceUser =
-        http2.create(ApiInterfaceUser::class.java)
+    HttpRequestLib2.getClient(this).create(ApiInterfaceUser::class.java)
     lateinit var authInterceptor: AuthenticationInterceptor
 
     private val updateURL: URL = URL(
@@ -520,7 +520,7 @@ class Util {
             Log.e("$logTag fetchRepoData", "Trace: ${exception.printStackTrace()}!")
             Toast.makeText(
                 MailboxApp.getContext(),
-                "Login or signup failed! Please try again",
+                "Failed to fetch data!",
                 Toast.LENGTH_LONG
             ).show()
         }

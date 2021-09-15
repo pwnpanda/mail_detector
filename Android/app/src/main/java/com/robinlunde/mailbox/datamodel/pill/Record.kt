@@ -11,8 +11,11 @@ class Record(
     day_id: Int?,
     user_id: Int?,
     pill_id: Int?,
-    val taken: Boolean
-
+    val taken: Boolean,
+    private val created_at: String? = null,
+    private var updated_at: String? = null,
+    override val id: Int? = null,
+    override val msg: String? = null
 ): GenericType<Record>() {
     lateinit var updated: String
 

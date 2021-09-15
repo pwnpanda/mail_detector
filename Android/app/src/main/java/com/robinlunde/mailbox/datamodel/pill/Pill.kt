@@ -1,6 +1,5 @@
 package com.robinlunde.mailbox.datamodel.pill
 
-import androidx.annotation.ColorRes
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.robinlunde.mailbox.MailboxApp
@@ -11,13 +10,18 @@ import java.util.*
 // TODO evaluate if I need to add more fields
 
 class Pill(
-    val color: ColorRes,
-    val active: Boolean
+    val color: String,
+    val active: Boolean,
+    private val created_at: String? = null,
+    private var updated_at: String? = null,
+    override val id: Int? = null,
+    override val msg: String? = null
 ): GenericType<Pill>() {
     private lateinit var timestamp: String
     lateinit var uuid: UUID
     private var userid: Int? = null
-
+    // TODO Need to create colorRes from the color code
+    //  val colorRes: ColorRes = color as ColorRes
 
     val pill: Pill = this
     val util = MailboxApp.getUtil()

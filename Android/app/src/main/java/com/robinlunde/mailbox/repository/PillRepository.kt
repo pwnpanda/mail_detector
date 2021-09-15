@@ -6,13 +6,14 @@ import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.datamodel.pill.GenericType
 import com.robinlunde.mailbox.datamodel.pill.Pill
 import com.robinlunde.mailbox.network.ApiInterfacePill
+import com.robinlunde.mailbox.network.HttpRequestLib2
 
 class PillRepository(val util: Util) : RepositoryInterface<Pill> {
     override var data = MutableLiveData<MutableList<Pill>>()
     private val logTag = "PillRepository -"
 
 
-    private var pillInterface: ApiInterfacePill = this.util.http2.create(ApiInterfacePill::class.java)
+    private var pillInterface: ApiInterfacePill = HttpRequestLib2.getClient(util).create(ApiInterfacePill::class.java)
 
     suspend fun getPill(pill_id: Int): Pill {
         val pill =  pillInterface.getPill(util.user!!.id!!, pill_id)

@@ -1,5 +1,7 @@
 package com.robinlunde.mailbox.network
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.robinlunde.mailbox.Util
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -16,6 +18,8 @@ class HttpRequestLib2 {
         private var retrofit: Retrofit? = null
         fun getClient(util: Util): Retrofit {
 
+            if (retrofit != null)   return retrofit as Retrofit
+
             // TODO remove in prod
             val interceptor = HttpLoggingInterceptor()
             interceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
@@ -23,11 +27,16 @@ class HttpRequestLib2 {
             val authInterceptor = AuthenticationInterceptor()
             util.authInterceptor = authInterceptor
 
-            val client = OkHttpClient.Builder().addInterceptor(interceptor)
+            val client = OkHttpClient.Builder()
+                .addInterceptor(interceptor)
                 .addInterceptor(authInterceptor)
                 .readTimeout(10, TimeUnit.SECONDS)
                 .connectTimeout(10, TimeUnit.SECONDS).build()
-            val factory = JacksonConverterFactory.create()
+
+            val objectMapper = ObjectMapper()
+            objectMapper.registerModule(KotlinModule())
+            val factory = JacksonConverterFactory.create(objectMapper)
+
             if (retrofit == null) {
                 retrofit =
                     Retrofit.Builder()
@@ -36,6 +45,7 @@ class HttpRequestLib2 {
                         .addConverterFactory(factory)
                         .build()
             }
+
             return retrofit!!
         }
     }

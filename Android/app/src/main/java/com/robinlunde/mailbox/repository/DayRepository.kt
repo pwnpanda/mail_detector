@@ -6,13 +6,20 @@ import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.datamodel.pill.Day
 import com.robinlunde.mailbox.datamodel.pill.GenericType
 import com.robinlunde.mailbox.network.ApiInterfaceDay
+import com.robinlunde.mailbox.network.HttpRequestLib2
+import retrofit2.Retrofit
 
 class DayRepository(val util: Util) : RepositoryInterface<Day> {
     override var data = MutableLiveData<MutableList<Day>>()
     private val logTag = "DayRepository -"
 
-    private var dayInterface: ApiInterfaceDay = util.http2.create(ApiInterfaceDay::class.java)
+    private val client = getClient(HttpRequestLib2.getClient(util))
+    private var dayInterface: ApiInterfaceDay = client.create(ApiInterfaceDay::class.java)
 
+    private fun getClient(client: Retrofit): Retrofit {
+        Log.d("$logTag GetClient", "Client: $client")
+        return client
+    }
     suspend fun getDay(day_id: Int): Day {
         val day =  dayInterface.getDay(util.user!!.id!!, day_id)
         if (findObject(day) == null)    addEntry(day)
@@ -21,10 +28,12 @@ class DayRepository(val util: Util) : RepositoryInterface<Day> {
     }
 
     suspend fun getDays(): MutableList<Day> {
+        Log.d("$logTag getDays", "User: ${util.user}")
+        Log.d("$logTag getDays", "$dayInterface")
         val days = dayInterface.getDays(util.user!!.id!!)
         data.value?.clear()
         data.value = days
-        Log.d(logTag, "Found days $days in getDays")
+        Log.d(logTag, "Found days ${days.map { day -> day.toString() }} in getDays")
         return days
     }
 

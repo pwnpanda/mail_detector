@@ -155,13 +155,15 @@ class LoginFragment : Fragment() {
                 val userLoc: User = util.login(user)
                 Log.d("Login - $func", "Returned $userLoc")
 
-                util.user = user
-                Log.d("Login - $func", "Final user: ${util.user}")
                 util.authInterceptor.Token(userLoc.token.toString())
-                var tmpUser = util.getUsers()
+                val tmpUser = util.getUsers()
+                Log.d("Login - $func", "Tmp user: $tmpUser")
+
                 util.user = tmpUser
                 util.user!!.password = user.password
                 util.user!!.token = userLoc.token
+                Log.d("Login - $func", "Final user: ${util.user}")
+
                 // fetch data in the background
                 util.fetchRepoData()
                 moveUponResult()

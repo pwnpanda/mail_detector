@@ -6,12 +6,13 @@ import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.datamodel.pill.GenericType
 import com.robinlunde.mailbox.datamodel.pill.Record
 import com.robinlunde.mailbox.network.ApiInterfaceRecord
+import com.robinlunde.mailbox.network.HttpRequestLib2
 
 class RecordRepository(val util: Util) : RepositoryInterface<Record> {
     override var data = MutableLiveData<MutableList<Record>>()
     private val logTag = "RecordRepository -"
 
-    private var recordInterface: ApiInterfaceRecord = this.util.http2.create(ApiInterfaceRecord::class.java)
+    private var recordInterface: ApiInterfaceRecord = HttpRequestLib2.getClient(util).create(ApiInterfaceRecord::class.java)
 
     suspend fun getRecord(rec_id: Int): Record {
         val record =  recordInterface.getRecord(util.user!!.id!!, rec_id)

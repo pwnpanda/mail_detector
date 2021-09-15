@@ -10,8 +10,8 @@ class User (
     val username: String? = null,
     var password: String? = null,
     var token: String? = null,
-    id: Int? = null,
-    msg: String? = null
+    override var id: Int? = null,
+    override val msg: String? = null
 ): GenericType<User>() {
 
     override fun get(): User {
@@ -21,7 +21,7 @@ class User (
     override fun toString(): String {
         var temp = ""
 
-        if (id != null) temp += "ID $id"
+        if (id != null) temp += "ID $id "
         if (username != null)  temp += "Username $username "
         if (password != null)  temp += "Password $password "
         if (token != null)  temp += "Token $token "

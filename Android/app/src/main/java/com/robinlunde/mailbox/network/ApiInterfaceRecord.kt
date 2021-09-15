@@ -6,39 +6,39 @@ import retrofit2.http.*
 
 interface ApiInterfaceRecord {
     // Get all records
-    @GET("/v1/users/{user}/records")
-    fun getRecords(@Path("user") user_id: Int): MutableList<Record>
+    @GET("v1/users/{user}/records")
+    suspend fun getRecords(@Path("user") user_id: Int): MutableList<Record>
 
     // Get all records with a pill
-    @GET("/v1/users/{user}/records?pill={pill}")
-    fun getRecordsByPill(
+    @GET("v1/users/{user}/records?pill={pill}")
+    suspend fun getRecordsByPill(
         @Path("user") user_id: Int,
         @Path("pill") pill_id: Int
     ): MutableList<Record>
 
     // Get all records for a day
-    @GET("/v1/users/{user}/records")
-    fun getRecordsByDay(
+    @GET("v1/users/{user}/records")
+    suspend fun getRecordsByDay(
         @Path("user") user_id: Int,
         @Path("day") day_id: Int
     ): MutableList<Record>
 
     // Get record by id
-    @GET("/v1/users/{user}/records/{record}")
-    fun getRecord(
+    @GET("v1/users/{user}/records/{record}")
+    suspend fun getRecord(
         @Path("user") user_id: Int,
         @Path("record") record_id: Int
     ): Record
 
-    @PUT("/v1/users/{user}/records/{record}")
-    fun updateRecord(
+    @PUT("v1/users/{user}/records/{record}")
+    suspend fun updateRecord(
         @Path("user") user_id: Int,
         @Path("record") record_id: Int,
         @Body record: Record
     ): Record
 
-    @DELETE("/v1/users/{user}/records/{record}")
-    fun deleteRecord(
+    @DELETE("v1/users/{user}/records/{record}")
+    suspend fun deleteRecord(
         @Path("user") user_id: Int,
         @Path("record") record_id: Int
     ): GenericType<Record>
