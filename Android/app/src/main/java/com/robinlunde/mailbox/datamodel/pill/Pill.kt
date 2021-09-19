@@ -1,5 +1,6 @@
 package com.robinlunde.mailbox.datamodel.pill
 
+import android.graphics.Color.parseColor
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.robinlunde.mailbox.MailboxApp
@@ -20,6 +21,7 @@ class Pill(
     private lateinit var timestamp: String
     lateinit var uuid: UUID
     private var userid: Int? = null
+    val colorRes = parseColor(color)
     // TODO Need to create colorRes from the color code
     //  val colorRes: ColorRes = color as ColorRes
 

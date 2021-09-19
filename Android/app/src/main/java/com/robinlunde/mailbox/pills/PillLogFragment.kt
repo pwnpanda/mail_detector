@@ -7,11 +7,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.NavHostFragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.robinlunde.mailbox.MailboxApp
 import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.databinding.FragmentPillLogBinding
+import com.robinlunde.mailbox.datamodel.pill.Pill
 
 // use this and migrate to calendar? https://github.com/kizitonwose/CalendarView
 
@@ -25,7 +28,24 @@ class PillLogFragment : Fragment() {
         // Include top menu
         setHasOptionsMenu(true)
 
+        // Watch data
+        val observer = Observer<MutableList<Pill>> { newData ->
+            // Update adapter
+            binding.pillLogEntries.adapter = PillLogAdapter(newData, util)
+            // Update layout manager
+            binding.pillLogEntries.layoutManager = LinearLayoutManager(context)
+            // Notify new data at end
+            binding.pillLogEntries.adapter?.notifyDataSetChanged()
+            // TODO make logic for changing and inserting data. This is not good enough and is wrong, but works ad hoc
+            /**
+             * val curSize = binding.pillLogEntries.adapter?.itemCount!!
+             * val newItems = util.pillrepo.data.value?.size!!
+             * if (curSize < newItems) binding.pillLogEntries.adapter?.notifyItemRangeInserted(curSize, newItems-curSize)
+             */
+        }
+
         // Update UI if new data!
+        util.pillrepo.data.observe(this, observer)
     }
 
     override fun onCreateView(
@@ -42,6 +62,11 @@ class PillLogFragment : Fragment() {
 
         // If not logged in, jump to login view
         if (util.user == null)  util.moveToLoginFragment("pillLog",this)
+
+        val adapter = util.pillrepo.data.value?.let { PillLogAdapter(it, util) }
+        binding.pillLogEntries.adapter = adapter
+        binding.pillLogEntries.layoutManager = LinearLayoutManager(context)
+        binding.lifecycleOwner = viewLifecycleOwner
 
         return binding.root
     }
