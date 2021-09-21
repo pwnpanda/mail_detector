@@ -151,8 +151,24 @@ class PillFragment : Fragment() {
         // Show create
         binding.pillCreateLayoutIncl.pillCreateLayout.visibility = View.VISIBLE
 
-        // Create click listener
-        binding.pillCreateLayoutIncl.button.setOnClickListener { createPillAction() }
+        // Create click listener for creating a pill
+        binding.pillCreateLayoutIncl.createPillCreateButton.setOnClickListener { createPillAction() }
+
+        // Create click listener for cancelling creation of pill - move back
+        binding.pillCreateLayoutIncl.createPillCancelButton.setOnClickListener {
+            // Show buttons
+            binding.pillButtonLayoutIncl.pillButtonLayout.visibility = View.VISIBLE
+            // Hide create pill view
+            binding.pillCreateLayoutIncl.pillCreateLayout.visibility = View.INVISIBLE
+        }
+
+        // Create click listener for picking color - set color!
+        binding.pillCreateLayoutIncl.createPillCreateButton.setOnClickListener {
+            // TODO https://github.com/QuadFlask/colorpicker
+            // Need dialog for picking from set of colors or picking individual color
+            // Then show correct view - maybe alert dialog or similar?
+        }
+
     }
 
     private fun createPillAction() {

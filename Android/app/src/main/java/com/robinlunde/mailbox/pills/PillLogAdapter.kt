@@ -34,8 +34,8 @@ class PillLogAdapter(private val dataEntries: MutableList<Pill>, val util: Util)
             holder.constraintLayout.findViewById<ImageButton>(R.id.pill_delete_history_button)
                 .setOnClickListener {
                     val errorHandler = CoroutineExceptionHandler { _, exception ->
-                        Log.d("$logTag onBindViweHolder", "Received error: ${exception.message}!")
-                        Log.e("$logTag onBindViweHolder", "Trace: ${exception.printStackTrace()}!")
+                        Log.d("$logTag onBindViewHolder", "Received error: ${exception.message}!")
+                        Log.e("$logTag onBindViewHolder", "Trace: ${exception.printStackTrace()}!")
                         Toast.makeText(
                             MailboxApp.getContext(),
                             "Failed to delete data $pill!",

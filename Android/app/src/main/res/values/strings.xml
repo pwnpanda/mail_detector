@@ -50,4 +50,7 @@
     <string name="pill_header">Pill</string>
     <string name="date_header">Date</string>
     <string name="taken_header">Taken</string>
+    <string name="pill_create_button">Create</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="pill_input_field">Name: MyPill1</string>
 </resources>
