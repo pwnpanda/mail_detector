@@ -52,5 +52,14 @@
     <string name="taken_header">Taken</string>
     <string name="pill_create_button">Create</string>
     <string name="cancel_button">Cancel</string>
-    <string name="pill_input_field">Name: MyPill1</string>
+    <string name="pill_input_field">Name</string>
+    <string name="mon">Mon</string>
+    <string name="tue">Tue</string>
+    <string name="wed">Wed</string>
+    <string name="thur">Thu</string>
+    <string name="fri">Fri</string>
+    <string name="sat">Sat</string>
+    <string name="sun">Sun</string>
+    <string name="is_pill_active">Active</string>
+
 </resources>

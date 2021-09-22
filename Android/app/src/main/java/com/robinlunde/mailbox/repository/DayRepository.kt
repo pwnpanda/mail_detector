@@ -37,11 +37,19 @@ class DayRepository(val util: Util) : RepositoryInterface<Day> {
         return days
     }
 
+    suspend fun createDay(today: String): Day {
+        var day = Day(today)
+        day = dayInterface.createDay(util.user!!.id!!, day)
+        Log.d(logTag, "Created day $day in createDay")
+        addEntry(day)
+        return day
+    }
+
     suspend fun updateDay(day: Day): Day {
         findAndRemoveItemById(day.id!!)
         val newDay =  dayInterface.updateDay(util.user!!.id!!, day.id, day)
         addEntry(newDay)
-        Log.d(logTag, "Updated day $day in updatePill")
+        Log.d(logTag, "Updated day $day in updateDay")
         return day
     }
 

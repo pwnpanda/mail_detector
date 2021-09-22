@@ -1,6 +1,5 @@
 package com.robinlunde.mailbox.datamodel.pill
 
-import android.graphics.Color.parseColor
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.robinlunde.mailbox.MailboxApp
@@ -9,19 +8,20 @@ import java.util.*
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 // TODO evaluate if I need to add more fields
+// TODO consider changing color to String
 
 class Pill(
-    val color: String,
-    val active: Boolean,
+    val color: Int,
+    val active: Boolean = false,
     private val created_at: String? = null,
     private var updated_at: String? = null,
+    private var uuid: UUID? = null,
     override val id: Int? = null,
     override val msg: String? = null
 ): GenericType<Pill>() {
     private lateinit var timestamp: String
-    lateinit var uuid: UUID
     private var userid: Int? = null
-    val colorRes = parseColor(color)
+    //val colorRes = parseColor(color)
     // TODO Need to create colorRes from the color code
     //  val colorRes: ColorRes = color as ColorRes
 
@@ -38,7 +38,7 @@ class Pill(
         return str.split("-").reversed().joinToString("-")
     }
 
-    fun getName(uuid: UUID): String {
+    fun getName(uuid: UUID?): String {
         // TODO Lookup UUID in sharedEncryptedPrefs, return associated value
         return ""
     }

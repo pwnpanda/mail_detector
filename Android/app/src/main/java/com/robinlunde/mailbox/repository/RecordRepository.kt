@@ -29,6 +29,15 @@ class RecordRepository(val util: Util) : RepositoryInterface<Record> {
         return records
     }
 
+    suspend fun createRecord(day_id: Int, pill_id: Int, taken: Boolean = false): Record{
+        val user_id = util.user!!.id!!
+        var record = Record(day_id, user_id, pill_id, taken)
+        record = recordInterface.createRecord(user_id, record)
+        addEntry(record)
+        Log.d(logTag, "Created record $record in createRecord")
+        return record
+    }
+
     suspend fun updateRecord(record: Record): Record {
         findAndRemoveItemById(record.id!!)
         val newRecord =  recordInterface.updateRecord(util.user!!.id!!, record.id, record)

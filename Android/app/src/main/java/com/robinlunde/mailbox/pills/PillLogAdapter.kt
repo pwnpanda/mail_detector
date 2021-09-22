@@ -25,7 +25,7 @@ class PillLogAdapter(private val dataEntries: MutableList<Pill>, val util: Util)
         if (itemCount > 0) {
             val pill = dataEntries[position]
             // Need to get color as correct value
-            holder.constraintLayout.setBackgroundColor( pill.colorRes )
+            holder.constraintLayout.setBackgroundColor( pill.color )
             // Set content of each UI element
             holder.constraintLayout.findViewById<TextView>(R.id.pill_user)
             holder.constraintLayout.findViewById<TextView>(R.id.pill_date)

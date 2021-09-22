@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.ColorRes
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.LinearLayoutCompat
@@ -20,10 +21,13 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.NavHostFragment
+import com.flask.colorpicker.ColorPickerView
+import com.flask.colorpicker.builder.ColorPickerDialogBuilder
 import com.robinlunde.mailbox.MailboxApp
 import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.databinding.FragmentPillBinding
+import kotlinx.coroutines.*
 import java.util.*
 
 
@@ -40,6 +44,10 @@ class PillFragment : Fragment() {
     private val util: Util = MailboxApp.getUtil()
     private val timer: Timer = Timer()
     val logTag = "PillFragment -"
+
+    // setup coroutine
+    private val mainActivityJob = Job()
+    val coroutineScope = CoroutineScope(mainActivityJob + Dispatchers.Main)
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,7 +86,7 @@ class PillFragment : Fragment() {
         )
 
         // If not logged in, jump to login view
-        if (util.user == null)  util.moveToLoginFragment("pill",this)
+        if (util.user == null) util.moveToLoginFragment("pill", this)
 
         setAlarmIfConfigured()
 
@@ -141,18 +149,47 @@ class PillFragment : Fragment() {
 
     private fun createPill() {
         // Show UI for creating pill
-        // Require necessary information filled in
-        // Send API request
-        // Store name & pillId pair in secureSharedPreferences
-        // Update alarm-setting logic (creating a pill assumes it is taken that day)
+
+        val button = binding.pillCreateLayoutIncl.createPillColor
+        var color = resources.getColor(R.color.button, null)
 
         // Hide buttons
         binding.pillButtonLayoutIncl.pillButtonLayout.visibility = View.INVISIBLE
         // Show create
         binding.pillCreateLayoutIncl.pillCreateLayout.visibility = View.VISIBLE
 
+        // Create click listener for picking color - set color!
+        button.setOnClickListener {
+            // TODO https://github.com/QuadFlask/colorpicker
+            // Need dialog for picking from set of colors or picking individual color
+            // Then show correct view - maybe alert dialog or similar?
+            // TODO IDEA: Show custom view with 2 "buttons" (nicely designed selectors on top) for each type and the actual view underneath?
+            ColorPickerDialogBuilder
+                .with(context)
+                .setTitle("Choose color")
+                .initialColor(color)
+                .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
+                .density(12)
+                .setOnColorSelectedListener { selectedColor ->
+                    color = selectedColor
+                    Log.d("$logTag ColorSelector", "Temporary selected color $selectedColor")
+                }
+                .setPositiveButton("ok") { dialog, selectedColor, allColors ->
+                    color = selectedColor
+                    button.setBackgroundColor(selectedColor)
+                    Log.d("$logTag ColorSelector", "Selected color $selectedColor")
+                }
+                .setNegativeButton("cancel") { dialog, which -> }
+                .build()
+                .show()
+        }
+
+        val active = binding.pillCreateLayoutIncl.activePill.isChecked
+
         // Create click listener for creating a pill
-        binding.pillCreateLayoutIncl.createPillCreateButton.setOnClickListener { createPillAction() }
+        binding.pillCreateLayoutIncl.createPillCreateButton.setOnClickListener {
+            createPillAction(color, active)
+        }
 
         // Create click listener for cancelling creation of pill - move back
         binding.pillCreateLayoutIncl.createPillCancelButton.setOnClickListener {
@@ -161,24 +198,49 @@ class PillFragment : Fragment() {
             // Hide create pill view
             binding.pillCreateLayoutIncl.pillCreateLayout.visibility = View.INVISIBLE
         }
-
-        // Create click listener for picking color - set color!
-        binding.pillCreateLayoutIncl.createPillCreateButton.setOnClickListener {
-            // TODO https://github.com/QuadFlask/colorpicker
-            // Need dialog for picking from set of colors or picking individual color
-            // Then show correct view - maybe alert dialog or similar?
-        }
-
     }
 
-    private fun createPillAction() {
+    private fun createPillAction(color: Int, active: Boolean) {
 
-        // TODO actually do operations
+        // Require necessary information filled in
 
+        // Co-routine handling
+        val errorHandler = CoroutineExceptionHandler { _, exception ->
+            Log.d("$logTag createPillAction", "Received error: ${exception.message}!")
+            Log.e("$logTag createPillAction", "Trace: ${exception.printStackTrace()}!")
+            Toast.makeText(
+                MailboxApp.getContext(),
+                "Failed to fetch data!",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+        coroutineScope.launch(errorHandler) {
+            // Send API request
+            // TODO ERROR - Cannot create RequestBody from pill!
+            val pill = util.pillrepo.createPill(color, active)
 
+            // Store name & pillId pair in secureSharedPreferences
+            val name = binding.pillCreateLayoutIncl.createPillNameInput.text
+            if (name.toString() == "") {
+                Log.d("$logTag createPillAction", "Name is nulL! Please fill in a name!")
+                Toast.makeText(
+                    MailboxApp.getContext(),
+                    "A name is required. Please fill in a name!",
+                    Toast.LENGTH_LONG
+                ).show()
+            } else {
+                val prefs = MailboxApp.getPrefs()
+                with(prefs.edit()) {
+                    putString(pill.id.toString(), name.toString())
+                }
+                // Update alarm-setting logic (creating a pill assumes it is taken that day)
+                // TODO
+            }
+        }
+
+        // --- Restore view ---
         // show Buttons
         binding.pillButtonLayoutIncl.pillButtonLayout.visibility = View.VISIBLE
-
         // Hide input
         binding.pillCreateLayoutIncl.pillCreateLayout.visibility = View.INVISIBLE
     }

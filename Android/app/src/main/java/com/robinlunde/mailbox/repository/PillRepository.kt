@@ -30,6 +30,16 @@ class PillRepository(val util: Util) : RepositoryInterface<Pill> {
         return pills
     }
 
+    suspend fun createPill(color: Int, active: Boolean = false): Pill {
+        var pill = Pill(color, active)
+        Log.d(logTag, "Created temporary pill $pill in createPills")
+        pill = pillInterface.createPill(util.user!!.id!!, pill)
+        addEntry(pill)
+        Log.d(logTag, "Created pill $pill in createPills")
+        return pill
+
+    }
+
     suspend fun updatePill(pill: Pill): Pill {
         findAndRemoveItemById(pill.id!!)
         val newPill =  pillInterface.updatePill(util.user!!.id!!, pill.id, pill)

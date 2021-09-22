@@ -16,6 +16,13 @@ interface ApiInterfaceDay {
         @Path("day") day_id: Int
     ): Day
 
+    // Create day
+    @POST("v1/users/{user}/days")
+    suspend fun createDay(
+        @Path("user") user_id: Int,
+        @Body day: Day
+    ): Day
+
     // Update day by ID
     @PUT("v1/users/{user}/days/{day}")
     suspend fun updateDay(

@@ -16,6 +16,13 @@ interface ApiInterfacePill {
         @Path("pill") pill_id: Int
     ): Pill
 
+    // Create pill
+    @POST("v1/users/{user}/pills")
+    suspend fun createPill(
+        @Path("user") user_id: Int,
+        @Body pill: Pill
+    ): Pill
+
     // Update pill by ID
     @PUT("v1/users/{user}/pills/{pill}")
     suspend fun updatePill(

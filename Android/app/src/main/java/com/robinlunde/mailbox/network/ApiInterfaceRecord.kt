@@ -30,6 +30,13 @@ interface ApiInterfaceRecord {
         @Path("record") record_id: Int
     ): Record
 
+    // Create record
+    @POST("v1/users/{user}/records")
+    suspend fun createRecord(
+        @Path("user") user_id: Int,
+        @Body record: Record
+    ): Record
+
     @PUT("v1/users/{user}/records/{record}")
     suspend fun updateRecord(
         @Path("user") user_id: Int,

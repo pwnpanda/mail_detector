@@ -10,6 +10,8 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKeys
 import com.robinlunde.mailbox.alert.AlertViewModel
 import com.robinlunde.mailbox.datamodel.MyMessage
 import com.robinlunde.mailbox.datamodel.PostLogEntry
@@ -30,10 +32,16 @@ class MailboxApp : Application() {
         super.onCreate()
         mailboxApp = this
         util = Util()
-        prefs = this@MailboxApp.getSharedPreferences(
-            getString(R.string.username_pref),
-            Context.MODE_PRIVATE
+
+        val masterKeyAlias: String = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+        prefs = EncryptedSharedPreferences.create(
+            "secret_shared_prefs",
+            masterKeyAlias,
+            mailboxApp,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
         )
+
         username = prefs.getString(getString(R.string.username_pref), "").toString()
         // Need to start with string long enough to not trigger fault
         status = PostUpdateStatus(

@@ -44,6 +44,7 @@ import java.util.*
 import kotlin.coroutines.suspendCoroutine
 import kotlin.math.pow
 
+
 // TODO http data has become blocking when changing fragments!!
 
 class Util {
@@ -54,6 +55,7 @@ class Util {
 
     class LogItemViewHolder(val constraintLayout: ConstraintLayout) :
         RecyclerView.ViewHolder(constraintLayout)
+
     class PillItemViewHolder(val constraintLayout: ConstraintLayout) :
         RecyclerView.ViewHolder(constraintLayout)
 
@@ -61,7 +63,7 @@ class Util {
 
 
     private var apiInterfaceUser: ApiInterfaceUser =
-    HttpRequestLib2.getClient(this).create(ApiInterfaceUser::class.java)
+        HttpRequestLib2.getClient(this).create(ApiInterfaceUser::class.java)
     lateinit var authInterceptor: AuthenticationInterceptor
 
     private val updateURL: URL = URL(
@@ -78,8 +80,11 @@ class Util {
 
     fun pushNotification(message: MyMessage, pillAlert: Boolean = false) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (::myNotificationManager.isInitialized)  myNotificationManager.createPush(message, pillAlert)
-            else    MyNotificationManager(MailboxApp.getContext()!!).createPush(message, pillAlert)
+            if (::myNotificationManager.isInitialized) myNotificationManager.createPush(
+                message,
+                pillAlert
+            )
+            else MyNotificationManager(MailboxApp.getContext()!!).createPush(message, pillAlert)
         } else {
             Log.d("Push", "Android version too old, ignoring push notification!")
         }
@@ -461,7 +466,10 @@ class Util {
             // If the alarm has been set, cancel it.
             alarmManager.cancel(alarmPendingIntent)
         } catch (e: UninitializedPropertyAccessException) {
-            Log.d("$logTag cancelAlarm", "This is fine - AlertManager has not yet been initialized!")
+            Log.d(
+                "$logTag cancelAlarm",
+                "This is fine - AlertManager has not yet been initialized!"
+            )
         } catch (e: java.lang.Exception) {
             Log.d("$logTag cancelAlarm", e.stackTraceToString())
             Log.d("$logTag cancelAlarm", "PendingIntent likely not set. WHat type of error??")
@@ -503,15 +511,21 @@ class Util {
     }
 
     fun moveToLoginFragment(name: String, frag: Fragment) {
-        Log.d("Util - moveToLoginFragment", "Not logged in, so moving from $name fragment to loginFragment")
+        Log.d(
+            "Util - moveToLoginFragment",
+            "Not logged in, so moving from $name fragment to loginFragment"
+        )
         val navcontroller = NavHostFragment.findNavController(frag)
-        if (name == "alert")    navcontroller.navigate(AlertFragmentDirections.actionAlertFragmentToLoginFragment())
-        if (name == "debug")    navcontroller.navigate(DebugFragmentDirections.actionDebugFragmentToLoginFragment())
-        if (name == "postView")    navcontroller.navigate(PostViewFragmentDirections.actionLogviewFragmentToLoginFragment())
-        if (name == "pillLog")    navcontroller.navigate(PillLogFragmentDirections.actionPillLogFragmentToLoginFragment())
-        if (name == "pill")    navcontroller.navigate(PillFragmentDirections.actionPillFragmentToLoginFragment())
+        if (name == "alert") navcontroller.navigate(AlertFragmentDirections.actionAlertFragmentToLoginFragment())
+        if (name == "debug") navcontroller.navigate(DebugFragmentDirections.actionDebugFragmentToLoginFragment())
+        if (name == "postView") navcontroller.navigate(PostViewFragmentDirections.actionLogviewFragmentToLoginFragment())
+        if (name == "pillLog") navcontroller.navigate(PillLogFragmentDirections.actionPillLogFragmentToLoginFragment())
+        if (name == "pill") navcontroller.navigate(PillFragmentDirections.actionPillFragmentToLoginFragment())
 
-        Log.e("Util - moveToLoginFragment", "Name $name not found - cannot redirect to login fragment")
+        Log.e(
+            "Util - moveToLoginFragment",
+            "Name $name not found - cannot redirect to login fragment"
+        )
     }
 
     fun fetchRepoData() {

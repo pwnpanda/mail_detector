@@ -9,11 +9,12 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/create_pill_name_holder"
-        android:layout_width="280dp"
+        android:layout_width="200dp"
         android:layout_height="64dp"
+        android:layout_margin="30dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/create_pill_create_button"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/active_pill"
         app:layout_constraintEnd_toStartOf="@+id/create_pill_color">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -21,18 +22,40 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:hint="@string/pill_input_field" />
+
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/create_pill_color"
         android:layout_width="55dp"
         android:layout_height="55dp"
-        app:layout_constraintTop_toTopOf="@+id/create_pill_name_holder"
-        app:layout_constraintBottom_toBottomOf="@+id/create_pill_name_holder"
-        app:layout_constraintStart_toEndOf="@+id/create_pill_name_holder"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@color/grey"
         android:hapticFeedbackEnabled="true"
-        />
+        app:layout_constraintBottom_toBottomOf="@id/create_pill_name_holder"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/create_pill_name_holder"
+        app:layout_constraintTop_toTopOf="@+id/create_pill_name_holder" />
+
+    <CheckBox
+        android:id="@+id/active_pill"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        app:layout_constraintBottom_toTopOf="@+id/active_pill_text"
+        app:layout_constraintEnd_toStartOf="@+id/create_pill_name_holder"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/create_pill_name_holder" />
+
+    <TextView
+        android:id="@+id/active_pill_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/is_pill_active"
+        android:textSize="18dp"
+        app:layout_constraintBottom_toBottomOf="@id/create_pill_name_holder"
+        app:layout_constraintEnd_toEndOf="@+id/active_pill"
+        app:layout_constraintStart_toStartOf="@id/active_pill"
+        app:layout_constraintTop_toBottomOf="@+id/active_pill" />
 
     <Button
         android:id="@+id/create_pill_create_button"
@@ -42,7 +65,8 @@
         app:layout_constraintTop_toBottomOf="@+id/create_pill_name_holder"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/create_pill_cancel_button"/>
+        app:layout_constraintEnd_toStartOf="@+id/create_pill_cancel_button"
+        android:background="@color/button"/>
     <Button
         android:id="@+id/create_pill_cancel_button"
         android:layout_width="wrap_content"
@@ -51,5 +75,6 @@
         app:layout_constraintTop_toTopOf="@id/create_pill_create_button"
         app:layout_constraintBottom_toBottomOf="@id/create_pill_create_button"
         app:layout_constraintStart_toEndOf="@id/create_pill_create_button"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@color/button"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
