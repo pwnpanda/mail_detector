@@ -40,9 +40,17 @@ class LoginFragment : Fragment() {
             container,
             false
         )
-        val username = MailboxApp.getUsername()
-        // Set text in field to username if previously stored
-        if (username != "") binding.usernameInput.setText(username)
+        var username = MailboxApp.getUsername()
+        if (username == "") {
+            MainScope().launch {
+                username = MailboxApp.getPrefs().getString(getString(R.string.username_pref), "").toString()
+                Log.d("LoginFragment - onCreateView", "Async Username is: $username")
+                setUsername(username)
+            }
+        } else {
+            Log.d("LoginFragment - onCreateView", "Username is: $username")
+            setUsername(username)
+        }
 
         val util = MailboxApp.getUtil()
 
@@ -219,5 +227,11 @@ class LoginFragment : Fragment() {
 
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    fun setUsername(username: String){
+        Log.d("LoginFragment - setUsername", "Set Username to: $username")
+        // Set text in field to username if previously stored
+        if (username != "") binding.usernameInput.setText(username)
     }
 }

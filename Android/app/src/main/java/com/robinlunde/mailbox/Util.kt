@@ -56,7 +56,7 @@ class Util {
     class LogItemViewHolder(val constraintLayout: ConstraintLayout) :
         RecyclerView.ViewHolder(constraintLayout)
 
-    class PillItemViewHolder(val constraintLayout: ConstraintLayout) :
+    class RecordItemViewHolder(val constraintLayout: ConstraintLayout) :
         RecyclerView.ViewHolder(constraintLayout)
 
     private val httpRequests = HttpRequestLib()

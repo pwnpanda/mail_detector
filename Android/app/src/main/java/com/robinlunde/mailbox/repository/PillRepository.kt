@@ -32,10 +32,11 @@ class PillRepository(val util: Util) : RepositoryInterface<Pill> {
 
     suspend fun createPill(color: Int, active: Boolean = false): Pill {
         var pill = Pill(color, active)
-        Log.d(logTag, "Created temporary pill $pill in createPills")
+        Log.d("$logTag createPill", "Created temporary pill $pill in createPills")
         pill = pillInterface.createPill(util.user!!.id!!, pill)
+        Log.d("$logTag createPill", "Send pill to API")
         addEntry(pill)
-        Log.d(logTag, "Created pill $pill in createPills")
+        Log.d("$logTag createPill", "Created pill $pill in createPills")
         return pill
 
     }

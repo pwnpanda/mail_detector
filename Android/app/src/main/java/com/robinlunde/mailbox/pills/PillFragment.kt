@@ -184,7 +184,13 @@ class PillFragment : Fragment() {
                 .show()
         }
 
-        val active = binding.pillCreateLayoutIncl.activePill.isChecked
+        var active = binding.pillCreateLayoutIncl.activePill.isChecked
+        Log.d("$logTag createPill", "isActive: $active")
+        // Needs onclick to not just stay at initial value
+        binding.pillCreateLayoutIncl.activePill.setOnClickListener {
+            active = binding.pillCreateLayoutIncl.activePill.isChecked
+            Log.d("$logTag createPill", "isActive: $active")
+        }
 
         // Create click listener for creating a pill
         binding.pillCreateLayoutIncl.createPillCreateButton.setOnClickListener {
@@ -216,7 +222,6 @@ class PillFragment : Fragment() {
         }
         coroutineScope.launch(errorHandler) {
             // Send API request
-            // TODO ERROR - Cannot create RequestBody from pill!
             val pill = util.pillrepo.createPill(color, active)
 
             // Store name & pillId pair in secureSharedPreferences
@@ -231,7 +236,7 @@ class PillFragment : Fragment() {
             } else {
                 val prefs = MailboxApp.getPrefs()
                 with(prefs.edit()) {
-                    putString(pill.id.toString(), name.toString())
+                    putString(pill.uuid!!.toString(), name.toString())
                 }
                 // Update alarm-setting logic (creating a pill assumes it is taken that day)
                 // TODO
@@ -247,6 +252,15 @@ class PillFragment : Fragment() {
 
     private fun handleDisablePill() {
         // Show all pills
+        /** TODO go to own fragment? Any easier way of handling it? (If not found, rename to fragment: pill_disable_fragment)
+         *   Also need to:
+         *   1. Fix pill_disable_fragment to setup for binding
+         *   2. Fix navigation paths
+
+            // Go to own fragment
+            NavHostFragment.findNavController(this)
+            .navigate(PillFragmentDirections.actionPillFragmentToPillDisableFragment())
+         **/
         // Have checkbox for active or inactive
         // Send API request to activate / deactivate pill if clicked
         // Update circle-ui to reflect current status
@@ -258,7 +272,7 @@ class PillFragment : Fragment() {
         binding.pillDisableLayoutIncl.pillDisableLayout.visibility = View.VISIBLE
 
         // Create click listener
-        binding.pillDisableLayoutIncl.button.setOnClickListener { disablePillAction() }
+        //binding.pillDisableLayoutIncl.button.setOnClickListener { disablePillAction() }
     }
 
     private fun disablePillAction() {

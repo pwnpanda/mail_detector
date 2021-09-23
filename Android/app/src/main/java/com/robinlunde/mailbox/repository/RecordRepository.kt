@@ -3,8 +3,7 @@ package com.robinlunde.mailbox.repository
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.robinlunde.mailbox.Util
-import com.robinlunde.mailbox.datamodel.pill.GenericType
-import com.robinlunde.mailbox.datamodel.pill.Record
+import com.robinlunde.mailbox.datamodel.pill.*
 import com.robinlunde.mailbox.network.ApiInterfaceRecord
 import com.robinlunde.mailbox.network.HttpRequestLib2
 
@@ -50,6 +49,36 @@ class RecordRepository(val util: Util) : RepositoryInterface<Record> {
         findAndRemoveItemById(rec_id)
         Log.d(logTag, "Removed record ${find(rec_id)} in deleteRecord")
         return recordInterface.deleteRecord(util.user!!.id!!, rec_id)
+    }
+
+    fun findRecordsByDay(day: Day): MutableList<Record>?{
+        val rec: MutableList<Record> = mutableListOf()
+        for ( item in data.value!! ){
+            if (day == item.day)            rec.add(item)
+            else if (day.id == item.day_id) rec.add(item)
+        }
+        if (rec.size == 0)  return null
+        return rec
+    }
+
+    fun findRecordsByPill(pill: Pill): MutableList<Record>?{
+        val rec: MutableList<Record> = mutableListOf()
+        for ( item in data.value!! ){
+            if (pill == item.pill)              rec.add(item)
+            else if (pill.id == item.pill_id)   rec.add(item)
+        }
+        if (rec.size == 0)  return null
+        return rec
+    }
+
+    fun findRecordsByUser(user: User): MutableList<Record>?{
+        val rec: MutableList<Record> = mutableListOf()
+        for ( item in data.value!! ){
+            if (user == item.user)              rec.add(item)
+            else if (user.id == item.user_id)   rec.add(item)
+        }
+        if (rec.size == 0)  return null
+        return rec
     }
     /**
     To be used for guidance

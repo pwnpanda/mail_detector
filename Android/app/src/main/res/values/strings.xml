@@ -61,5 +61,6 @@
     <string name="sat">Sat</string>
     <string name="sun">Sun</string>
     <string name="is_pill_active">Active</string>
-
+    <string name="update_button">Update button</string>
+    <string name="no_content">Error: No content received</string>
 </resources>

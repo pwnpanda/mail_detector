@@ -14,7 +14,7 @@ import com.robinlunde.mailbox.MailboxApp
 import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.databinding.FragmentPillLogBinding
-import com.robinlunde.mailbox.datamodel.pill.Pill
+import com.robinlunde.mailbox.datamodel.pill.Record
 
 // use this and migrate to calendar? https://github.com/kizitonwose/CalendarView
 
@@ -29,7 +29,7 @@ class PillLogFragment : Fragment() {
         setHasOptionsMenu(true)
 
         // Watch data
-        val observer = Observer<MutableList<Pill>> { newData ->
+        val observer = Observer<MutableList<Record>> { newData ->
             // Update adapter
             binding.pillLogEntries.adapter = PillLogAdapter(newData, util)
             // Update layout manager
@@ -45,7 +45,7 @@ class PillLogFragment : Fragment() {
         }
 
         // Update UI if new data!
-        util.pillrepo.data.observe(this, observer)
+        util.recordrepo.data.observe(this, observer)
     }
 
     override fun onCreateView(
@@ -63,7 +63,7 @@ class PillLogFragment : Fragment() {
         // If not logged in, jump to login view
         if (util.user == null)  util.moveToLoginFragment("pillLog",this)
 
-        val adapter = util.pillrepo.data.value?.let { PillLogAdapter(it, util) }
+        val adapter = util.recordrepo.data.value?.let { PillLogAdapter(it, util) }
         binding.pillLogEntries.adapter = adapter
         binding.pillLogEntries.layoutManager = LinearLayoutManager(context)
         binding.lifecycleOwner = viewLifecycleOwner

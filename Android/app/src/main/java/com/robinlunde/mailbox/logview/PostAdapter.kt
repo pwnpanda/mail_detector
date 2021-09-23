@@ -28,6 +28,11 @@ class PostAdapter(private val postLogEntries: MutableList<PostLogEntry>) :
     override fun onBindViewHolder(holder: Util.LogItemViewHolder, position: Int) {
         // If there is data, render it!
         if (itemCount > 0) {
+            holder.constraintLayout.findViewById<RecyclerView>(R.id.post_entries).visibility =
+                View.VISIBLE
+            holder.constraintLayout.findViewById<TextView>(R.id.error_logs).visibility =
+                View.INVISIBLE
+
             val postLogEntry = postLogEntries[position]
 
             // If post belongs to this user, change background color of row
@@ -67,7 +72,7 @@ class PostAdapter(private val postLogEntries: MutableList<PostLogEntry>) :
             holder.constraintLayout.findViewById<RecyclerView>(R.id.post_entries).visibility =
                 View.INVISIBLE
             holder.constraintLayout.findViewById<TextView>(R.id.error_logs).visibility =
-                View.INVISIBLE
+                View.VISIBLE
         }
     }
 

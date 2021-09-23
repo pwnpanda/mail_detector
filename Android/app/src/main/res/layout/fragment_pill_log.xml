@@ -20,7 +20,7 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:gravity="center|center_horizontal|center_vertical"
-            android:text="@string/pill_header"
+            android:text="Pill"
             android:textSize="30sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintBottom_toTopOf="@+id/divider3"
@@ -104,6 +104,6 @@
             app:layout_constraintEnd_toEndOf="@+id/pill_log_entries"
             app:layout_constraintStart_toStartOf="@+id/pill_log_entries"
             app:layout_constraintTop_toTopOf="@+id/pill_log_entries"
-            tools:text="Error: No content received" />
+            tools:text="@string/no_content" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

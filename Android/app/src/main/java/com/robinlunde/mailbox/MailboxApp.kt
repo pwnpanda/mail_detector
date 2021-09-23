@@ -33,41 +33,45 @@ class MailboxApp : Application() {
         mailboxApp = this
         util = Util()
 
-        val masterKeyAlias: String = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
-        prefs = EncryptedSharedPreferences.create(
-            "secret_shared_prefs",
-            masterKeyAlias,
-            mailboxApp,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
+        // Create scope and start handler in coroutine
+        appScope = MainScope()
 
-        username = prefs.getString(getString(R.string.username_pref), "").toString()
+        // TODO slow startup, move to async?
+        appScope.launch {
+            val masterKeyAlias: String = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+            prefs = EncryptedSharedPreferences.create(
+                "secret_shared_prefs",
+                masterKeyAlias,
+                mailboxApp,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+
+            username = prefs.getString(getString(R.string.username_pref), "").toString()
+
+
+            //Create alarm
+            util.activateAlarm(
+                prefs.getInt(
+                    "alarm_hour",
+                    -1
+                ),
+                prefs.getInt(
+                    "alarm_minute",
+                    -1
+                )
+            )
+        }
+
         // Need to start with string long enough to not trigger fault
         status = PostUpdateStatus(
             false,
             "FOOTBARBAZFOOBARBAZ",
             getString(R.string.no_status_yet_username)
         )
-        // Create scope and start handler in coroutine
-        appScope = MainScope()
 
         // BT
         btConnection = NativeBluetooth()
-        // TODO needed?
-        // btConnection = BlueToothLib()
-
-        //Create alarm
-        util.activateAlarm(
-            prefs.getInt(
-                "alarm_hour",
-                -1
-            ),
-            prefs.getInt(
-                "alarm_minute",
-                -1
-            )
-        )
 
         appScope.launch {
             // Setup refresher on API to update data every 30min
@@ -119,7 +123,8 @@ class MailboxApp : Application() {
 
         // Get username
         fun getUsername(): String {
-            return username
+            return if (::username.isInitialized)    username
+            else ""
         }
 
         // Set username
