@@ -732,7 +732,7 @@
 
             <include
                 android:id="@+id/pill_disable_layout_incl"
-                layout="@layout/pill_disable_layout"
+                layout="@layout/fragment_pill_update"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:visibility="gone"

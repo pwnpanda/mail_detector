@@ -32,6 +32,7 @@ import com.robinlunde.mailbox.network.HttpRequestLib
 import com.robinlunde.mailbox.network.HttpRequestLib2
 import com.robinlunde.mailbox.pills.PillFragmentDirections
 import com.robinlunde.mailbox.pills.PillLogFragmentDirections
+import com.robinlunde.mailbox.pills.PillUpdateFragmentDirections
 import com.robinlunde.mailbox.repository.DayRepository
 import com.robinlunde.mailbox.repository.PillRepository
 import com.robinlunde.mailbox.repository.RecordRepository
@@ -57,6 +58,9 @@ class Util {
         RecyclerView.ViewHolder(constraintLayout)
 
     class RecordItemViewHolder(val constraintLayout: ConstraintLayout) :
+        RecyclerView.ViewHolder(constraintLayout)
+
+    class PillItemViewHolder(val constraintLayout: ConstraintLayout) :
         RecyclerView.ViewHolder(constraintLayout)
 
     private val httpRequests = HttpRequestLib()
@@ -521,6 +525,7 @@ class Util {
         if (name == "postView") navcontroller.navigate(PostViewFragmentDirections.actionLogviewFragmentToLoginFragment())
         if (name == "pillLog") navcontroller.navigate(PillLogFragmentDirections.actionPillLogFragmentToLoginFragment())
         if (name == "pill") navcontroller.navigate(PillFragmentDirections.actionPillFragmentToLoginFragment())
+        if (name == "pillUpdate") navcontroller.navigate(PillUpdateFragmentDirections.actionPillUpdateFragmentToLoginFragment())
 
         Log.e(
             "Util - moveToLoginFragment",

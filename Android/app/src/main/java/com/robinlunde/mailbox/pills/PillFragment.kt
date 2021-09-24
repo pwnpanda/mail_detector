@@ -104,7 +104,7 @@ class PillFragment : Fragment() {
         // Handle creation of new pill
         binding.pillButtonLayoutIncl.pillCreateButton.setOnClickListener { createPill() }
         // Handle invalidating existing pill
-        binding.pillButtonLayoutIncl.pillDisableButton.setOnClickListener { handleDisablePill() }
+        binding.pillButtonLayoutIncl.pillDisableButton.setOnClickListener { handleUpdatePill() }
         // Handle pill history button
         binding.pillButtonLayoutIncl.pillHistoryButton.setOnClickListener { pillHistory() }
 
@@ -250,41 +250,13 @@ class PillFragment : Fragment() {
         binding.pillCreateLayoutIncl.pillCreateLayout.visibility = View.INVISIBLE
     }
 
-    private fun handleDisablePill() {
+    private fun handleUpdatePill() {
         // Show all pills
-        /** TODO go to own fragment? Any easier way of handling it? (If not found, rename to fragment: pill_disable_fragment)
-         *   Also need to:
-         *   1. Fix pill_disable_fragment to setup for binding
-         *   2. Fix navigation paths
 
-            // Go to own fragment
-            NavHostFragment.findNavController(this)
-            .navigate(PillFragmentDirections.actionPillFragmentToPillDisableFragment())
-         **/
-        // Have checkbox for active or inactive
-        // Send API request to activate / deactivate pill if clicked
-        // Update circle-ui to reflect current status
-        // Update alarm-setting logic (more / less pills needed for all to be taken)
+        // Go to own fragment
+        NavHostFragment.findNavController(this)
+            .navigate(PillFragmentDirections.actionPillFragmentToPillUpdateFragment())
 
-        // Hide buttons
-        binding.pillButtonLayoutIncl.pillButtonLayout.visibility = View.INVISIBLE
-        // Show input
-        binding.pillDisableLayoutIncl.pillDisableLayout.visibility = View.VISIBLE
-
-        // Create click listener
-        //binding.pillDisableLayoutIncl.button.setOnClickListener { disablePillAction() }
-    }
-
-    private fun disablePillAction() {
-
-        // TODO actually do operations
-
-
-        // show Buttons
-        binding.pillButtonLayoutIncl.pillButtonLayout.visibility = View.VISIBLE
-
-        // Hide input
-        binding.pillDisableLayoutIncl.pillDisableLayout.visibility = View.INVISIBLE
     }
 
     private fun pillHistory() {
