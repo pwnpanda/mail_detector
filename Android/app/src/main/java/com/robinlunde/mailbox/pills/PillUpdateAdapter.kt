@@ -1,5 +1,6 @@
 package com.robinlunde.mailbox.pills
 
+import android.text.SpannableStringBuilder
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -8,8 +9,12 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.widget.AppCompatButton
+import androidx.appcompat.widget.AppCompatImageButton
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
+import com.flask.colorpicker.ColorPickerView
+import com.flask.colorpicker.builder.ColorPickerDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.robinlunde.mailbox.MailboxApp
 import com.robinlunde.mailbox.R
@@ -26,10 +31,11 @@ RecyclerView.Adapter<Util.PillItemViewHolder>() {
     override fun onBindViewHolder(holder: Util.PillItemViewHolder, position: Int) {
         // Render data if any
         if (itemCount > 0) {
-            holder.constraintLayout.findViewById<RecyclerView>(R.id.pill_log_entries).visibility =
+            // TODO this throws null object reference. Why?!? It is in the correct file
+            /*holder.constraintLayout.findViewById<RecyclerView>(R.id.pill_update_entries).visibility =
                 View.VISIBLE
-            holder.constraintLayout.findViewById<TextView>(R.id.pill_logs).visibility =
-                View.INVISIBLE
+            holder.constraintLayout.findViewById<TextView>(R.id.pill_update).visibility =
+                View.INVISIBLE*/
 
             val pill = dataEntries[position]
 
@@ -47,38 +53,75 @@ RecyclerView.Adapter<Util.PillItemViewHolder>() {
             // Set color
             val color = holder.constraintLayout.findViewById<Button>(R.id.update_pill_color)
             color.setBackgroundColor(pill.color)
-            // Set color clicklistener TODO
+            var newColor = pill.color
+            // Set color clicklistener
             color.setOnClickListener {
-                // TODO open color selector
+                ColorPickerDialogBuilder
+                    .with(MailboxApp.getContext())
+                    .setTitle("Choose color")
+                    .initialColor(newColor)
+                    .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
+                    .density(12)
+                    .setOnColorSelectedListener { selectedColor ->
+                        newColor = selectedColor
+                        Log.d("$logTag ColorSelector", "Temporary selected color $selectedColor")
+                    }
+                    .setPositiveButton("ok") { dialog, selectedColor, allColors ->
+                        newColor = selectedColor
+                        color.setBackgroundColor(selectedColor)
+                        Log.d("$logTag ColorSelector", "Selected color $selectedColor")
+                    }
+                    .setNegativeButton("cancel") { dialog, which -> }
+                    .build()
+                    .show()
             }
             // Set UUID
             holder.constraintLayout.findViewById<TextView>(R.id.pill_uuid).text = pill.uuid.toString()
-            // Set name
-            holder.constraintLayout.findViewById<TextInputEditText>(R.id.update_pill_name_input)
-            // Set Active clicklistener TODO
-            holder.constraintLayout.findViewById<CheckBox>(R.id.active_pill).setOnClickListener {
-                // TODO change value of Active
+            // Set name TODO Name not set properly! Investigate why!
+            val nameInput = holder.constraintLayout.findViewById<TextInputEditText>(R.id.update_pill_name_input)
+            if (pill.name =="") pill.name = pill.getPillName()
+            Log.d("$logTag onBindViewHolder","Pill name: ${pill.name}")
+            nameInput.text = SpannableStringBuilder(pill.name)
+            // Set Active clicklistener
+            val active = holder.constraintLayout.findViewById<CheckBox>(R.id.active_pill)
+            active.isChecked = pill.active
+            var newChecked = pill.active
+            active.setOnClickListener {
+                newChecked = active.isChecked
             }
-            // Set update clicklistener TODO
-            holder.constraintLayout.findViewById<Button>(R.id.update_pill_button).setOnClickListener {
+            // Set update clicklistener
+            holder.constraintLayout.findViewById<AppCompatImageButton>(R.id.update_pill_button).setOnClickListener {
 
                 coroutineScope.launch(errorHandler) {
-                    // TODO launch update call
+                    pill.active = newChecked
+                    pill.color = newColor
+                    pill.name = nameInput.text.toString()
+
+                    // Update shared preferences
+                    val prefs = MailboxApp.getPrefs()
+                    with(prefs.edit()) {
+                        putString(pill.uuid!!.toString(), pill.name)
+                        apply()
+                    }
+
+                    // TODO log action and data
+                    util.pillrepo.updatePill(pill)
                 }
             }
-            // Set delete clicklistener TODO
-            holder.constraintLayout.findViewById<Button>(R.id.delete_pill_button).setOnClickListener {
+            // Set delete clicklistener
+            holder.constraintLayout.findViewById<AppCompatImageButton>(R.id.delete_pill_button).setOnClickListener {
                 coroutineScope.launch(errorHandler) {
-                    // TODO launch delete call
+                    // TODO log action and data
+                    util.pillrepo.deletePill(pill.id!!)
                 }
             }
 
 
 
         } else {
-            holder.constraintLayout.findViewById<RecyclerView>(R.id.pill_log_entries).visibility =
+            holder.constraintLayout.findViewById<RecyclerView>(R.id.pill_update_entries).visibility =
                 View.INVISIBLE
-            holder.constraintLayout.findViewById<TextView>(R.id.pill_logs).visibility =
+            holder.constraintLayout.findViewById<TextView>(R.id.pill_update).visibility =
                 View.VISIBLE
         }
     }

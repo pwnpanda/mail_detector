@@ -22,10 +22,10 @@
             android:gravity="center|center_horizontal|center_vertical"
             android:text="@string/pill_icon_name"
             android:textSize="30sp"
-            app:layout_constraintBottom_toTopOf="@+id/divider_disable3"
+            app:layout_constraintBottom_toTopOf="@+id/divider_update"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/frag_pill_update"
             tools:text="Pills" />
 
         <View
@@ -35,10 +35,10 @@
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
             android:background="?android:attr/listDivider"
-            app:layout_constraintBottom_toTopOf="@+id/frag_pill_update"
+            app:layout_constraintBottom_toTopOf="@+id/pill_update_entries"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/pill_disable_screen_title" />
+            app:layout_constraintTop_toBottomOf="@id/pill_update_screen_title" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/pill_update_entries"
@@ -46,7 +46,7 @@
             android:layout_height="0dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/divider_disable3" />
+            app:layout_constraintTop_toBottomOf="@+id/divider_update" />
 
         <TextView
             android:id="@+id/pill_update"

@@ -55,6 +55,8 @@ class LoginFragment : Fragment() {
         val util = MailboxApp.getUtil()
 
         // If username is set and we have a valid user from previously, rock and roll
+        // Todo check if token is in sharedprefs and working
+        //  If it is, use it to log in
         if (username != "" && util.user != null) {
             /**
              * 1. Try access with token in user object
@@ -144,6 +146,7 @@ class LoginFragment : Fragment() {
              * 3B. If failure, stop here
              */
 
+            val prefs = MailboxApp.getPrefs()
             val user = User(newUsername, password)
             Log.d("Login - $func", "$user ${user.password}")
 
@@ -155,6 +158,12 @@ class LoginFragment : Fragment() {
                 util.user!!.password = user.password
                 Log.d("Login - $func", "Final user: ${util.user}")
                 util.authInterceptor.Token(util.user!!.token.toString())
+
+                // Store token for later user!
+                with(prefs.edit()){
+                    putString("Token", util.user!!.token.toString())
+                    apply()
+                }
                 // Fetch data in the background
                 util.fetchRepoData()
                 moveUponResult()
@@ -164,6 +173,12 @@ class LoginFragment : Fragment() {
                 Log.d("Login - $func", "Returned $userLoc")
 
                 util.authInterceptor.Token(userLoc.token.toString())
+
+                with(prefs.edit()){
+                    putString("Token", userLoc.token.toString())
+                    apply()
+                }
+
                 val tmpUser = util.getUsers()
                 Log.d("Login - $func", "Tmp user: $tmpUser")
 

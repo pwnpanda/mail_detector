@@ -1,5 +1,6 @@
 package com.robinlunde.mailbox.datamodel.pill
 
+import android.util.Log
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
@@ -12,8 +13,8 @@ import java.util.*
 // TODO consider changing color to String
 
 class Pill(
-    val color: Int,
-    val active: Boolean,
+    var color: Int,
+    var active: Boolean,
     private val created_at: String? = null,
     private var updated_at: String? = null,
     var uuid: UUID? = null,
@@ -28,7 +29,7 @@ class Pill(
 
     @JsonIgnore
     val util = MailboxApp.getUtil()
-    val name = getPillName()
+    var name = getPillName()
 
     @JsonIgnore
     var user: User? = if (userid != null)  util.userCheck(userid) else null
@@ -46,6 +47,7 @@ class Pill(
         val prefs = MailboxApp.getPrefs()
         var name = ""
         if (uuid != null)   name = prefs.getString(uuid.toString(),"") ?: ""
+        Log.d("Pill - getPillName", "Pill with $uuid has name: $name")
         return name
     }
 

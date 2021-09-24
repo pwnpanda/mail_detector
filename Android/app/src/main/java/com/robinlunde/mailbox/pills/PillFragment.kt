@@ -226,6 +226,7 @@ class PillFragment : Fragment() {
 
             // Store name & pillId pair in secureSharedPreferences
             val name = binding.pillCreateLayoutIncl.createPillNameInput.text
+            Log.d("$logTag createPillAction", "Name of pill is: $name")
             if (name.toString() == "") {
                 Log.d("$logTag createPillAction", "Name is nulL! Please fill in a name!")
                 Toast.makeText(
@@ -237,7 +238,9 @@ class PillFragment : Fragment() {
                 val prefs = MailboxApp.getPrefs()
                 with(prefs.edit()) {
                     putString(pill.uuid!!.toString(), name.toString())
+                    apply()
                 }
+                Log.d("$logTag createPillAction", "Stored ${pill.uuid!!} - $name in sharedPrefs")
                 // Update alarm-setting logic (creating a pill assumes it is taken that day)
                 // TODO
             }
