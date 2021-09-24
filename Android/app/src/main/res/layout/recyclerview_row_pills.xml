@@ -33,7 +33,7 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/update_pill_name_holder"
         android:layout_width="160dp"
-        android:layout_height="44dp"
+        android:layout_height="54dp"
         android:layout_margin="30dp"
         app:layout_constraintBottom_toTopOf="@+id/pill_uuid"
         app:layout_constraintEnd_toStartOf="@+id/update_pill_color"
@@ -46,7 +46,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:hint="@string/pill_input_field"
-            android:textSize="20sp" />
+            android:textSize="14sp" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
