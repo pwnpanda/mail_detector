@@ -1,5 +1,6 @@
 package com.robinlunde.mailbox.network
 
+import com.robinlunde.mailbox.datamodel.pill.ConcreteGenericType
 import com.robinlunde.mailbox.datamodel.pill.Day
 import com.robinlunde.mailbox.datamodel.pill.GenericType
 import retrofit2.http.*
@@ -36,6 +37,6 @@ interface ApiInterfaceDay {
     suspend fun deleteDay(
         @Path("user") user_id: Int,
         @Path("day") day_id: Int
-    ): GenericType<Day>
+    ): ConcreteGenericType
 
 }

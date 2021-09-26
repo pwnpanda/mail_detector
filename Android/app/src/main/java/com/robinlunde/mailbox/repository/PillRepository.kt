@@ -3,6 +3,7 @@ package com.robinlunde.mailbox.repository
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.robinlunde.mailbox.Util
+import com.robinlunde.mailbox.datamodel.pill.ConcreteGenericType
 import com.robinlunde.mailbox.datamodel.pill.GenericType
 import com.robinlunde.mailbox.datamodel.pill.Pill
 import com.robinlunde.mailbox.network.ApiInterfacePill
@@ -36,6 +37,7 @@ class PillRepository(val util: Util) : RepositoryInterface<Pill> {
         pill = pillInterface.createPill(util.user!!.id!!, pill)
         Log.d("$logTag createPill", "Send pill to API")
         addEntry(pill)
+        //util.pillUpdateAdapter.notifyItemInserted(/* TODO find int in array of object */)
         Log.d("$logTag createPill", "Created pill $pill in createPills")
         return pill
 
@@ -45,13 +47,16 @@ class PillRepository(val util: Util) : RepositoryInterface<Pill> {
         findAndRemoveItemById(pill.id!!)
         val newPill =  pillInterface.updatePill(util.user!!.id!!, pill.id, pill)
         addEntry(newPill)
+        //util.pillUpdateAdapter.notifyItemChanged(/* TODO find int in array of object */)
         Log.d(logTag, "Updated pill $pill in updatePills")
         return pill
     }
 
-    suspend fun deletePill(pill_id: Int): GenericType<Pill> {
+    suspend fun deletePill(pill_id: Int): ConcreteGenericType {
         findAndRemoveItemById(pill_id)
         Log.d(logTag, "Removed pill ${find(pill_id)} in deletePill")
+        val index = util.pillrepo.data.value!!.indexOf(util.pillrepo.find(pill_id)!!)
+        util.pillUpdateAdapter.notifyItemRemoved( index )
         return pillInterface.deletePill(util.user!!.id!!, pill_id)
     }
 }

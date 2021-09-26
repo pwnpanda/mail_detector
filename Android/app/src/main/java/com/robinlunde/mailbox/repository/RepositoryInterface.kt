@@ -1,6 +1,7 @@
 package com.robinlunde.mailbox.repository
 
 import androidx.lifecycle.MutableLiveData
+import com.robinlunde.mailbox.MailboxApp
 import com.robinlunde.mailbox.datamodel.pill.GenericType
 
 
@@ -37,10 +38,15 @@ interface RepositoryInterface<T : GenericType<T>> {
         data.postValue(update)
     }
 
-    private fun findAndRemoveItemByObject(obj: T){
+    fun findAndRemoveItemByObject(obj: T){
         val update = data.value
         update?.remove(obj)
         data.postValue(update)
+    }
+
+    fun deleteItem(obj: T){
+        val index = findObject(obj)
+        data.value!!.remove(obj)
     }
 
     fun findAndRemoveItemById(obj_id: Int) {
@@ -48,7 +54,6 @@ interface RepositoryInterface<T : GenericType<T>> {
         if (item != null){
             val update = data.value
             update?.remove(item)
-            data.postValue(update)
         }
     }
 }

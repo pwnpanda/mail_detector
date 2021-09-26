@@ -65,6 +65,7 @@ class PillLogFragment : Fragment() {
 
         val adapter = util.recordrepo.data.value?.let { PillLogAdapter(it, util) }
         binding.pillLogEntries.adapter = adapter
+        util.pillLogAdapter = adapter!!
         binding.pillLogEntries.layoutManager = LinearLayoutManager(context)
         binding.lifecycleOwner = viewLifecycleOwner
 

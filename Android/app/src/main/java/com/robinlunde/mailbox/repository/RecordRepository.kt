@@ -33,6 +33,7 @@ class RecordRepository(val util: Util) : RepositoryInterface<Record> {
         var record = Record(day_id, user_id, pill_id, taken)
         record = recordInterface.createRecord(user_id, record)
         addEntry(record)
+        //util.pillLogAdapter.notifyItemInserted(/* TODO find int in array of object */)
         Log.d(logTag, "Created record $record in createRecord")
         return record
     }
@@ -41,13 +42,16 @@ class RecordRepository(val util: Util) : RepositoryInterface<Record> {
         findAndRemoveItemById(record.id!!)
         val newRecord =  recordInterface.updateRecord(util.user!!.id!!, record.id, record)
         addEntry(newRecord)
+        //util.pillLogAdapter.notifyItemChanged(/* TODO find int in array of object */)
         Log.d(logTag, "Updated record $record in updateRecord")
         return record
     }
 
-    suspend fun deleteRecord(rec_id: Int): GenericType<Record> {
+    suspend fun deleteRecord(rec_id: Int): ConcreteGenericType {
         findAndRemoveItemById(rec_id)
         Log.d(logTag, "Removed record ${find(rec_id)} in deleteRecord")
+        val index = util.recordrepo.data.value!!.indexOf(util.recordrepo.find(rec_id)!!)
+        util.pillLogAdapter.notifyItemRemoved( index )
         return recordInterface.deleteRecord(util.user!!.id!!, rec_id)
     }
 

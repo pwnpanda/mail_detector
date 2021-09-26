@@ -1,6 +1,7 @@
 package com.robinlunde.mailbox.login
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -23,6 +24,23 @@ class LoginFragment : Fragment() {
 
     lateinit var binding: FragmentLoginBinding
 
+    lateinit var prefs: SharedPreferences
+
+    private val exceptionHandler = CoroutineExceptionHandler { coroutineContext, exception ->
+        val name = coroutineContext[CoroutineName].toString() //Thread.currentThread().name
+        Log.d("Login - $name", "Received error: ${exception.message}!")
+        Log.e("Login - $name", "Trace: ${exception.printStackTrace()}!")
+        if (name != "token") {
+            val text =
+                if (name == "") "User-check failed! Please login or signup!" else "Login or signup failed! Please try again"
+            Toast.makeText(
+                context,
+                text,
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Enable menu buttons in this fragment
@@ -43,7 +61,8 @@ class LoginFragment : Fragment() {
         var username = MailboxApp.getUsername()
         if (username == "") {
             MainScope().launch {
-                username = MailboxApp.getPrefs().getString(getString(R.string.username_pref), "").toString()
+                username = MailboxApp.getPrefs().getString(getString(R.string.username_pref), "")
+                    .toString()
                 Log.d("LoginFragment - onCreateView", "Async Username is: $username")
                 setUsername(username)
             }
@@ -53,26 +72,44 @@ class LoginFragment : Fragment() {
         }
 
         val util = MailboxApp.getUtil()
+        val frag = this
 
-        // If username is set and we have a valid user from previously, rock and roll
-        // Todo check if token is in sharedprefs and working
-        //  If it is, use it to log in
+        CoroutineScope(Job() + Dispatchers.Main + CoroutineName("LoginToken")).launch(
+            exceptionHandler
+        ) {
+            prefs = MailboxApp.getPrefs()
+            // If username is set and we have a valid user from previously, rock and roll
+            // check if token is in sharedprefs and working, if it is, use it to log in
+            val token = prefs.getString("Token", "")
+            Log.d("LoginFragment - OnCreateView","Token from sharedPrefs: $token")
+            if (token != null && token != "") {
+                util.authInterceptor.Token(token)
+                val user = util.getUsers()
+                Log.d("LoginFragment - OnCreateView","Get user from API: $user")
+                if (user.id != null) {
+
+                    util.user = user
+                    util.user!!.token = token
+                    // fetch data in the background
+                    util.fetchRepoData()
+                    moveUponResult()
+                } else {
+                    Log.d("LoginFragment - OnCreateView","No userid in response! $user")
+                }
+            } else {
+                Log.d("LoginFragment - OnCreateView","Token not found stored - fallback!")
+            }
+        }
+
         if (username != "" && util.user != null) {
             /**
              * 1. Try access with token in user object
              * 2. if fail, bail out
              * 3. if success, continue
              */
-            val frag = this
-            CoroutineScope(Job() + Dispatchers.Main).launch(CoroutineExceptionHandler { _, exception ->
-                Log.d("Login - Checking user", "Received error: ${exception.message}!")
-                Log.e("Login - Checking user", "Trace: ${exception.printStackTrace()}!")
-                Toast.makeText(
-                    context,
-                    "User-check failed! Please login or signup!",
-                    Toast.LENGTH_LONG
-                ).show()
-            }) {
+            CoroutineScope(Job() + Dispatchers.Main + CoroutineName("LoggedInUser")).launch(
+                exceptionHandler
+            ) {
                 // User is current user
                 val user = util.user
                 // If not null, check if we are logged in by accessing user
@@ -125,19 +162,8 @@ class LoginFragment : Fragment() {
             // store username for later
             MailboxApp.setUsername(newUsername)
 
-            // setup coroutine
-            val mainActivityJob = Job()
-            val errorHandler = CoroutineExceptionHandler { _, exception ->
-                Log.d("Login - $func", "Received error: ${exception.message}!")
-                Log.e("Login - $func", "Trace: ${exception.printStackTrace()}!")
-                Toast.makeText(
-                    context,
-                    "Login or signup failed! Please try again",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-
-            val coroutineScope = CoroutineScope(mainActivityJob + Dispatchers.Main)
+            // Get prefs
+            val prefs = MailboxApp.getPrefs()
 
             /**
              * 1. Issue http request with pw and username
@@ -146,11 +172,12 @@ class LoginFragment : Fragment() {
              * 3B. If failure, stop here
              */
 
-            val prefs = MailboxApp.getPrefs()
             val user = User(newUsername, password)
             Log.d("Login - $func", "$user ${user.password}")
 
-            if (func == "signup") coroutineScope.launch(errorHandler) {
+            val coroutineScope = CoroutineScope(Job() + Dispatchers.Main + CoroutineName(func))
+
+            if (func == "signup") coroutineScope.launch(exceptionHandler) {
                 val userLoc: User = util.signup(user)
                 Log.d("Login - $func", "Returned $userLoc")
 
@@ -160,7 +187,7 @@ class LoginFragment : Fragment() {
                 util.authInterceptor.Token(util.user!!.token.toString())
 
                 // Store token for later user!
-                with(prefs.edit()){
+                with(prefs.edit()) {
                     putString("Token", util.user!!.token.toString())
                     apply()
                 }
@@ -168,16 +195,11 @@ class LoginFragment : Fragment() {
                 util.fetchRepoData()
                 moveUponResult()
             }
-            if (func == "login") coroutineScope.launch(errorHandler) {
+            if (func == "login") coroutineScope.launch(exceptionHandler) {
                 val userLoc: User = util.login(user)
                 Log.d("Login - $func", "Returned $userLoc")
 
                 util.authInterceptor.Token(userLoc.token.toString())
-
-                with(prefs.edit()){
-                    putString("Token", userLoc.token.toString())
-                    apply()
-                }
 
                 val tmpUser = util.getUsers()
                 Log.d("Login - $func", "Tmp user: $tmpUser")
@@ -186,6 +208,11 @@ class LoginFragment : Fragment() {
                 util.user!!.password = user.password
                 util.user!!.token = userLoc.token
                 Log.d("Login - $func", "Final user: ${util.user}")
+
+                with(prefs.edit()) {
+                    putString("Token", userLoc.token.toString())
+                    apply()
+                }
 
                 // fetch data in the background
                 util.fetchRepoData()
@@ -244,7 +271,7 @@ class LoginFragment : Fragment() {
         }
     }
 
-    fun setUsername(username: String){
+    private fun setUsername(username: String) {
         Log.d("LoginFragment - setUsername", "Set Username to: $username")
         // Set text in field to username if previously stored
         if (username != "") binding.usernameInput.setText(username)

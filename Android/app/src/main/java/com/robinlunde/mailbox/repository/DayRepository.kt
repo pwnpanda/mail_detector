@@ -2,7 +2,9 @@ package com.robinlunde.mailbox.repository
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import com.robinlunde.mailbox.MailboxApp
 import com.robinlunde.mailbox.Util
+import com.robinlunde.mailbox.datamodel.pill.ConcreteGenericType
 import com.robinlunde.mailbox.datamodel.pill.Day
 import com.robinlunde.mailbox.datamodel.pill.GenericType
 import com.robinlunde.mailbox.network.ApiInterfaceDay
@@ -20,9 +22,10 @@ class DayRepository(val util: Util) : RepositoryInterface<Day> {
         Log.d("$logTag GetClient", "Client: $client")
         return client
     }
+
     suspend fun getDay(day_id: Int): Day {
-        val day =  dayInterface.getDay(util.user!!.id!!, day_id)
-        if (findObject(day) == null)    addEntry(day)
+        val day = dayInterface.getDay(util.user!!.id!!, day_id)
+        if (findObject(day) == null) addEntry(day)
         Log.d(logTag, "Found day $day in getDay")
         return day
     }
@@ -47,13 +50,13 @@ class DayRepository(val util: Util) : RepositoryInterface<Day> {
 
     suspend fun updateDay(day: Day): Day {
         findAndRemoveItemById(day.id!!)
-        val newDay =  dayInterface.updateDay(util.user!!.id!!, day.id, day)
+        val newDay = dayInterface.updateDay(util.user!!.id!!, day.id, day)
         addEntry(newDay)
         Log.d(logTag, "Updated day $day in updateDay")
         return day
     }
 
-    suspend fun deleteDay(day_id: Int): GenericType<Day> {
+    suspend fun deleteDay(day_id: Int): ConcreteGenericType {
         findAndRemoveItemById(day_id)
         Log.d(logTag, "Removed day ${find(day_id)} in deleteDay")
         return dayInterface.deleteDay(util.user!!.id!!, day_id)

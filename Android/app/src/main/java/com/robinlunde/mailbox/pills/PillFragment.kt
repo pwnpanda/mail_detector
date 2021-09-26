@@ -221,8 +221,6 @@ class PillFragment : Fragment() {
             ).show()
         }
         coroutineScope.launch(errorHandler) {
-            // Send API request
-            val pill = util.pillrepo.createPill(color, active)
 
             // Store name & pillId pair in secureSharedPreferences
             val name = binding.pillCreateLayoutIncl.createPillNameInput.text
@@ -235,6 +233,9 @@ class PillFragment : Fragment() {
                     Toast.LENGTH_LONG
                 ).show()
             } else {
+                // Send API request
+                val pill = util.pillrepo.createPill(color, active)
+
                 val prefs = MailboxApp.getPrefs()
                 with(prefs.edit()) {
                     putString(pill.uuid!!.toString(), name.toString())

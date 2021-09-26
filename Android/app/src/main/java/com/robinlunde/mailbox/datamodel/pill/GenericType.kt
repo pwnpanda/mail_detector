@@ -5,3 +5,4 @@ abstract class GenericType<T> {
     open val msg: String? = null
     abstract fun get() : T
 }
+

@@ -1,6 +1,6 @@
 package com.robinlunde.mailbox.network
 
-import com.robinlunde.mailbox.datamodel.pill.GenericType
+import com.robinlunde.mailbox.datamodel.pill.ConcreteGenericType
 import com.robinlunde.mailbox.datamodel.pill.User
 import retrofit2.http.*
 
@@ -30,5 +30,5 @@ interface ApiInterfaceUser {
 
     // Delete user by ID
     @DELETE("v1/users/{user}")
-    suspend fun deleteUser(@Path("user") user_id: Int): GenericType<User>
+    suspend fun deleteUser(@Path("user") user_id: Int): ConcreteGenericType
 }

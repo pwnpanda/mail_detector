@@ -21,6 +21,7 @@ import com.robinlunde.mailbox.alert.AlertFragmentDirections
 import com.robinlunde.mailbox.datamodel.MyMessage
 import com.robinlunde.mailbox.datamodel.PostLogEntry
 import com.robinlunde.mailbox.datamodel.PostUpdateStatus
+import com.robinlunde.mailbox.datamodel.pill.ConcreteGenericType
 import com.robinlunde.mailbox.datamodel.pill.GenericType
 import com.robinlunde.mailbox.datamodel.pill.User
 import com.robinlunde.mailbox.debug.DebugFragmentDirections
@@ -30,9 +31,7 @@ import com.robinlunde.mailbox.network.ApiInterfaceUser
 import com.robinlunde.mailbox.network.AuthenticationInterceptor
 import com.robinlunde.mailbox.network.HttpRequestLib
 import com.robinlunde.mailbox.network.HttpRequestLib2
-import com.robinlunde.mailbox.pills.PillFragmentDirections
-import com.robinlunde.mailbox.pills.PillLogFragmentDirections
-import com.robinlunde.mailbox.pills.PillUpdateFragmentDirections
+import com.robinlunde.mailbox.pills.*
 import com.robinlunde.mailbox.repository.DayRepository
 import com.robinlunde.mailbox.repository.PillRepository
 import com.robinlunde.mailbox.repository.RecordRepository
@@ -78,6 +77,9 @@ class Util {
     val dayrepo: DayRepository = DayRepository(this)
     val pillrepo: PillRepository = PillRepository(this)
     val recordrepo: RecordRepository = RecordRepository(this)
+
+    lateinit var pillUpdateAdapter: PillUpdateAdapter
+    lateinit var pillLogAdapter: PillLogAdapter
 
     // ----------------------------- Notification -------------------------------
 
@@ -510,7 +512,7 @@ class Util {
         return apiInterfaceUser.updateUser(user.id!!, user)
     }
 
-    suspend fun deleteUser(id: Int): GenericType<User> {
+    suspend fun deleteUser(id: Int): ConcreteGenericType {
         return apiInterfaceUser.deleteUser(id)
     }
 
@@ -526,8 +528,7 @@ class Util {
         if (name == "pillLog") navcontroller.navigate(PillLogFragmentDirections.actionPillLogFragmentToLoginFragment())
         if (name == "pill") navcontroller.navigate(PillFragmentDirections.actionPillFragmentToLoginFragment())
         if (name == "pillUpdate") navcontroller.navigate(PillUpdateFragmentDirections.actionPillUpdateFragmentToLoginFragment())
-
-        Log.e(
+        else Log.e(
             "Util - moveToLoginFragment",
             "Name $name not found - cannot redirect to login fragment"
         )

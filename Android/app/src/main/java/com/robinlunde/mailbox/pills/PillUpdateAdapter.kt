@@ -1,5 +1,6 @@
 package com.robinlunde.mailbox.pills
 
+import android.content.Context
 import android.text.SpannableStringBuilder
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,7 +10,6 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
@@ -21,8 +21,13 @@ import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.datamodel.pill.Pill
 import kotlinx.coroutines.*
+import okhttp3.internal.notify
 
-class PillUpdateAdapter (private val dataEntries: MutableList<Pill>, val util: Util) :
+class PillUpdateAdapter(
+    private val dataEntries: MutableList<Pill>,
+    val util: Util,
+    val context: Context?
+) :
 RecyclerView.Adapter<Util.PillItemViewHolder>() {
     val logTag = "PillUpdateAdapter -"
 
@@ -37,7 +42,9 @@ RecyclerView.Adapter<Util.PillItemViewHolder>() {
             holder.constraintLayout.findViewById<TextView>(R.id.pill_update).visibility =
                 View.INVISIBLE*/
 
+            val adapter = this
             val pill = dataEntries[position]
+            val oldPill = pill
 
             val errorHandler = CoroutineExceptionHandler { _, exception ->
                 Log.d("$logTag onBindViewHolder", "Received error: ${exception.message}!")
@@ -57,7 +64,7 @@ RecyclerView.Adapter<Util.PillItemViewHolder>() {
             // Set color clicklistener
             color.setOnClickListener {
                 ColorPickerDialogBuilder
-                    .with(MailboxApp.getContext())
+                    .with(context!!)
                     .setTitle("Choose color")
                     .initialColor(newColor)
                     .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
@@ -77,7 +84,7 @@ RecyclerView.Adapter<Util.PillItemViewHolder>() {
             }
             // Set UUID
             holder.constraintLayout.findViewById<TextView>(R.id.pill_uuid).text = pill.uuid.toString()
-            // Set name TODO Name not set properly! Investigate why!
+            // Set name
             val nameInput = holder.constraintLayout.findViewById<TextInputEditText>(R.id.update_pill_name_input)
             if (pill.name =="") pill.name = pill.getPillName()
             Log.d("$logTag onBindViewHolder","Pill name: ${pill.name}")
@@ -105,7 +112,13 @@ RecyclerView.Adapter<Util.PillItemViewHolder>() {
                     }
 
                     // TODO log action and data
-                    util.pillrepo.updatePill(pill)
+                    Log.d("$logTag onBindViewHolder", "Updating pill to be: $pill")
+                    val createdPill = util.pillrepo.updatePill(pill)
+                    Log.d("$logTag onBindViewHolder", "Updated pill to be: $pill")
+
+                    pill.name = oldPill.name
+                    util.pillrepo.data.value!![position] = oldPill
+                    adapter.notifyItemChanged(position)
                 }
             }
             // Set delete clicklistener
@@ -113,10 +126,10 @@ RecyclerView.Adapter<Util.PillItemViewHolder>() {
                 coroutineScope.launch(errorHandler) {
                     // TODO log action and data
                     util.pillrepo.deletePill(pill.id!!)
+                    adapter.notifyItemRemoved(position)
+                    Log.d("$logTag onBindViewHolder", "Deleted pill: $pill")
                 }
             }
-
-
 
         } else {
             holder.constraintLayout.findViewById<RecyclerView>(R.id.pill_update_entries).visibility =

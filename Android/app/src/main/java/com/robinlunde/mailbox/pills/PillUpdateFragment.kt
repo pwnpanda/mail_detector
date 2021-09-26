@@ -16,9 +16,6 @@ import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.databinding.FragmentPillUpdateBinding
 import com.robinlunde.mailbox.datamodel.pill.Pill
 
-
-// Have checkbox for active or inactive
-// Send API request to activate / deactivate pill if clicked
 // Update circle-ui to reflect current status
 // Update alarm-setting logic (more / less pills needed for all to be taken)
 
@@ -35,7 +32,7 @@ class PillUpdateFragment : Fragment() {
         // Watch data
         // TODO
         val observer = Observer<MutableList<Pill>> { newData ->
-            binding.pillUpdateEntries.adapter = PillUpdateAdapter(newData, util)
+            binding.pillUpdateEntries.adapter = PillUpdateAdapter(newData, util, context)
             // Update layout manager
             binding.pillUpdateEntries.layoutManager = LinearLayoutManager(context)
             // Notify new data at end
@@ -66,8 +63,9 @@ class PillUpdateFragment : Fragment() {
         // If not logged in, jump to login view
         if (util.user == null)  util.moveToLoginFragment("pillUpdate",this)
 
-        val adapter = util.pillrepo.data.value?.let { PillUpdateAdapter(it, util) }
+        val adapter = util.pillrepo.data.value?.let { PillUpdateAdapter(it, util, context) }
         binding.pillUpdateEntries.adapter = adapter
+        util.pillUpdateAdapter = adapter!!
         binding.pillUpdateEntries.layoutManager = LinearLayoutManager(context)
         binding.lifecycleOwner = viewLifecycleOwner
 

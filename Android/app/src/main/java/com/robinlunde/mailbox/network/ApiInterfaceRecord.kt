@@ -1,5 +1,6 @@
 package com.robinlunde.mailbox.network
 
+import com.robinlunde.mailbox.datamodel.pill.ConcreteGenericType
 import com.robinlunde.mailbox.datamodel.pill.GenericType
 import com.robinlunde.mailbox.datamodel.pill.Record
 import retrofit2.http.*
@@ -48,6 +49,6 @@ interface ApiInterfaceRecord {
     suspend fun deleteRecord(
         @Path("user") user_id: Int,
         @Path("record") record_id: Int
-    ): GenericType<Record>
+    ): ConcreteGenericType
 
 }
