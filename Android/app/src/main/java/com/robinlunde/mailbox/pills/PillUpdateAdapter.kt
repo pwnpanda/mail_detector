@@ -110,7 +110,6 @@ RecyclerView.Adapter<Util.PillItemViewHolder>() {
                         apply()
                     }
 
-                    // TODO log action and data
                     Log.d("$logTag onBindViewHolder", "Updating pill to be: $pill")
                     val createdPill = util.pillrepo.updatePill(pill)
                     Log.d("$logTag onBindViewHolder", "Updated pill to be: $pill")

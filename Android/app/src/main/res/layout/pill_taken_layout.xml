@@ -5,14 +5,38 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorSecondary">
-
+    <ScrollView
+        android:id="@+id/taken_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/taken_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/dropdown"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:drawable/btn_dropdown"
+            android:spinnerMode="dropdown">
+        </androidx.appcompat.widget.AppCompatSpinner>
+    </ScrollView>
     <Button
-        android:id="@+id/button"
+        android:id="@+id/taken_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button Taken"
-        app:layout_constraintTop_toTopOf="parent"
+        android:text="Pill taken"
+        app:layout_constraintTop_toBottomOf="@id/taken_scroll"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/cancel_button"/>
+    <Button
+        android:id="@+id/cancel_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        app:layout_constraintTop_toTopOf="@id/taken_button"
+        app:layout_constraintBottom_toBottomOf="@id/taken_button"
+        app:layout_constraintStart_toEndOf="@id/taken_button"
         app:layout_constraintEnd_toEndOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

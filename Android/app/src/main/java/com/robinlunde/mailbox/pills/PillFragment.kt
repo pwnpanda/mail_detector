@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -121,23 +122,34 @@ class PillFragment : Fragment() {
 
     private fun registerPillTakenButton() {
         // Show current pills
-        // Clicking one sends relevant API request to register it as taken
-        // Update alarm-setting logic (pill is taken, so cancel alarm if all are taken)
 
         // Hide buttons
-        //binding.pillButtonLayoutIncl.root.visibility = View.GONE
         binding.pillButtonLayoutIncl.pillButtonLayout.visibility = View.GONE
         // Show input
         binding.pillTakenLayoutIncl.pillTakenLayout.visibility = View.VISIBLE
-        //binding.pillTakenLayoutIncl.root.visibility = View.VISIBLE
+
+        // TODO change from dropdown to checkbox list?
+        // TODO color each entry and fix data returned - maybe pre-process here and send other data to adapter?
+        binding.pillTakenLayoutIncl.dropdown.adapter = ArrayAdapter(MailboxApp.getContext()!!, android.R.layout.simple_spinner_dropdown_item, util.pillrepo.data.value!!)
 
         // Create click listener
-        binding.pillTakenLayoutIncl.button.setOnClickListener { registerPillTakenAction() }
+        binding.pillTakenLayoutIncl.takenButton.setOnClickListener { registerPillTakenAction() }
+
+        // Go back!
+        binding.pillTakenLayoutIncl.cancelButton.setOnClickListener {
+            // show Buttons
+            binding.pillButtonLayoutIncl.pillButtonLayout.visibility = View.VISIBLE
+
+            // Hide input
+            binding.pillTakenLayoutIncl.pillTakenLayout.visibility = View.INVISIBLE
+        }
     }
 
     private fun registerPillTakenAction() {
 
         // TODO actually do operations
+        // Clicking one sends relevant API request to register it as taken
+        // Update alarm-setting logic (pill is taken, so cancel alarm if all are taken)
 
         // show Buttons
         binding.pillButtonLayoutIncl.pillButtonLayout.visibility = View.VISIBLE

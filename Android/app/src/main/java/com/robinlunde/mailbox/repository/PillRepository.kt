@@ -43,13 +43,6 @@ class PillRepository(val util: Util) : RepositoryInterface<Pill> {
     }
 
     suspend fun updatePill(pill: Pill): Pill {
-        /*val index = data.value!!.indexOf(pill)
-        findAndRemoveItemByObject(pill)
-        val newPill =  pillInterface.updatePill(util.user!!.id!!, pill.id!!, pill)
-        addEntry(newPill)
-        util.pillUpdateAdapter.notifyItemRangeChanged( index, data.value!!.size )
-        Log.d(logTag, "Updated pill $pill in updatePills")
-        return pill*/
         val index = data.value!!.indexOf(pill)
         val newPill =  pillInterface.updatePill(util.user!!.id!!, pill.id!!, pill)
         data.value!![index] = newPill
