@@ -22,6 +22,7 @@
     * d1.records.first.day, where d1 is a Day object
 - Must check all updates manually and add error handling - only relevant for records! DONE
 - Move all tests to postman? Easier and better automation! DONE
+- Redeploy: docker-compose up --build --force-recreate
 
 ###### How to change db schema
 - Make change directly in original migration, then:
