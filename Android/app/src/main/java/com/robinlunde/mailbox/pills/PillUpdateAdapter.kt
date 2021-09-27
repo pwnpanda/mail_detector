@@ -21,7 +21,6 @@ import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.datamodel.pill.Pill
 import kotlinx.coroutines.*
-import okhttp3.internal.notify
 
 class PillUpdateAdapter(
     private val dataEntries: MutableList<Pill>,
@@ -116,9 +115,11 @@ RecyclerView.Adapter<Util.PillItemViewHolder>() {
                     val createdPill = util.pillrepo.updatePill(pill)
                     Log.d("$logTag onBindViewHolder", "Updated pill to be: $pill")
 
-                    pill.name = oldPill.name
-                    util.pillrepo.data.value!![position] = oldPill
-                    adapter.notifyItemChanged(position)
+                    createdPill.name = oldPill.name
+                    Toast.makeText(MailboxApp.getContext(),
+                        "Updated pill!",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
             // Set delete clicklistener

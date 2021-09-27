@@ -54,7 +54,7 @@ class Api::V1::RecordsController < ApplicationController
             params[:day_id] = params2
         end
         @record.update(params)
-        json_response( {record: @record, message: "Record updated!" } )
+        json_response( @record, :accepted )
     end
 
     # DELETE /api/v1/user/:user_id/records/:id

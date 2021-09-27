@@ -26,7 +26,7 @@ class Api::V1::PillsController < ApplicationController
     # PUT /api/v1/user/:user_id/pills
     def update
         @pill.update(pill_params)
-        json_response( {pill: @pill, message: "Pill updated!"} )
+        json_response( @pill, :accepted )
     end
 
     # DELETE /api/v1/user/:user_id/pills/:id
