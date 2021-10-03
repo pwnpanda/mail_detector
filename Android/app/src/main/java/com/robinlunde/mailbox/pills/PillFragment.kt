@@ -11,10 +11,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.annotation.ColorRes
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.LinearLayoutCompat
@@ -28,16 +25,19 @@ import com.robinlunde.mailbox.MailboxApp
 import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.databinding.FragmentPillBinding
+import com.robinlunde.mailbox.datamodel.pill.Pill
 import kotlinx.coroutines.*
+import java.lang.reflect.Method
 import java.util.*
 
 
-class PillFragment : Fragment() {
+class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private lateinit var binding: FragmentPillBinding
     private lateinit var dayCircleObjects: Array<Button>
     private lateinit var dayHeaderObjects: Array<TextView>
     private lateinit var dayPillTakenObjects: Array<LinearLayoutCompat>
     private lateinit var todayObject: Calendar
+    private lateinit var spinner: Spinner
     private var curWeekDates = IntArray(7)
     private var todayIndex: Int = -1
     private var todayDate: Int = -1
@@ -130,7 +130,21 @@ class PillFragment : Fragment() {
 
         // TODO change from dropdown to checkbox list?
         // TODO color each entry and fix data returned - maybe pre-process here and send other data to adapter?
-        binding.pillTakenLayoutIncl.dropdown.adapter = ArrayAdapter(MailboxApp.getContext()!!, android.R.layout.simple_spinner_dropdown_item, util.pillrepo.data.value!!)
+        val data = mutableListOf<Pill>()
+        for (pill in util.pillrepo.data.value!!) {
+            if (pill.active) data.add(pill)
+        }
+
+        spinner = binding.pillTakenLayoutIncl.dropdown
+        Log.d("$logTag registerPillTakenButton", "Spinner: $spinner")
+
+        // https://www.tutorialsbuzz.com/2019/09/android-kotlin-custom-spinner-image-text.html
+        val customAdapter = PillTakenAdapter(this, data, requireContext(), spinner)
+        Log.d("$logTag registerPillTakenButton", "Data: $data")
+        Log.d("$logTag registerPillTakenButton", "Adapter: $customAdapter")
+
+        spinner.adapter = customAdapter
+        spinner.onItemSelectedListener = this
 
         // Create click listener
         binding.pillTakenLayoutIncl.takenButton.setOnClickListener { registerPillTakenAction() }
@@ -595,5 +609,27 @@ class PillFragment : Fragment() {
                 util.activateAlarm(hour, minute)
             }
         }
+    }
+
+    override fun onItemSelected(
+        parent: AdapterView<*>?,
+        view: View?,
+        pos: Int,
+        id: Long
+    ) {
+        Log.d("SpinnerActivity - dropdownItemSelected", "Selected item: $pos")
+        spinner.setSelection(pos)
+        try {
+            val method: Method = Spinner::class.java.getDeclaredMethod("onDetachedFromWindow")
+            method.isAccessible = true
+            method.invoke(spinner)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+    }
+
+    override fun onNothingSelected(parent: AdapterView<*>?) {
+        Log.d("$logTag dropdownNoItemSelected", "No selected item!")
     }
 }

@@ -20,7 +20,7 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:gravity="center|center_horizontal|center_vertical"
-            android:text="Pill"
+            android:text="@string/pill_header"
             android:textSize="30sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintBottom_toTopOf="@+id/divider3"
