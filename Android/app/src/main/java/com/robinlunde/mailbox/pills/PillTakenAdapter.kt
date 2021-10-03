@@ -44,7 +44,7 @@ class PillTakenAdapter(
         return view
     }
 
-    override fun getItem(position: Int): Any {
+    override fun getItem(position: Int): Pill {
         return data[position]
     }
 

@@ -44,6 +44,7 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private val prefs: SharedPreferences = MailboxApp.getPrefs()
     private val util: Util = MailboxApp.getUtil()
     private val timer: Timer = Timer()
+    private var selectedPill: Pill? = null
     val logTag = "PillFragment -"
 
     // setup coroutine
@@ -129,25 +130,29 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
         binding.pillTakenLayoutIncl.pillTakenLayout.visibility = View.VISIBLE
 
         // TODO change from dropdown to checkbox list?
-        // TODO color each entry and fix data returned - maybe pre-process here and send other data to adapter?
         val data = mutableListOf<Pill>()
         for (pill in util.pillrepo.data.value!!) {
-            if (pill.active) data.add(pill)
+            if (!pill.active) continue
+            // TODO needs troubleshooting and verification from here
+            val records = util.recordrepo.findRecordsByPill(pill)
+            var taken = false
+            if (records != null) {
+                for (rec in records)    if(rec.day!!.today == util.today())    taken = rec.taken
+            }
+            if (taken) continue
+            data.add(pill)
         }
 
         spinner = binding.pillTakenLayoutIncl.dropdown
-        Log.d("$logTag registerPillTakenButton", "Spinner: $spinner")
 
         // https://www.tutorialsbuzz.com/2019/09/android-kotlin-custom-spinner-image-text.html
         val customAdapter = PillTakenAdapter(this, data, requireContext(), spinner)
-        Log.d("$logTag registerPillTakenButton", "Data: $data")
-        Log.d("$logTag registerPillTakenButton", "Adapter: $customAdapter")
 
         spinner.adapter = customAdapter
         spinner.onItemSelectedListener = this
 
         // Create click listener
-        binding.pillTakenLayoutIncl.takenButton.setOnClickListener { registerPillTakenAction() }
+        binding.pillTakenLayoutIncl.takenButton.setOnClickListener { registerPillTakenAction(selectedPill) }
 
         // Go back!
         binding.pillTakenLayoutIncl.cancelButton.setOnClickListener {
@@ -159,11 +164,15 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
         }
     }
 
-    private fun registerPillTakenAction() {
+    private fun registerPillTakenAction(pill: Pill?) {
 
         // TODO actually do operations
         // Clicking one sends relevant API request to register it as taken
         // Update alarm-setting logic (pill is taken, so cancel alarm if all are taken)
+        
+        if (pill != null){
+            Log.d("$logTag registerPilLTakenAction", "Pill $pill selected. Processing!")
+        }
 
         // show Buttons
         binding.pillButtonLayoutIncl.pillButtonLayout.visibility = View.VISIBLE
@@ -619,7 +628,10 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
     ) {
         Log.d("SpinnerActivity - dropdownItemSelected", "Selected item: $pos")
         spinner.setSelection(pos)
+        selectedPill = spinner.getItemAtPosition(pos) as Pill
+        Log.d("SpinnerActivity - dropdownItemSelected", "Selected item: $selectedPill")
         try {
+            // https://stackoverflow.com/a/46906393/4400482
             val method: Method = Spinner::class.java.getDeclaredMethod("onDetachedFromWindow")
             method.isAccessible = true
             method.invoke(spinner)

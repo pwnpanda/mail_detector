@@ -57,6 +57,7 @@ class Pill(
 
     override fun toString(): String {
         var resString = "Color: $color Active: $active "
+        if (name != "")   resString = "Name: $name $resString"
         if (created_at != null)   resString += "Created at: $created_at "
         if (updated_at != null)   resString += "Updated at: $updated_at "
         if (uuid != null) resString += "UUID: $uuid "

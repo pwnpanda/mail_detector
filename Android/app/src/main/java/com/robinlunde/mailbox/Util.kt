@@ -22,7 +22,6 @@ import com.robinlunde.mailbox.datamodel.MyMessage
 import com.robinlunde.mailbox.datamodel.PostLogEntry
 import com.robinlunde.mailbox.datamodel.PostUpdateStatus
 import com.robinlunde.mailbox.datamodel.pill.ConcreteGenericType
-import com.robinlunde.mailbox.datamodel.pill.GenericType
 import com.robinlunde.mailbox.datamodel.pill.User
 import com.robinlunde.mailbox.debug.DebugFragmentDirections
 import com.robinlunde.mailbox.debug.ScanType
@@ -554,5 +553,9 @@ class Util {
             pillrepo.getPills()
             recordrepo.getRecords()
         }
+    }
+
+    fun today(): String {
+        return getTime().split("T")[0]
     }
 }

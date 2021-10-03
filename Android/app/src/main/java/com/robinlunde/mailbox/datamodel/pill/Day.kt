@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class Day(
-    private val today: String,
+    val today: String,
     private val created_at: String? = null,
     private var updated_at: String? = null,
     override val id: Int? = null,
