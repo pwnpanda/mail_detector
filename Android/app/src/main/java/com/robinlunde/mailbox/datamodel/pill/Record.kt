@@ -7,7 +7,6 @@ import com.robinlunde.mailbox.MailboxApp
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-// TODO evaluate if I need to add more fields
 class Record(
     val day_id: Int?,
     val user_id: Int?,

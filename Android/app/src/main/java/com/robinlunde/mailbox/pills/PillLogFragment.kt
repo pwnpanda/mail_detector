@@ -31,7 +31,7 @@ class PillLogFragment : Fragment() {
         // Watch data
         val observer = Observer<MutableList<Record>> { newData ->
             // Update adapter
-            binding.pillLogEntries.adapter = PillLogAdapter(newData, util)
+            binding.pillLogEntries.adapter = PillLogAdapter(newData, util, binding)
             // Update layout manager
             binding.pillLogEntries.layoutManager = LinearLayoutManager(context)
             // Notify new data at end
@@ -63,7 +63,7 @@ class PillLogFragment : Fragment() {
         // If not logged in, jump to login view
         if (util.user == null)  util.moveToLoginFragment("pillLog",this)
 
-        val adapter = util.recordrepo.data.value?.let { PillLogAdapter(it, util) }
+        val adapter = util.recordrepo.data.value?.let { PillLogAdapter(it, util, binding) }
         binding.pillLogEntries.adapter = adapter
         util.pillLogAdapter = adapter!!
         binding.pillLogEntries.layoutManager = LinearLayoutManager(context)

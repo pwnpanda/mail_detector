@@ -48,7 +48,6 @@ class MyNotificationManager(private val ctx: Context) {
         }
     }
 
-    // TODO Small icon needs to be an actual notification icon
     fun createPush(
         message: MyMessage,
         pillAlert: Boolean = false,
@@ -56,7 +55,6 @@ class MyNotificationManager(private val ctx: Context) {
         @DrawableRes smallIconPill: Int = R.drawable.pill_thick_outline_alert_icon
     ) {
 
-        // TODO change values for pill alerts
         val largeIcon = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val icon: Int =
                 if (pillAlert) R.drawable.pill_thick_outline_alert_icon else R.drawable.mailbox_thick_outline_icon

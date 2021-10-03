@@ -19,13 +19,15 @@ import com.google.android.material.textfield.TextInputEditText
 import com.robinlunde.mailbox.MailboxApp
 import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.Util
+import com.robinlunde.mailbox.databinding.FragmentPillUpdateBinding
 import com.robinlunde.mailbox.datamodel.pill.Pill
 import kotlinx.coroutines.*
 
 class PillUpdateAdapter(
     private val dataEntries: MutableList<Pill>,
     val util: Util,
-    val context: Context?
+    val context: Context?,
+    val binding: FragmentPillUpdateBinding
 ) :
 RecyclerView.Adapter<Util.PillItemViewHolder>() {
     val logTag = "PillUpdateAdapter -"
@@ -35,11 +37,8 @@ RecyclerView.Adapter<Util.PillItemViewHolder>() {
     override fun onBindViewHolder(holder: Util.PillItemViewHolder, position: Int) {
         // Render data if any
         if (itemCount > 0) {
-            // TODO this throws null object reference. Why?!? It is in the correct file
-            /*holder.constraintLayout.findViewById<RecyclerView>(R.id.pill_update_entries).visibility =
-                View.VISIBLE
-            holder.constraintLayout.findViewById<TextView>(R.id.pill_update).visibility =
-                View.INVISIBLE*/
+            binding.pillUpdateEntries.visibility = View.VISIBLE
+            binding.pillUpdate.visibility = View.INVISIBLE
 
             val adapter = this
             val pill = dataEntries[position]
@@ -132,10 +131,8 @@ RecyclerView.Adapter<Util.PillItemViewHolder>() {
             }
 
         } else {
-            holder.constraintLayout.findViewById<RecyclerView>(R.id.pill_update_entries).visibility =
-                View.INVISIBLE
-            holder.constraintLayout.findViewById<TextView>(R.id.pill_update).visibility =
-                View.VISIBLE
+            binding.pillUpdateEntries.visibility = View.INVISIBLE
+            binding.pillUpdate.visibility = View.VISIBLE
         }
     }
 

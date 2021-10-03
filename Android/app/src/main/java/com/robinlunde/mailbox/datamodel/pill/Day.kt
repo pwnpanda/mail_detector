@@ -12,7 +12,6 @@ class Day(
     override val id: Int? = null,
     override val msg: String? = null,
 ) : GenericType<Day>() {
-// TODO evaluate if I need to add more fields
 
     override fun get(): Day {
         return this
@@ -21,7 +20,7 @@ class Day(
     override fun toString(): String {
         var str = ""
         if (id != null)  str += "ID: $id "
-        if (today != null)  str += "Today: $today "
+        if (today != "")  str += "Today: $today "
         if (created_at != null)  str += "Created at: $created_at "
         if (updated_at != null)  str += "Updated at: $updated_at "
         if (msg != null)  str += "Message: $msg "

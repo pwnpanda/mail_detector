@@ -1,7 +1,6 @@
 package com.robinlunde.mailbox.network
 
 import com.robinlunde.mailbox.datamodel.pill.ConcreteGenericType
-import com.robinlunde.mailbox.datamodel.pill.GenericType
 import com.robinlunde.mailbox.datamodel.pill.Record
 import retrofit2.http.*
 

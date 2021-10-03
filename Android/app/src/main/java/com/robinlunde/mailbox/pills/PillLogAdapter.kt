@@ -12,10 +12,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.robinlunde.mailbox.MailboxApp
 import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.Util
+import com.robinlunde.mailbox.databinding.FragmentPillLogBinding
 import com.robinlunde.mailbox.datamodel.pill.Record
 import kotlinx.coroutines.*
 
-class PillLogAdapter(private val dataEntries: MutableList<Record>, val util: Util) :
+class PillLogAdapter(
+    private val dataEntries: MutableList<Record>,
+    val util: Util,
+    val binding: FragmentPillLogBinding
+) :
     RecyclerView.Adapter<Util.RecordItemViewHolder>() {
     val logTag = "PillLogAdapter -"
 
@@ -24,19 +29,20 @@ class PillLogAdapter(private val dataEntries: MutableList<Record>, val util: Uti
     override fun onBindViewHolder(holder: Util.RecordItemViewHolder, position: Int) {
         // Render data if any
         if (itemCount > 0) {
-            holder.constraintLayout.findViewById<RecyclerView>(R.id.pill_log_entries).visibility =
-                View.VISIBLE
-            holder.constraintLayout.findViewById<TextView>(R.id.pill_logs).visibility =
-                View.INVISIBLE
+            binding.pillLogEntries.visibility = View.VISIBLE
+            binding.pillLogs.visibility = View.INVISIBLE
 
             val record = dataEntries[position]
             // Need to get color as correct value
-            holder.constraintLayout.setBackgroundColor( record.pill!!.color )
+            holder.constraintLayout.setBackgroundColor(record.pill!!.color)
 
             // Set content of each UI element
-            holder.constraintLayout.findViewById<TextView>(R.id.pill_name).text = record.pill.getPillName()
-            holder.constraintLayout.findViewById<TextView>(R.id.pill_date).text = record.day.toString()
-            holder.constraintLayout.findViewById<TextView>(R.id.pill_taken).text = record.taken.toString()
+            holder.constraintLayout.findViewById<TextView>(R.id.pill_name).text =
+                record.pill.getPillName()
+            holder.constraintLayout.findViewById<TextView>(R.id.pill_date).text =
+                record.day!!.today
+            holder.constraintLayout.findViewById<TextView>(R.id.pill_taken).text =
+                record.taken.toString()
 
             holder.constraintLayout.findViewById<ImageButton>(R.id.pill_delete_history_button)
                 .setOnClickListener {
@@ -54,11 +60,9 @@ class PillLogAdapter(private val dataEntries: MutableList<Record>, val util: Uti
                         util.recordrepo.deleteRecord(rec_id = record.id!!)
                     }
                 }
-        } else{
-            holder.constraintLayout.findViewById<RecyclerView>(R.id.pill_log_entries).visibility =
-                View.INVISIBLE
-            holder.constraintLayout.findViewById<TextView>(R.id.pill_logs).visibility =
-                View.VISIBLE
+        } else {
+            binding.pillLogEntries.visibility = View.INVISIBLE
+            binding.pillLogs.visibility = View.VISIBLE
         }
     }
 

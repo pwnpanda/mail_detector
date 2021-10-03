@@ -9,9 +9,6 @@ import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-// TODO evaluate if I need to add more fields
-// TODO consider changing color to String
-
 class Pill(
     var color: Int,
     var active: Boolean,
@@ -23,10 +20,6 @@ class Pill(
 ): GenericType<Pill>() {
     private var timestamp: String = created_at ?: ""
     private var userid: Int? = null
-    //val colorRes = parseColor(color)
-    // TODO Need to create colorRes from the color code
-    //  val colorRes: ColorRes = color as ColorRes
-
     @JsonIgnore
     val util = MailboxApp.getUtil()
     var name = getPillName()
@@ -43,7 +36,6 @@ class Pill(
     }
 
     fun getPillName(): String {
-        // TODO Lookup UUID in sharedEncryptedPrefs, return associated value
         val prefs = MailboxApp.getPrefs()
         var name = ""
         if (uuid != null)   name = prefs.getString(uuid.toString(),"") ?: ""
@@ -68,6 +60,5 @@ class Pill(
         if (user != null)   resString += "User: $user "
 
         return resString
-        //return super.toString()
     }
 }

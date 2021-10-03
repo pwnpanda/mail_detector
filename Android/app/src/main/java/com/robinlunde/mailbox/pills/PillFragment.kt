@@ -169,9 +169,25 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
         // TODO actually do operations
         // Clicking one sends relevant API request to register it as taken
         // Update alarm-setting logic (pill is taken, so cancel alarm if all are taken)
-        
+
+        // Co-routine handling
+        val errorHandler = CoroutineExceptionHandler { _, exception ->
+            Log.d("$logTag registerPillTakenAction", "Received error: ${exception.message}!")
+            Log.e("$logTag registerPillTakenAction", "Trace: ${exception.printStackTrace()}!")
+            Toast.makeText(
+                MailboxApp.getContext(),
+                "Failed to register pill as taken for Pill: $pill!",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+
         if (pill != null){
             Log.d("$logTag registerPilLTakenAction", "Pill $pill selected. Processing!")
+            coroutineScope.launch(errorHandler) {
+                val curDay = util.dayrepo.createDay(util.today())
+                val record = util.recordrepo.createRecord(day_id = curDay.id!!, pill_id = pill.id!!, taken = true)
+                Log.d("$logTag registerPillTakenAction", "Created record: $record")
+            }
         }
 
         // show Buttons
@@ -522,15 +538,14 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
         for (i in 1..6) {
             // Get current date
             val tmpCurDate = (todayObject.clone() as Calendar).apply {
-                set(Calendar.DATE, dateMonday)
-                add(Calendar.DATE, i)
+                add(Calendar.DATE, i-6)
             }
-                .get(Calendar.DAY_OF_MONTH)
-
+            //Log.d("$logTag updateWeekView", "$tmpCurDate")
+            val tmpCurDateInt = tmpCurDate.get(Calendar.DAY_OF_MONTH)
             // Store date in correct place
-            curWeekDates[i] = tmpCurDate
+            curWeekDates[i] = tmpCurDateInt
             // Fill information in correct circle
-            dayCircleObjects[i].text = tmpCurDate.toString()
+            dayCircleObjects[i].text = tmpCurDateInt.toString()
         }
 
         Log.d("$logTag updateWeekView", "curDate $todayDate mondayDate $dateMonday ")
