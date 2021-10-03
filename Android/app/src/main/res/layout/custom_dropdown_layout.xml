@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <Button
+        android:id="@+id/pill_color"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginEnd="10dp"
+        android:background="@drawable/round_button"
+        android:clickable="false"
+        android:hapticFeedbackEnabled="false"
+        app:layout_constraintBottom_toBottomOf="@id/pill_num"
+        app:layout_constraintEnd_toStartOf="@id/pill_num"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/pill_num" />
+
+    <TextView
+        android:id="@+id/pill_num"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/pill_name"
+        app:layout_constraintStart_toEndOf="@id/pill_color"
+        app:layout_constraintTop_toTopOf="parent"
+        android:text="@string/pill_num"
+        tools:text="1." />
+
+    <TextView
+        android:id="@+id/pill_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        app:layout_constraintBottom_toBottomOf="@id/pill_num"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/pill_num"
+        app:layout_constraintTop_toTopOf="@id/pill_num"
+        tools:text="Name" />
+</LinearLayout>
