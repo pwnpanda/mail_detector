@@ -35,6 +35,7 @@ class RecordRepository(val util: Util) : RepositoryInterface<Record> {
         addEntry(record)
         //util.pillLogAdapter.notifyItemInserted(/* TODO find int in array of object */)
         Log.d(logTag, "Created record $record in createRecord")
+        // Todo check if all pills are taken!
         return record
     }
 
@@ -44,6 +45,7 @@ class RecordRepository(val util: Util) : RepositoryInterface<Record> {
         addEntry(newRecord)
         //util.pillLogAdapter.notifyItemChanged(/* TODO find int in array of object */)
         Log.d(logTag, "Updated record $record in updateRecord")
+        // Todo check if all pills are taken
         return record
     }
 
@@ -52,6 +54,7 @@ class RecordRepository(val util: Util) : RepositoryInterface<Record> {
         Log.d(logTag, "Removed record ${find(rec_id)} in deleteRecord")
         val index = util.recordrepo.data.value!!.indexOf(util.recordrepo.find(rec_id)!!)
         util.pillLogAdapter.notifyItemRemoved( index )
+        // Todo update all pills taken
         return recordInterface.deleteRecord(util.user!!.id!!, rec_id)
     }
 
@@ -84,17 +87,17 @@ class RecordRepository(val util: Util) : RepositoryInterface<Record> {
         if (rec.size == 0)  return null
         return rec
     }
-    /**
-    To be used for guidance
 
-    val allTaken: Boolean = isAllTaken(allRecords)
-
-    private fun isAllTaken(records: Array<Record>): Boolean {
-    return records.all { record -> record.taken }
+    fun areAllTaken(today: String): Boolean{
+        val noActivePills = util.pillrepo.noActivePillsExists()
+        val curDay = util.dayrepo.findByDate(today) ?: return noActivePills
+        val records = findRecordsByDay(curDay)
+        return records?.all { record -> record.taken } ?: noActivePills
     }
 
-    fun getTakenColors() {
-    return allRecords.filter { record -> record.taken }.forEach { record -> record.color }
+    fun getTakenColors(today: String): Unit? {
+        val curDay = util.dayrepo.findByDate(today) ?: return null
+        val records = findRecordsByDay(curDay) ?: return null
+        return records.filter { record -> record.taken }.forEach { record -> record.pill!!.color }
     }
-     */
 }

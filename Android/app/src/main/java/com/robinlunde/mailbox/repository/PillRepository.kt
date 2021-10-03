@@ -59,4 +59,8 @@ class PillRepository(val util: Util) : RepositoryInterface<Pill> {
         util.pillUpdateAdapter.notifyItemRemoved( index )
         return pillInterface.deletePill(util.user!!.id!!, pill_id)
     }
+
+    fun noActivePillsExists(): Boolean{
+        return data.value!!.none { pill -> pill.active }
+    }
 }

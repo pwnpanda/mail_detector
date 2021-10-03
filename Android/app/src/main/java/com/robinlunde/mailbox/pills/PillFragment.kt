@@ -315,9 +315,8 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     private fun pillHistory() {
-        // TODO
-        // Fetch all all history async
-        // This is also needed for the week, but can be done using different API to only get within the last week
+        // TODO Fetch all all history async
+        //  This is also needed for the week, but can be done using different API to only get within the last week
 
         // Go to own fragment
         NavHostFragment.findNavController(this)
@@ -333,19 +332,19 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
     // Check if all pills are taken for the given date
     private fun hasTakenAllPills(date: String): Boolean {
         // todo
-        //return dayData[date.toInt()].allTaken
+        //  return dayData[date.toInt()].allTaken
         return true
     }
 
     // Show only taken pills
     private fun handlePillsTaken(buttonList: LinearLayoutCompat) {
-        /*
-        val colors = dayData[date.toInt()].getTakenColors
-        colors.zip(buttonList.children).forEach { (color, child) -> {
-            if (!color) child.visibility = View.Gone
-            setBackgroundColor(child, color)
+        /* TODO
+            val colors = dayData[date.toInt()].getTakenColors
+            colors.zip(buttonList.children).forEach { (color, child) -> {
+                if (!color) child.visibility = View.Gone
+                setBackgroundColor(child, color)
+                }
             }
-        }
         */
     }
 
@@ -374,7 +373,7 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private fun dayUIUpdate() {
         Log.d("$logTag dayUIUpdate", "Today $todayDate All Dates ${curWeekDates.joinToString(",")}")
         // TODO change - just for testing
-        // todayDate = 4
+        //  todayDate = 4
         for (i in 0..6) {
 
             // Today

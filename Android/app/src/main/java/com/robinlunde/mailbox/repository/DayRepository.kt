@@ -2,11 +2,9 @@ package com.robinlunde.mailbox.repository
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
-import com.robinlunde.mailbox.MailboxApp
 import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.datamodel.pill.ConcreteGenericType
 import com.robinlunde.mailbox.datamodel.pill.Day
-import com.robinlunde.mailbox.datamodel.pill.GenericType
 import com.robinlunde.mailbox.network.ApiInterfaceDay
 import com.robinlunde.mailbox.network.HttpRequestLib2
 import retrofit2.Retrofit
@@ -60,5 +58,12 @@ class DayRepository(val util: Util) : RepositoryInterface<Day> {
         findAndRemoveItemById(day_id)
         Log.d(logTag, "Removed day ${find(day_id)} in deleteDay")
         return dayInterface.deleteDay(util.user!!.id!!, day_id)
+    }
+
+    fun findByDate(today: String): Day? {
+        for (day in data.value!!){
+            if (day.today == today) return day
+        }
+        return null
     }
 }
