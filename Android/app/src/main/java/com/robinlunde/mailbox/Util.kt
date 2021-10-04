@@ -446,16 +446,6 @@ class Util {
             }
         }
 
-        // TODO should this not repeat daily? Does it cancel somewhere?
-        //  Maybe it needs to run in background thread that is always alive?
-        //  It runs if app is open - need to allow running in background?
-        /**
-         * alarmManager.setExactAndAllowWhileIdle(
-         * AlarmManager.RTC_WAKEUP,
-         * alertTime.timeInMillis,
-         * alarmPendingIntent
-         * )
-         */
         alarmManager.setInexactRepeating(
             AlarmManager.RTC_WAKEUP,
             alertTime.timeInMillis,

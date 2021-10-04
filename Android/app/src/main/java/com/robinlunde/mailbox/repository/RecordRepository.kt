@@ -88,14 +88,20 @@ class RecordRepository(val util: Util) : RepositoryInterface<Record> {
         return rec
     }
 
+    // TODO use the below 2 and keep track of pills taken!
+    //  Idea is to do check right before alarm fires!
     fun areAllTaken(today: String): Boolean{
+        // Check if any pills are active
         val noActivePills = util.pillrepo.noActivePillsExists()
+        // If we cannot find a day for today, return true (all pills taken) if there are no active pills. Otherwise return false
         val curDay = util.dayrepo.findByDate(today) ?: return noActivePills
-        val records = findRecordsByDay(curDay)
-        return records?.all { record -> record.taken } ?: noActivePills
+        // If no records exists, return true (all pills taken) if there are no active pills. Otherwise return false
+        val records = findRecordsByDay(curDay) ?: return noActivePills
+        return records.all { record -> record.taken }
     }
 
     fun getTakenColors(today: String): Unit? {
+        // Get colors for all pills taken unless there are no days or records found
         val curDay = util.dayrepo.findByDate(today) ?: return null
         val records = findRecordsByDay(curDay) ?: return null
         return records.filter { record -> record.taken }.forEach { record -> record.pill!!.color }

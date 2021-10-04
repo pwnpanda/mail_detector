@@ -7,17 +7,21 @@ import android.content.Intent
 import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.net.Uri
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import com.robinlunde.mailbox.MailboxApp
 import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.datamodel.MyMessage
+import java.time.LocalDateTime
 
 
 class RepeatedTrigger : BroadcastReceiver() {
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action != "AlarmAction")    return;
+        if (intent.action != "AlarmAction")    return
         val myTag = "Repeating alarm trigger"
         val util: Util = MailboxApp.getUtil()
         val hour = intent.getIntExtra("hour", -1)
@@ -26,13 +30,16 @@ class RepeatedTrigger : BroadcastReceiver() {
         // Invalid values received. Just stop!
         if (hour == -1 || minute == -1) return
 
-        Log.d(myTag, "Setting alarm and notifications for: $hour:$minute")
+        Log.d(myTag, "Alarm triggered for: $hour:$minute at ${LocalDateTime.now()}")
+        if ( util.recordrepo.areAllTaken( util.today() ) ){
+            Log.d(myTag, "All pills taken, no cause to sound alarm!")
+            return
+        }
 
         val msg = MyMessage(
             "PILL ALERT!",
             "You have not taken all your pills for today!"
         )
-
 
         util.pushNotification(msg, true)
 

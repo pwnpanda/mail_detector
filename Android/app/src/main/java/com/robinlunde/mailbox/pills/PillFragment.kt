@@ -38,7 +38,8 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private lateinit var dayPillTakenObjects: Array<LinearLayoutCompat>
     private lateinit var todayObject: Calendar
     private lateinit var spinner: Spinner
-    private var curWeekDates = IntArray(7)
+    private var curWeekDatesDay = IntArray(7)
+    private var curWeekDates: Array<Calendar> = Array(7) { Calendar.getInstance() }
     private var todayIndex: Int = -1
     private var todayDate: Int = -1
     private val prefs: SharedPreferences = MailboxApp.getPrefs()
@@ -293,8 +294,11 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
                     apply()
                 }
                 Log.d("$logTag createPillAction", "Stored ${pill.uuid!!} - $name in sharedPrefs")
+
                 // Update alarm-setting logic (creating a pill assumes it is taken that day)
-                // TODO
+                val day = util.dayrepo.createDay( util.today() )
+                val record = util.recordrepo.createRecord(day.id!!, pill.id!!, taken = true)
+                Log.d("$logTag createPillAction", "Created record for pill $pill as taken for today ${day.today}! Record: $record")
             }
         }
 
@@ -329,12 +333,6 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
             ContextCompat.getColorStateList(requireContext(), color)
     }
 
-    // Check if all pills are taken for the given date
-    private fun hasTakenAllPills(date: String): Boolean {
-        // todo
-        //  return dayData[date.toInt()].allTaken
-        return true
-    }
 
     // Show only taken pills
     private fun handlePillsTaken(buttonList: LinearLayoutCompat) {
@@ -348,14 +346,18 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
         */
     }
 
-    // Set color for if all pills are taken for a given day
+    // Set color if all pills are taken for a given day
     private fun setIsTakenColor(obj: Button) {
         val drawable = GradientDrawable()
         drawable.shape = GradientDrawable.OVAL
         // Set background color
         drawable.setColor(requireContext().getColor(R.color.background))
-
-        if (hasTakenAllPills(obj.text.toString())) {
+        val recordRepo = util.recordrepo
+        val dateTimeIndex = curWeekDatesDay.indexOf( obj.text.toString().toInt() )
+        val dateTime = curWeekDates[dateTimeIndex]
+        val date = "${dateTime.get(Calendar.YEAR)}-${dateTime.get(Calendar.MONTH)}-${dateTime.get(Calendar.DATE)}"
+        Log.d("$logTag setIsTakenColor", "Checking for day ${obj.text} - translates to $date")
+        if ( recordRepo.areAllTaken( date ) ) {
             // Set border
             drawable.setStroke(8, requireContext().getColor(R.color.green_pill))
             // Set text color
@@ -371,13 +373,13 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
     @RequiresApi(Build.VERSION_CODES.N)
     private fun dayUIUpdate() {
-        Log.d("$logTag dayUIUpdate", "Today $todayDate All Dates ${curWeekDates.joinToString(",")}")
+        Log.d("$logTag dayUIUpdate", "Today $todayDate All Dates ${curWeekDatesDay.joinToString(",")}")
         // TODO change - just for testing
         //  todayDate = 4
         for (i in 0..6) {
 
             // Today
-            if (curWeekDates[i] == todayDate) {
+            if (curWeekDatesDay[i] == todayDate) {
                 val drawable = GradientDrawable()
                 drawable.shape = GradientDrawable.OVAL
                 // Set border
@@ -395,11 +397,11 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
             }
 
             // Day has passed
-            if (curWeekDates[i] < todayDate || todayDate < 7 && curWeekDates[i] > 29) {
+            if (curWeekDatesDay[i] < todayDate || todayDate < 7 && curWeekDatesDay[i] > 29) {
                 setIsTakenColor(dayCircleObjects[i])
                 handlePillsTaken(dayPillTakenObjects[i])
                 // Day is in the future
-            } else if (curWeekDates[i] > todayDate) {
+            } else if (curWeekDatesDay[i] > todayDate) {
                 setBackgroundColor(dayCircleObjects[i], R.color.grey)
                 dayCircleObjects[i].setTextColor(requireContext().getColor(R.color.background))
                 dayPillTakenObjects[i].visibility = View.GONE
@@ -422,9 +424,9 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 @RequiresApi(Build.VERSION_CODES.N)
                 override fun run() {
                     // If tomorrow is this week, just log it
-                    if (tomorrowObject.get(Calendar.DATE) in curWeekDates) Log.d(
+                    if (tomorrowObject.get(Calendar.DATE) in curWeekDatesDay) Log.d(
                         "$logTag detectNewDay",
-                        "Date ${tomorrowObject.get(Calendar.DATE)} is this week (in ${curWeekDates.joinToString { "," }})"
+                        "Date ${tomorrowObject.get(Calendar.DATE)} is this week (in ${curWeekDatesDay.joinToString { "," }})"
                     )
                     // If not, update the WeekView
                     else updateWeekView()
@@ -484,70 +486,87 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
         val dateMonday: Int = when (todayObject.get(Calendar.DAY_OF_WEEK)) {
             Calendar.SUNDAY -> {
                 testDate.add(Calendar.DATE, -6)
-                curWeekDates[6] = testDate.get(Calendar.DAY_OF_MONTH)
+                curWeekDatesDay[6] = testDate.get(Calendar.DAY_OF_MONTH)
+                curWeekDates[6] = testDate
                 todayIndex = 6
                 testDate.get(Calendar.DAY_OF_MONTH)
             }
 
             Calendar.MONDAY -> {
                 todayIndex = 0
+                curWeekDates[0] = todayObject
                 todayDate
             }
 
             Calendar.TUESDAY -> {
                 testDate.add(Calendar.DATE, -1)
-                curWeekDates[1] = testDate.get(Calendar.DAY_OF_MONTH)
+                curWeekDatesDay[1] = testDate.get(Calendar.DAY_OF_MONTH)
+                curWeekDates[1] = testDate
                 todayIndex = 1
                 testDate.get(Calendar.DAY_OF_MONTH)
             }
 
             Calendar.WEDNESDAY -> {
                 testDate.add(Calendar.DATE, -2)
-                curWeekDates[2] = testDate.get(Calendar.DAY_OF_MONTH)
+                curWeekDatesDay[2] = testDate.get(Calendar.DAY_OF_MONTH)
+                curWeekDates[2] = testDate
                 todayIndex = 2
                 testDate.get(Calendar.DAY_OF_MONTH)
             }
 
             Calendar.THURSDAY -> {
                 testDate.add(Calendar.DATE, -3)
-                curWeekDates[3] = testDate.get(Calendar.DAY_OF_MONTH)
+                curWeekDatesDay[3] = testDate.get(Calendar.DAY_OF_MONTH)
+                curWeekDates[3] = testDate
                 todayIndex = 3
                 testDate.get(Calendar.DAY_OF_MONTH)
             }
 
             Calendar.FRIDAY -> {
                 testDate.add(Calendar.DATE, -4)
-                curWeekDates[4] = testDate.get(Calendar.DAY_OF_MONTH)
+                curWeekDatesDay[4] = testDate.get(Calendar.DAY_OF_MONTH)
+                curWeekDates[4] = testDate
                 todayIndex = 4
                 testDate.get(Calendar.DAY_OF_MONTH)
             }
 
             Calendar.SATURDAY -> {
                 testDate.add(Calendar.DATE, -5)
+                curWeekDatesDay[5] = testDate.get(Calendar.DAY_OF_MONTH)
+                curWeekDates[5] = testDate
                 todayIndex = 5
-                curWeekDates[5] = testDate.get(Calendar.DAY_OF_MONTH)
                 testDate.get(Calendar.DAY_OF_MONTH)
             }
 
             else -> -1
         }
         // Fill correct dates
-        curWeekDates[0] = dateMonday
-        dayCircleObjects[0].text = curWeekDates[0].toString()
+        curWeekDates[0] = testDate
+        curWeekDatesDay[0] = dateMonday
+        dayCircleObjects[0].text = curWeekDatesDay[0].toString()
         for (i in 1..6) {
             // Get current date
+            val dateOffset = when {
+                todayDate < curWeekDatesDay[i] -> i-6
+                todayDate > curWeekDatesDay[i] -> i
+                else -> 0
+            }
             val tmpCurDate = (todayObject.clone() as Calendar).apply {
-                add(Calendar.DATE, i-6)
+                add(Calendar.DATE, dateOffset)
             }
             //Log.d("$logTag updateWeekView", "$tmpCurDate")
             val tmpCurDateInt = tmpCurDate.get(Calendar.DAY_OF_MONTH)
             // Store date in correct place
-            curWeekDates[i] = tmpCurDateInt
+            curWeekDatesDay[i] = tmpCurDateInt
+            // Store date object in array
+            curWeekDates[i] = tmpCurDate
             // Fill information in correct circle
             dayCircleObjects[i].text = tmpCurDateInt.toString()
         }
 
         Log.d("$logTag updateWeekView", "curDate $todayDate mondayDate $dateMonday ")
+        // TODO test
+        Log.d("$logTag updateWeekView", "curWeekDates: ${curWeekDates.map { day -> "${day.get(Calendar.DAY_OF_MONTH)}-" }}")
 
         // Organize days and color correctly
         dayUIUpdate()
