@@ -33,7 +33,6 @@ class RecordRepository(val util: Util) : RepositoryInterface<Record> {
         var record = Record(day_id, user_id, pill_id, taken)
         record = recordInterface.createRecord(user_id, record)
         addEntry(record)
-        //util.pillLogAdapter.notifyItemInserted(/* TODO find int in array of object */)
         Log.d(logTag, "Created record $record in createRecord")
         // Todo check if all pills are taken!
         return record
@@ -43,7 +42,6 @@ class RecordRepository(val util: Util) : RepositoryInterface<Record> {
         findAndRemoveItemById(record.id!!)
         val newRecord =  recordInterface.updateRecord(util.user!!.id!!, record.id, record)
         addEntry(newRecord)
-        //util.pillLogAdapter.notifyItemChanged(/* TODO find int in array of object */)
         Log.d(logTag, "Updated record $record in updateRecord")
         // Todo check if all pills are taken
         return record
@@ -88,8 +86,6 @@ class RecordRepository(val util: Util) : RepositoryInterface<Record> {
         return rec
     }
 
-    // TODO use the below 2 and keep track of pills taken!
-    //  Idea is to do check right before alarm fires!
     fun areAllTaken(today: String): Boolean{
         // Check if any pills are active
         val noActivePills = util.pillrepo.noActivePillsExists()
@@ -100,10 +96,12 @@ class RecordRepository(val util: Util) : RepositoryInterface<Record> {
         return records.all { record -> record.taken }
     }
 
-    fun getTakenColors(today: String): Unit? {
+    fun getTakenColors(today: String): MutableList<Int>? {
         // Get colors for all pills taken unless there are no days or records found
         val curDay = util.dayrepo.findByDate(today) ?: return null
         val records = findRecordsByDay(curDay) ?: return null
-        return records.filter { record -> record.taken }.forEach { record -> record.pill!!.color }
+        val colors = mutableListOf<Int>()
+        records.filter { record -> record.taken }.forEach{ record -> colors.add(record.pill!!.color) }
+        return colors
     }
 }

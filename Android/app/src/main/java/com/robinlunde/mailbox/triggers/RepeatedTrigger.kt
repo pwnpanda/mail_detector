@@ -31,6 +31,7 @@ class RepeatedTrigger : BroadcastReceiver() {
         if (hour == -1 || minute == -1) return
 
         Log.d(myTag, "Alarm triggered for: $hour:$minute at ${LocalDateTime.now()}")
+        // TODO need to check why alarm does not trigger
         if ( util.recordrepo.areAllTaken( util.today() ) ){
             Log.d(myTag, "All pills taken, no cause to sound alarm!")
             return

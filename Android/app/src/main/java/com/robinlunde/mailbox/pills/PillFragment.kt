@@ -336,14 +336,18 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
     // Show only taken pills
     private fun handlePillsTaken(buttonList: LinearLayoutCompat) {
-        /* TODO
-            val colors = dayData[date.toInt()].getTakenColors
-            colors.zip(buttonList.children).forEach { (color, child) -> {
-                if (!color) child.visibility = View.Gone
-                setBackgroundColor(child, color)
-                }
-            }
-        */
+        // TODO add logging
+        val allButtons = buttonList.touchables
+        val colors = util.recordrepo.getTakenColors( util.today() )
+        if (colors == null){
+            buttonList.visibility = View.INVISIBLE
+            return
+        }
+        var i = 0
+        for (button in allButtons) {
+            button.setBackgroundColor(colors[i++])
+            if (i >= colors.size) button.visibility = View.GONE
+        }
     }
 
     // Set color if all pills are taken for a given day
@@ -360,24 +364,20 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
         if ( recordRepo.areAllTaken( date ) ) {
             // Set border
             drawable.setStroke(8, requireContext().getColor(R.color.green_pill))
-            // Set text color
-            obj.setTextColor(requireContext().getColor(R.color.charcoal_light))
         } else {
             //Set border
             drawable.setStroke(8, requireContext().getColor(R.color.top))
-            // Set text color
-            obj.setTextColor(requireContext().getColor(R.color.charcoal_light))
         }
+
+        // Set text color
+        obj.setTextColor(requireContext().getColor(R.color.charcoal_light))
         obj.background = drawable
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
     private fun dayUIUpdate() {
         Log.d("$logTag dayUIUpdate", "Today $todayDate All Dates ${curWeekDatesDay.joinToString(",")}")
-        // TODO change - just for testing
-        //  todayDate = 4
         for (i in 0..6) {
-
             // Today
             if (curWeekDatesDay[i] == todayDate) {
                 val drawable = GradientDrawable()
@@ -546,13 +546,8 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
         dayCircleObjects[0].text = curWeekDatesDay[0].toString()
         for (i in 1..6) {
             // Get current date
-            val dateOffset = when {
-                todayDate < curWeekDatesDay[i] -> i-6
-                todayDate > curWeekDatesDay[i] -> i
-                else -> 0
-            }
-            val tmpCurDate = (todayObject.clone() as Calendar).apply {
-                add(Calendar.DATE, dateOffset)
+            val tmpCurDate = (curWeekDates[0].clone() as Calendar).apply {
+                add(Calendar.DATE, i)
             }
             //Log.d("$logTag updateWeekView", "$tmpCurDate")
             val tmpCurDateInt = tmpCurDate.get(Calendar.DAY_OF_MONTH)
