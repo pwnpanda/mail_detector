@@ -2,7 +2,6 @@ package com.robinlunde.mailbox.pills
 
 import android.content.Context
 import android.text.SpannableStringBuilder
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,6 +21,7 @@ import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.databinding.FragmentPillUpdateBinding
 import com.robinlunde.mailbox.datamodel.pill.Pill
 import kotlinx.coroutines.*
+import timber.log.Timber
 
 class PillUpdateAdapter(
     private val dataEntries: MutableList<Pill>,
@@ -30,7 +30,6 @@ class PillUpdateAdapter(
     val binding: FragmentPillUpdateBinding
 ) :
 RecyclerView.Adapter<Util.PillItemViewHolder>() {
-    val logTag = "PillUpdateAdapter -"
 
     override fun getItemCount(): Int = dataEntries.size
 
@@ -45,8 +44,8 @@ RecyclerView.Adapter<Util.PillItemViewHolder>() {
             val oldPill = pill
 
             val errorHandler = CoroutineExceptionHandler { _, exception ->
-                Log.d("$logTag onBindViewHolder", "Received error: ${exception.message}!")
-                Log.e("$logTag onBindViewHolder", "Trace: ${exception.printStackTrace()}!")
+                Timber.d("Received error: ${exception.message}!")
+                Timber.e("Trace: ${exception.printStackTrace()}!")
                 Toast.makeText(
                     MailboxApp.getContext(),
                     "Failed to change data $pill!",
@@ -69,23 +68,25 @@ RecyclerView.Adapter<Util.PillItemViewHolder>() {
                     .density(12)
                     .setOnColorSelectedListener { selectedColor ->
                         newColor = selectedColor
-                        Log.d("$logTag ColorSelector", "Temporary selected color $selectedColor")
+                        Timber.d("Temporary selected color $selectedColor")
                     }
                     .setPositiveButton("ok") { dialog, selectedColor, allColors ->
                         newColor = selectedColor
                         color.setBackgroundColor(selectedColor)
-                        Log.d("$logTag ColorSelector", "Selected color $selectedColor")
+                        Timber.d("Selected color $selectedColor")
                     }
                     .setNegativeButton("cancel") { dialog, which -> }
                     .build()
                     .show()
             }
             // Set UUID
-            holder.constraintLayout.findViewById<TextView>(R.id.pill_uuid).text = pill.uuid.toString()
+            holder.constraintLayout.findViewById<TextView>(R.id.pill_uuid).text =
+                pill.uuid.toString()
             // Set name
-            val nameInput = holder.constraintLayout.findViewById<TextInputEditText>(R.id.update_pill_name_input)
-            if (pill.name =="") pill.name = pill.getPillName()
-            Log.d("$logTag onBindViewHolder","Pill name: ${pill.name}")
+            val nameInput =
+                holder.constraintLayout.findViewById<TextInputEditText>(R.id.update_pill_name_input)
+            if (pill.name == "") pill.name = pill.getPillName()
+            Timber.d("Pill name: ${pill.name}")
             nameInput.text = SpannableStringBuilder(pill.name)
             // Set Active clicklistener
             val active = holder.constraintLayout.findViewById<CheckBox>(R.id.active_pill)
@@ -95,40 +96,42 @@ RecyclerView.Adapter<Util.PillItemViewHolder>() {
                 newChecked = active.isChecked
             }
             // Set update clicklistener
-            holder.constraintLayout.findViewById<AppCompatImageButton>(R.id.update_pill_button).setOnClickListener {
+            holder.constraintLayout.findViewById<AppCompatImageButton>(R.id.update_pill_button)
+                .setOnClickListener {
 
-                coroutineScope.launch(errorHandler) {
-                    pill.active = newChecked
-                    pill.color = newColor
-                    pill.name = nameInput.text.toString()
+                    coroutineScope.launch(errorHandler) {
+                        pill.active = newChecked
+                        pill.color = newColor
+                        pill.name = nameInput.text.toString()
 
-                    // Update shared preferences
-                    val prefs = MailboxApp.getPrefs()
-                    with(prefs.edit()) {
-                        putString(pill.uuid!!.toString(), pill.name)
-                        apply()
+                        // Update shared preferences
+                        val prefs = MailboxApp.getPrefs()
+                        with(prefs.edit()) {
+                            putString(pill.uuid!!.toString(), pill.name)
+                            apply()
+                        }
+
+                        Timber.d("Updating pill to be: $pill")
+                        val createdPill = util.pillrepo.updatePill(pill)
+                        Timber.d("Updated pill to be: $pill")
+
+                        createdPill.name = oldPill.name
+                        Toast.makeText(
+                            MailboxApp.getContext(),
+                            "Updated pill!",
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
-
-                    Log.d("$logTag onBindViewHolder", "Updating pill to be: $pill")
-                    val createdPill = util.pillrepo.updatePill(pill)
-                    Log.d("$logTag onBindViewHolder", "Updated pill to be: $pill")
-
-                    createdPill.name = oldPill.name
-                    Toast.makeText(MailboxApp.getContext(),
-                        "Updated pill!",
-                        Toast.LENGTH_LONG
-                    ).show()
                 }
-            }
             // Set delete clicklistener
-            holder.constraintLayout.findViewById<AppCompatImageButton>(R.id.delete_pill_button).setOnClickListener {
-                coroutineScope.launch(errorHandler) {
-                    // TODO log action and data
-                    util.pillrepo.deletePill(pill.id!!)
-                    adapter.notifyItemRemoved(position)
-                    Log.d("$logTag onBindViewHolder", "Deleted pill: $pill")
+            holder.constraintLayout.findViewById<AppCompatImageButton>(R.id.delete_pill_button)
+                .setOnClickListener {
+                    coroutineScope.launch(errorHandler) {
+                        util.pillrepo.deletePill(pill.id!!)
+                        adapter.notifyItemRemoved(position)
+                        Timber.d("Deleted pill: $pill")
+                    }
                 }
-            }
 
         } else {
             binding.pillUpdateEntries.visibility = View.INVISIBLE

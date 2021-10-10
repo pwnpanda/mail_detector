@@ -19,7 +19,8 @@ class PillTakenAdapter(
     ctx: Context,
     private val spinner: Spinner
 ) : BaseAdapter() {
-    private val inflater: LayoutInflater = ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    private val inflater: LayoutInflater =
+        ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val pill = data[position]

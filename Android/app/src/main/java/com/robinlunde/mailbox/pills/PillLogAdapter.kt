@@ -1,6 +1,5 @@
 package com.robinlunde.mailbox.pills
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +14,7 @@ import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.databinding.FragmentPillLogBinding
 import com.robinlunde.mailbox.datamodel.pill.Record
 import kotlinx.coroutines.*
+import timber.log.Timber
 
 class PillLogAdapter(
     private val dataEntries: MutableList<Record>,
@@ -22,7 +22,6 @@ class PillLogAdapter(
     val binding: FragmentPillLogBinding
 ) :
     RecyclerView.Adapter<Util.RecordItemViewHolder>() {
-    val logTag = "PillLogAdapter -"
 
     override fun getItemCount(): Int = dataEntries.size
 
@@ -47,8 +46,8 @@ class PillLogAdapter(
             holder.constraintLayout.findViewById<ImageButton>(R.id.pill_delete_history_button)
                 .setOnClickListener {
                     val errorHandler = CoroutineExceptionHandler { _, exception ->
-                        Log.d("$logTag onBindViewHolder", "Received error: ${exception.message}!")
-                        Log.e("$logTag onBindViewHolder", "Trace: ${exception.printStackTrace()}!")
+                        Timber.d("Received error: ${exception.message} !")
+                        Timber.e("Trace: ${exception.printStackTrace()} !")
                         Toast.makeText(
                             MailboxApp.getContext(),
                             "Failed to delete data $record!",
@@ -56,6 +55,7 @@ class PillLogAdapter(
                         ).show()
                     }
                     val coroutineScope = CoroutineScope(Job() + Dispatchers.Main)
+                    Timber.d("Trying to delete Record $record")
                     coroutineScope.launch(errorHandler) {
                         util.recordrepo.deleteRecord(rec_id = record.id!!)
                     }

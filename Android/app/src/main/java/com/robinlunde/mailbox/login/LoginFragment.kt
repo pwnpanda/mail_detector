@@ -19,6 +19,7 @@ import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.databinding.FragmentLoginBinding
 import com.robinlunde.mailbox.datamodel.pill.User
 import kotlinx.coroutines.*
+import timber.log.Timber
 
 class LoginFragment : Fragment() {
 
@@ -197,17 +198,17 @@ class LoginFragment : Fragment() {
             }
             if (func == "login") coroutineScope.launch(exceptionHandler) {
                 val userLoc: User = util.login(user)
-                Log.d("Login - $func", "Returned $userLoc")
+                Timber.d("Returned $userLoc")
 
                 util.authInterceptor.Token(userLoc.token.toString())
 
                 val tmpUser = util.getUsers()
-                Log.d("Login - $func", "Tmp user: $tmpUser")
+                Timber.d("Tmp user: $tmpUser")
 
                 util.user = tmpUser
                 util.user!!.password = user.password
                 util.user!!.token = userLoc.token
-                Log.d("Login - $func", "Final user: ${util.user}")
+                Timber.d("Final user: ${util.user}")
 
                 with(prefs.edit()) {
                     putString("Token", userLoc.token.toString())
@@ -222,7 +223,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun moveUponResult() {
-        Log.d("Login - moveUponResult", "Successful callback")
+        Timber.d("Successful callback")
         if (MailboxApp.getUtil().user != null) {
             // Move to AlertFragment
             findNavController(this)
@@ -272,7 +273,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun setUsername(username: String) {
-        Log.d("LoginFragment - setUsername", "Set Username to: $username")
+        Timber.d("Set Username to: $username")
         // Set text in field to username if previously stored
         if (username != "") binding.usernameInput.setText(username)
     }

@@ -22,6 +22,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class AlertFragment : Fragment() {
     private lateinit var util: Util
@@ -37,7 +38,7 @@ class AlertFragment : Fragment() {
 
         // Update UI if new data
         val statusObserver = Observer<PostUpdateStatus> { newData ->
-            Log.d("Observer - Alert", newData.toString())
+            Timber.d(newData.toString())
             // do something with new data
             updateFragment(newData)
         }
@@ -122,7 +123,7 @@ class AlertFragment : Fragment() {
     private fun noNewMail(
         status: PostUpdateStatus
     ) {
-        Log.d("AlertFragment", "No new mail")
+        Timber.d("No new mail")
         // Clear fragment data
         binding.clearNotifyBtn.visibility = View.INVISIBLE
         binding.timestampTime.visibility = View.INVISIBLE
@@ -163,7 +164,7 @@ class AlertFragment : Fragment() {
     private fun newMail(
         status: PostUpdateStatus
     ) {
-        Log.d("AlertFragment", "New mail!")
+        Timber.d("New mail!")
         binding.clearNotifyBtn.visibility = View.VISIBLE
         binding.timestampTime.visibility = View.VISIBLE
         // If you got the last message from the BT device

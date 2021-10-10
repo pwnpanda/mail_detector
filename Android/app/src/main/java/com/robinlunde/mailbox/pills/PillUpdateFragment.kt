@@ -22,7 +22,6 @@ import com.robinlunde.mailbox.datamodel.pill.Pill
 class PillUpdateFragment : Fragment() {
     private lateinit var binding: FragmentPillUpdateBinding
     private val util: Util = MailboxApp.getUtil()
-    val logTag = "PillUpdateFragment -"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,7 +29,6 @@ class PillUpdateFragment : Fragment() {
         setHasOptionsMenu(true)
 
         // Watch data
-        // TODO
         val observer = Observer<MutableList<Pill>> { newData ->
             binding.pillUpdateEntries.adapter = PillUpdateAdapter(newData, util, context, binding)
             // Update layout manager

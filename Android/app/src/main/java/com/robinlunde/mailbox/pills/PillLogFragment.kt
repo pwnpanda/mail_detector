@@ -21,7 +21,6 @@ import com.robinlunde.mailbox.datamodel.pill.Record
 class PillLogFragment : Fragment() {
     private lateinit var binding: FragmentPillLogBinding
     private val util: Util = MailboxApp.getUtil()
-    val logTag = "PillLogFragment -"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

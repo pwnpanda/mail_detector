@@ -10,7 +10,6 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -22,10 +21,11 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import com.robinlunde.mailbox.databinding.ActivityMainBinding
 import com.robinlunde.mailbox.debug.ScanType
+import timber.log.Timber
 
 
 // TODO
-// Get data from BT, call MailboxApp.setStatus(status), and send new status to web by calling
+//  Get data from BT, call MailboxApp.setStatus(status), and send new status to web by calling
 
 class MainActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
@@ -115,11 +115,11 @@ class MainActivity : AppCompatActivity() {
     // Currently just logs information for debugging
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        Log.d("Intent!", "Intent received: $intent")
+        Timber.d("Intent received: $intent")
 
         // It is my push notification intent!
         if (intent.getBooleanExtra(getString(R.string.app_name), false)) {
-            Log.d("Intent!", "My intent received: $intent")
+            Timber.d("My intent received: $intent")
             // No need to update fragment, as it does so automatically upon intent clicked ^~^
         }
         if (intent.getBooleanExtra("pill", false)) {
@@ -186,8 +186,8 @@ class MainActivity : AppCompatActivity() {
         when (requestCode) {
             // If we requested BT
             RequestCodeConst.EnableBluetooth -> {
-                Log.d("Bluetooth", "Bluetooth permission not granted")
-                if (resultCode != Activity.RESULT_OK) {
+                Timber.d("Bluetooth permission not granted")
+                if (resultCode != RESULT_OK) {
                     promptGivePermission()
                 }
             }
@@ -200,7 +200,7 @@ class MainActivity : AppCompatActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        Log.d("PermCounter", "Permission counter is: $permCheckCount")
+        Timber.d("Permission counter is: $permCheckCount")
 
         when (requestCode) {
 
@@ -209,10 +209,10 @@ class MainActivity : AppCompatActivity() {
                 if ((grantResults.isNotEmpty() &&
                             grantResults[0] == PackageManager.PERMISSION_GRANTED)
                 ) {
-                    Log.d("Permission", "Permission for BT and Loc granted")
+                    Timber.d("Permission for BT and Loc granted")
                 } else {
                     // be unhappy
-                    Log.d("Permission", "Permission for BT and Loc DENIED!")
+                    Timber.d("Permission for BT and Loc DENIED!")
                     permCheckCount++
                 }
             }
@@ -223,16 +223,16 @@ class MainActivity : AppCompatActivity() {
                             grantResults[0] == PackageManager.PERMISSION_GRANTED)
                 ) {
                     // Be happy
-                    Log.d("Permission", "Permission for Loc granted")
+                    Timber.d("Permission for Loc granted")
 
                 } else {
                     // be unhappy
-                    Log.d("Permission", "Permission for Loc DENIED!")
+                    Timber.d("Permission for Loc DENIED!")
                     permCheckCount++
                 }
             }
             else -> {
-                Log.d("Permission", "Unknown permission result")
+                Timber.d("Unknown permission result")
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)

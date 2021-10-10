@@ -6,10 +6,10 @@ import okhttp3.Response
 // https://stackoverflow.com/questions/41078866/retrofit2-authorization-global-interceptor-for-access-token
 class AuthenticationInterceptor : Interceptor {
 
-    var token: String = "";
+    var token: String = ""
 
     fun Token(token: String) {
-        this.token = token;
+        this.token = token
     }
 
     override fun intercept(chain: Interceptor.Chain): Response {

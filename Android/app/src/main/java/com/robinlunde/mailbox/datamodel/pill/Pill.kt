@@ -1,10 +1,10 @@
 package com.robinlunde.mailbox.datamodel.pill
 
-import android.util.Log
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.robinlunde.mailbox.MailboxApp
+import timber.log.Timber
 import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -38,8 +38,8 @@ class Pill(
     fun getPillName(): String {
         val prefs = MailboxApp.getPrefs()
         var name = ""
-        if (uuid != null)   name = prefs.getString(uuid.toString(),"") ?: ""
-        Log.d("Pill - getPillName", "Pill with $uuid has name: $name")
+        if (uuid != null) name = prefs.getString(uuid.toString(), "") ?: ""
+        Timber.d("Pill with $uuid has name: $name")
         return name
     }
 

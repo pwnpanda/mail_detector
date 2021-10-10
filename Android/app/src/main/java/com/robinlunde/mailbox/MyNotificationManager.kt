@@ -7,13 +7,13 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.robinlunde.mailbox.datamodel.MyMessage
+import timber.log.Timber
 
 class MyNotificationManager(private val ctx: Context) {
     private val myNotificationManager: NotificationManager =
@@ -64,7 +64,7 @@ class MyNotificationManager(private val ctx: Context) {
                 null
             )
         } else {
-            Log.d("Notification", "Android version too old, ignoring push notifications!")
+            Timber.d("Android version too old, ignoring push notifications!")
             null
         }
 
@@ -115,7 +115,7 @@ class MyNotificationManager(private val ctx: Context) {
             else myNotificationManager.notify(mailNotificationId, builder.build())
 
         } else {
-            Log.d("Notification", "Android version too old, ignoring push notifications!")
+            Timber.d("Android version too old, ignoring push notifications!")
         }
     }
 }

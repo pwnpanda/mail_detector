@@ -37,9 +37,9 @@ class Record(
 
     override fun toString(): String {
         var resString = "Day id: $day_id User id: $user_id Pill id: $pill_id Taken: $taken "
+        if (id != null)   resString = "Record ID: $id $resString"
         if (created_at != null)   resString += "Created at: $created_at "
         if (updated_at != null)   resString += "Updated at: $updated_at "
-        if (id != null)   resString += "ID: $id "
         if (msg != null)   resString += "msg: $msg "
         if (updated != "")   resString += "Updated at: $updated - Date: $updateDate Time: $updateTime "
         if (user != null)   resString += "User: $user "

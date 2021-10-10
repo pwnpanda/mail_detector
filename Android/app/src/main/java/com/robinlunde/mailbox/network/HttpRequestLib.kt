@@ -1,7 +1,6 @@
 package com.robinlunde.mailbox.network
 
 import android.content.Context
-import android.util.Log
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.robinlunde.mailbox.MailboxApp
 import com.robinlunde.mailbox.R
@@ -10,6 +9,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import timber.log.Timber
 import java.net.URL
 
 
@@ -35,9 +35,9 @@ class HttpRequestLib {
         val response = client.newCall(request).execute()
 
         val responseBody = response.body!!.string()
-        Log.d("HTTP-Get", "Response code: ${response.code}")
+        Timber.d("Response code: " + response.code)
         //Response
-        Log.d("HTTP-Get", "Response Body: $responseBody")
+        Timber.d("Response Body: $responseBody")
         return if (response.code == 200) {
             responseBody
         } else ""
@@ -45,7 +45,7 @@ class HttpRequestLib {
 
     // Send latest data to Server
     fun sendDataWeb(timestamp: String): Boolean {
-        Log.d("HTTP-SendLog-Post", "Timestamp in: $timestamp")
+        Timber.d("Timestamp in: $timestamp")
         val pickupTime = MailboxApp.getUtil().getTime()
         //Using jackson to get string to JSON
         val mapperAll = ObjectMapper()
@@ -64,12 +64,12 @@ class HttpRequestLib {
 
         val response = client.newCall(request).execute()
         val responseBody = response.body!!.string()
-        Log.d("HTTP-SendLog-Post", "Full transmission: $request")
-        Log.d("HTTP-SendLog-Post", "Full response: $response")
+        Timber.d("Full transmission: $request")
+        Timber.d("Full response: $response")
         //Response
-        Log.d("HTTP-SendLog-Post", "Response Body: $responseBody")
+        Timber.d("Response Body: $responseBody")
         if (response.code == 200) {
-            Log.d("HTTP-SendLog-Post", "Timestamp for pickup logged successfully")
+            Timber.d("Timestamp for pickup logged successfully")
 
         }
         return response.code == 200
@@ -77,7 +77,7 @@ class HttpRequestLib {
 
     // delete entry
     fun deleteLog(id: Int): Boolean {
-        Log.d("HTTP-Delete", "Entered process for id:$id")
+        Timber.d("Entered process for id:$id")
         val newUrl = URL("$url/$id")
         val request = Request.Builder()
             .url(newUrl)
@@ -87,8 +87,8 @@ class HttpRequestLib {
 
         val responseBody = response.body!!.string()
         //Response
-        Log.d("HTTP-Delete", "Response code: ${response.code}")
-        Log.d("HTTP-Delete", "Response Body: $responseBody")
+        Timber.d("Response code: " + response.code)
+        Timber.d("Response Body: $responseBody")
 
         return response.code == 200
     }
@@ -96,7 +96,7 @@ class HttpRequestLib {
 
     // Send latest data to Server
     fun setNewUpdateWeb(data: PostUpdateStatus): Boolean {
-        val urlNow: URL = URL(MailboxApp.getInstance().getString(R.string.post_update_url))
+        val urlNow = URL(MailboxApp.getInstance().getString(R.string.post_update_url))
         //Using jackson to get string to JSON
         val mapperAll = ObjectMapper()
         val jacksonObj = mapperAll.createObjectNode()
@@ -114,12 +114,12 @@ class HttpRequestLib {
 
         val response = client.newCall(request).execute()
         val responseBody = response.body!!.string()
-        Log.d("HTTP-Status-Post", "Full transmission: $request")
-        Log.d("HTTP-Status-Post", "Full response: $response")
+        Timber.d("Full transmission: $request")
+        Timber.d("Full response: $response")
         //Response
-        Log.d("HTTP-Status-Post", "Response Body: $responseBody")
+        Timber.d("Response Body: $responseBody")
         if (response.code == 200) {
-            Log.d("HTTP-Status-Post", "Timestamp for pickup logged successfully")
+            Timber.d("Timestamp for pickup logged successfully")
 
         }
         return response.code == 200

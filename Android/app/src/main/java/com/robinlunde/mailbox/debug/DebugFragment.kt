@@ -22,18 +22,18 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 
 class DebugFragment : Fragment() {
     private lateinit var util: Util
     private lateinit var binding: FragmentDebugBinding
     private val model: DebugViewModel by viewModels()
-    private val logTag = "DebugFragment"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        Log.d(logTag, "OnCreate Called for Debug!")
+        Timber.d("OnCreate Called for Debug!")
         util = MailboxApp.getUtil()
         // Start collecting debug data
         MailboxApp.getBTConn().requestDebugData()
@@ -43,20 +43,20 @@ class DebugFragment : Fragment() {
         val statusObserver = Observer<MutableList<Double>> { newData ->
             // Just ignore issue since it is for debugging!
             try {
-                Log.d(logTag, newData.toString())
+                Timber.d(newData.toString())
                 // do something with new data
                 updateFragment(newData)
             } catch (e: ConcurrentModificationException) {
-                Log.d(logTag, "Got data too quickly, just error out and update next time")
+                Timber.d("Got data too quickly, just error out and update next time")
             } catch (e: Exception) {
-                Log.e(logTag, "Got some fatal error! Crash in order to debug further")
+                Timber.e("Got some fatal error! Crash in order to debug further")
                 throw e
             }
         }
         model.sensorData.observe(this, statusObserver)
 
         val rssiObserver = Observer<Int> { newRSSI ->
-            Log.d(logTag, "New RSSI Value: $newRSSI")
+            Timber.d("New RSSI Value: $newRSSI")
             binding.rssi.text = getString(R.string.rssiSignal, newRSSI)
         }
         model.rssi.observe(this, rssiObserver)
@@ -98,7 +98,7 @@ class DebugFragment : Fragment() {
         val data: LineGraphSeries<DataPoint> = LineGraphSeries<DataPoint>()
         // Automatically sorted as first entry has lowest x value!
         for (i in newData.indices) {
-            Log.d(logTag, "Index: $i - Value: ${newData[i]}")
+            Timber.d("Index: $i  - Value: $newData[i]")
             data.appendData(DataPoint(i.toDouble(), newData[i]), true, 100)
         }
 

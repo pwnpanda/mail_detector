@@ -1,6 +1,7 @@
 package com.robinlunde.mailbox.network
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.robinlunde.mailbox.Util
 import okhttp3.OkHttpClient
@@ -9,7 +10,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import java.util.concurrent.TimeUnit
 
-// Change this later and override it in specific versions for Mail-function instead TODO
+// TODO Change this later and override it in specific versions for Mail-function instead
 const val BASEURL = "https://robinlunde.com/api/"
 
 // MailboxApp.getContext().getString(R.string.base_url)
@@ -34,7 +35,16 @@ class HttpRequestLib2 {
                 .connectTimeout(10, TimeUnit.SECONDS).build()
 
             val objectMapper = ObjectMapper()
-            objectMapper.registerModule(KotlinModule())
+            objectMapper.registerModule(
+                KotlinModule.Builder()
+                    .withReflectionCacheSize(512)
+                    .configure(KotlinFeature.NullToEmptyCollection, false)
+                    .configure(KotlinFeature.NullToEmptyMap, false)
+                    .configure(KotlinFeature.NullIsSameAsDefault, false)
+                    .configure(KotlinFeature.SingletonSupport, DISABLED)
+                    .configure(KotlinFeature.StrictNullChecks, false)
+                    .build()
+            )
             val factory = JacksonConverterFactory.create(objectMapper)
 
             if (retrofit == null) {

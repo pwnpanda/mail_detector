@@ -8,7 +8,6 @@ import android.icu.util.Calendar
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -36,6 +35,7 @@ import com.robinlunde.mailbox.repository.PillRepository
 import com.robinlunde.mailbox.repository.RecordRepository
 import com.robinlunde.mailbox.triggers.RepeatedTrigger
 import kotlinx.coroutines.*
+import timber.log.Timber
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
@@ -50,7 +50,6 @@ class Util {
     private lateinit var myNotificationManager: MyNotificationManager
     private lateinit var alarmPendingIntent: PendingIntent
     private lateinit var alarmManager: AlarmManager
-    private val logTag = "Util -"
 
     class LogItemViewHolder(val constraintLayout: ConstraintLayout) :
         RecyclerView.ViewHolder(constraintLayout)
@@ -91,7 +90,7 @@ class Util {
             )
             else MyNotificationManager(MailboxApp.getContext()!!).createPush(message, pillAlert)
         } else {
-            Log.d("Push", "Android version too old, ignoring push notification!")
+            Timber.d("Android version too old, ignoring push notification!")
         }
     }
 
@@ -115,13 +114,13 @@ class Util {
                 override fun run() {
                     // Check if error when getting new data
                     if (!getDataWeb(null)) {
-                        Log.d("HTTP-Get", "Error when getting logs from server")
+                        Timber.d("Error when getting logs from server")
                     }
                     MailboxApp.getBTConn().bleScan(ScanType.BACKGROUND)
                     val lastCheck = getDataWeb(updateURL)
                     // if there was new mail
                     if (!lastCheck) {
-                        Log.d("HTTP-Get", "Error when checking for new status with server")
+                        Timber.d("Error when checking for new status with server")
                     }
 
                     //1 second * 60 * 30 = 30 min
@@ -138,7 +137,7 @@ class Util {
         return suspendCoroutine {
             val context = MailboxApp.getInstance()
             // Do async thread with network request
-            Log.d("TryToRequest", "Type: $type Timestamp: $timestamp Id: $id")
+            Timber.d("Type: $type Timestamp: $timestamp Id: $id")
 
 
             var sent = false
@@ -152,16 +151,13 @@ class Util {
                 val thread = Thread {
                     // Try to send web request
                     try {
-                        Log.d("Thread", "Sleeping")
+                        Timber.d("Sleeping")
                         Thread.sleep(time.toLong())
                         when (type) {
                             // Send the log off to api after picking it up
                             context.getString(R.string.sendLogsMethod) -> {
                                 if (timestamp == null) {
-                                    Log.d(
-                                        "Error",
-                                        "Timestamp is null when trying to add new post log entry"
-                                    )
+                                    Timber.d("Timestamp is null when trying to add new post log entry")
                                     throw NullPointerException()
                                 }
                                 sendLog(timestamp).also { sent = it }
@@ -170,7 +166,7 @@ class Util {
                             // Delete an entry
                             context.getString(R.string.deleteLogsMethod) -> {
                                 if (id == null) {
-                                    Log.d("Error", "Id is null when trying to delete log entry")
+                                    Timber.d("Id is null when trying to delete log entry")
                                     throw NullPointerException()
                                 }
                                 delLog(id).also { sent = it }
@@ -184,10 +180,7 @@ class Util {
                             // New communication with BT device / new mail pickup - share with online api
                             context.getString(R.string.set_last_status_update_method) -> {
                                 if (newMail == null) {
-                                    Log.d(
-                                        "Error",
-                                        "newMail is null when trying to set new status update"
-                                    )
+                                    Timber.d("newMail is null when trying to set new status update")
                                     throw NullPointerException()
                                 }
                                 setLastUpdate(
@@ -210,7 +203,7 @@ class Util {
                         e.printStackTrace()
                     }
                 }
-                Log.d("Thread", "Trying transmission $tries / 6")
+                Timber.d("Trying transmission $tries / 6")
                 thread.start()
                 thread.join()
                 tries++
@@ -218,14 +211,14 @@ class Util {
                 // Check if we succeeded or if we are giving up
                 if (tries >= 7 || sent) {
                     if (tries >= 7) {
-                        Log.d("Thread", "Tried 6 transmissions but failed - Giving up! ")
+                        Timber.d("Tried 6 transmissions but failed - Giving up! ")
                         Toast.makeText(
                             MailboxApp.getInstance().applicationContext,
                             "Failed to save timestamp! Giving up!",
                             Toast.LENGTH_LONG
                         ).show()
                     } else {
-                        Log.d("Thread", "Transmission success for type: $type!")
+                        Timber.d("Transmission success for type: $type!")
                     }
                     break
                 }
@@ -247,9 +240,9 @@ class Util {
             }
             return@runBlocking tmpRes
         }
-        Log.d("HTTP-Post", res.toString())
+        Timber.d(res.toString())
         // Update with latest info from server
-        if (!getDataWeb(updateURL)) Log.d("HTTP-Get", "Error when getting status from server!")
+        if (!getDataWeb(updateURL)) Timber.d("Error when getting status from server!")
 
         return res
     }
@@ -268,9 +261,9 @@ class Util {
             }
             return@runBlocking tmpRes
         }
-        Log.d("HTTP-Post", res.toString())
+        Timber.d(res.toString())
         // Update with latest info from server
-        if (!getDataWeb(updateURL)) Log.d("HTTP-Get", "Error when getting status from server!")
+        if (!getDataWeb(updateURL)) Timber.d("Error when getting status from server!")
         return res
     }
 
@@ -294,7 +287,7 @@ class Util {
             return@runBlocking tmpRes
         }
         val gotValidResult = res != ""
-        Log.d("HTTP-Get", "Valid result? $gotValidResult")
+        Timber.d("Valid result? $gotValidResult")
 
 
         val mapper = jacksonObjectMapper()
@@ -303,10 +296,10 @@ class Util {
         if (myUrl != null && gotValidResult) {
             // Convert data to ArrayList using jackson
             if (res.contains("\"timestamp\":\"\"")) {
-                Log.d("StatusUpdate-data", "Data not yet initialized in server!")
+                Timber.d("Data not yet initialized in server!")
             } else {
                 val dataParsed: PostUpdateStatus = mapper.readValue(res)
-                Log.d("ParsedData", dataParsed.toString())
+                Timber.d(dataParsed.toString())
                 // Call to store value
                 updateStatus(dataParsed)
             }
@@ -314,7 +307,7 @@ class Util {
             // Getting Log-data since we didn't specify an URL
             // Convert data to ArrayList using jackson
             val dataParsed: MutableList<PostLogEntry> = mapper.readValue(res)
-            Log.d("ParsedData", dataParsed.toString())
+            Timber.d(dataParsed.toString())
             // Call to store value
             updateLogs(dataParsed)
         }
@@ -336,9 +329,9 @@ class Util {
             }
             return@runBlocking tmpRes
         }
-        Log.d("HTTP-Del", res.toString())
+        Timber.d(res.toString())
         // Fetch new data from web
-        if (!getDataWeb(null)) Log.d("HTTP-Get", "Error when getting new logs from server!")
+        if (!getDataWeb(null)) Timber.d("Error when getting new logs from server!")
         return res
     }
 
@@ -354,7 +347,7 @@ class Util {
 
     // ----------------------------- BT -------------------------------
     fun btEnabled() {
-        Log.d("BlueTooth", "Proxied from Util")
+        Timber.d("Proxied from Util")
         MailboxApp.getBTConn().btEnabledConfirmed()
     }
 
@@ -362,7 +355,7 @@ class Util {
 
     fun getMyDate(str: String): String {
         if (str == "") {
-            Log.e("getTime", "In string is empty!")
+            Timber.e("In string is empty!")
             throw java.lang.NullPointerException("Input string is empty")
         }
         return str.split("T")[0]
@@ -370,14 +363,14 @@ class Util {
 
     fun getMyTime(str: String): String {
         if (str == "") {
-            Log.e("getTime", "In string is empty!")
+            Timber.e("In string is empty!")
             throw java.lang.NullPointerException("Input string is empty")
         }
         return str.split("T")[1].subSequence(0, 8).toString()
     }
 
     fun logButtonPress(msg: String) {
-        Log.d("MenuButtonPressed", msg)
+        Timber.d(msg)
     }
 
     fun getTime(): String {
@@ -386,7 +379,7 @@ class Util {
         } else {
             val sdf = SimpleDateFormat("yyyy-MM-ddTHHmmssZ", Locale.getDefault())
             val currentDateAndTime: String = sdf.format(Date())
-            Log.d("Outdated Time", currentDateAndTime)
+            Timber.d(currentDateAndTime)
             currentDateAndTime
         }
     }
@@ -395,11 +388,10 @@ class Util {
     // Activate alarm
     fun activateAlarm(hourTime: Int, minuteTime: Int) {
 
-        val thisTag = "$logTag activateAlarm"
         val hour = if (hourTime == -1) 21 else hourTime
         val minute = if (minuteTime == -1) 0 else minuteTime
 
-        Log.d(thisTag, "Received values: $hour:$minute")
+        Timber.d("Received values: $hour:$minute")
 
         cancelAlarm()
 
@@ -414,14 +406,11 @@ class Util {
             .putExtra("minute", minute)
         alarmIntent.action = "AlarmAction"
 
-        Log.d(
-            thisTag,
-            "Intent values: ${
-                alarmIntent.getIntExtra(
-                    "hour",
-                    -1
-                )
-            }:${alarmIntent.getIntExtra("minute", -1)}"
+        Timber.d(
+            "Intent values: " + alarmIntent.getIntExtra(
+                "hour",
+                -1
+            ) + ":" + alarmIntent.getIntExtra("minute", -1)
         )
         alarmPendingIntent = PendingIntent.getBroadcast(
             context,
@@ -438,10 +427,10 @@ class Util {
             set(Calendar.HOUR_OF_DAY, hour)
             set(Calendar.MINUTE, minute)
 
-            Log.d(thisTag, "Cur: $timeNow - alertTime: ${this.timeInMillis}")
+            Timber.d("Cur: " + timeNow + " - alertTime: " + this.timeInMillis)
             // If it is passed the trueAlertTime, add a day
             if (timeNow >= this.timeInMillis) {
-                Log.d(thisTag, "Time passed - increasing day by 1")
+                Timber.d("Time passed - increasing day by 1")
                 add(Calendar.DAY_OF_MONTH, 1)
             }
         }
@@ -456,18 +445,15 @@ class Util {
 
 
     fun cancelAlarm() {
-        Log.d("$logTag cancelAlarm", "Trying to cancel alarm")
+        Timber.d("Trying to cancel alarm")
         try {
             // If the alarm has been set, cancel it.
             alarmManager.cancel(alarmPendingIntent)
         } catch (e: UninitializedPropertyAccessException) {
-            Log.d(
-                "$logTag cancelAlarm",
-                "This is fine - AlertManager has not yet been initialized!"
-            )
+            Timber.d("This is fine - AlertManager has not yet been initialized!")
         } catch (e: java.lang.Exception) {
-            Log.d("$logTag cancelAlarm", e.stackTraceToString())
-            Log.d("$logTag cancelAlarm", "PendingIntent likely not set. WHat type of error??")
+            Timber.d(e.stackTraceToString())
+            Timber.d("PendingIntent likely not set. WHat type of error??")
         }
     }
 
@@ -478,13 +464,13 @@ class Util {
     }
 
     suspend fun signup(user: User): User {
-        Log.d("$logTag signup", "Arrived")
+        Timber.d("Signup - Arrived")
 
         return apiInterfaceUser.signup(user)
     }
 
     suspend fun login(user: User): User {
-        Log.d("$logTag login", "Arrived")
+        Timber.d("Login - Arrived")
 
         return apiInterfaceUser.login(user)
     }
@@ -506,10 +492,7 @@ class Util {
     }
 
     fun moveToLoginFragment(name: String, frag: Fragment) {
-        Log.d(
-            "Util - moveToLoginFragment",
-            "Not logged in, so moving from $name fragment to loginFragment"
-        )
+        Timber.d("Not logged in, so moving from $name fragment to loginFragment")
         val navcontroller = NavHostFragment.findNavController(frag)
         if (name == "alert") navcontroller.navigate(AlertFragmentDirections.actionAlertFragmentToLoginFragment())
         if (name == "debug") navcontroller.navigate(DebugFragmentDirections.actionDebugFragmentToLoginFragment())
@@ -517,18 +500,15 @@ class Util {
         if (name == "pillLog") navcontroller.navigate(PillLogFragmentDirections.actionPillLogFragmentToLoginFragment())
         if (name == "pill") navcontroller.navigate(PillFragmentDirections.actionPillFragmentToLoginFragment())
         if (name == "pillUpdate") navcontroller.navigate(PillUpdateFragmentDirections.actionPillUpdateFragmentToLoginFragment())
-        else Log.e(
-            "Util - moveToLoginFragment",
-            "Name $name not found - cannot redirect to login fragment"
-        )
+        else Timber.e("Name $name not found - cannot redirect to login fragment")
     }
 
     fun fetchRepoData() {
         // setup coroutine
         val mainActivityJob = Job()
         val errorHandler = CoroutineExceptionHandler { _, exception ->
-            Log.d("$logTag fetchRepoData", "Received error: ${exception.message}!")
-            Log.e("$logTag fetchRepoData", "Trace: ${exception.printStackTrace()}!")
+            Timber.d("Received error: " + exception.message + "!")
+            Timber.e("Trace: " + exception.printStackTrace() + "!")
             Toast.makeText(
                 MailboxApp.getContext(),
                 "Failed to fetch data!",
@@ -542,6 +522,7 @@ class Util {
             dayrepo.getDays()
             pillrepo.getPills()
             recordrepo.getRecords()
+            Timber.d("Repository sizes:\nPills: ${pillrepo.data.value?.size ?: 0} - Records${recordrepo.data.value?.size ?: 0}")
         }
     }
 

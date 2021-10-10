@@ -19,9 +19,13 @@ import com.robinlunde.mailbox.datamodel.PostUpdateStatus
 import com.robinlunde.mailbox.debug.DebugViewModel
 import com.robinlunde.mailbox.logview.PostViewModel
 import com.robinlunde.mailbox.network.NativeBluetooth
+import fr.bipi.tressence.file.FileLoggerTree
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
+import java.io.File
+import java.io.IOException
 import java.time.LocalDateTime
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -31,12 +35,41 @@ class MailboxApp : Application() {
     override fun onCreate() {
         super.onCreate()
         mailboxApp = this
+
+        // Log properly
+        Timber.plant(object : Timber.DebugTree() {
+            override fun createStackElementTag(element: StackTraceElement): String? {
+                return String.format(
+                    "Class:%s: Line: %s, Method: %s",
+                    super.createStackElementTag(element),
+                    element.lineNumber,
+                    element.methodName
+                )
+            }
+        })
+        try {
+            val logsDir = File(filesDir, "logs")
+            if (!logsDir.exists()) logsDir.mkdirs()
+            val t: Timber.Tree =
+                FileLoggerTree.Builder()
+                    .withFileName("MailboxApp%g.log")
+                    .withDir(logsDir)
+                    .withSizeLimit(75000)
+                    .withFileLimit(5)
+                    .withMinPriority(Log.DEBUG)
+                    .appendToFile(true)
+                    .build()
+
+            Timber.plant(t)
+        } catch (e: IOException) {
+            Timber.w(e.printStackTrace().toString())
+        }
+
         util = Util()
 
         // Create scope and start handler in coroutine
         appScope = MainScope()
 
-        // TODO slow startup, move to async?
         appScope.launch {
             val masterKeyAlias: String = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
             prefs = EncryptedSharedPreferences.create(
@@ -63,14 +96,14 @@ class MailboxApp : Application() {
             )
         }
 
-        // Need to start with string long enough to not trigger fault
+// Need to start with string long enough to not trigger fault
         status = PostUpdateStatus(
             false,
             "FOOTBARBAZFOOBARBAZ",
             getString(R.string.no_status_yet_username)
         )
 
-        // BT
+// BT
         btConnection = NativeBluetooth()
 
         appScope.launch {
@@ -123,7 +156,7 @@ class MailboxApp : Application() {
 
         // Get username
         fun getUsername(): String {
-            return if (::username.isInitialized)    username
+            return if (::username.isInitialized) username
             else ""
         }
 
@@ -162,7 +195,7 @@ class MailboxApp : Application() {
             try {
                 postViewModel.mutablePostEntries.postValue(postLogEntryList)
             } catch (e: UninitializedPropertyAccessException) {
-                Log.d("Soft error", "Model not yet instantiated - Could not update data for view")
+                Timber.d("Model not yet instantiated - Could not update data for view")
             } catch (e: Exception) {
                 throw e
             }
@@ -209,19 +242,16 @@ class MailboxApp : Application() {
             val isEqual = status.newMail == newStatus.newMail
             // If value after update is the same as before
             if (isEqual) {
-                Log.d("Status", "Same value as before, no push needed")
+                Timber.d("Same value as before, no push needed")
                 when (newStatus.newMail) {
-                    true -> Log.d("Status", "No new information. Do nothing!")
-                    false -> Log.d("Status", "Maybe new timestamp for last check! Arbitrary update")
+                    true -> Timber.d("No new information. Do nothing!")
+                    false -> Timber.d("Maybe new timestamp for last check! Arbitrary update")
                 }
                 // If value after update is different
             } else {
                 val msg: MyMessage = when (newStatus.newMail) {
                     true -> {
-                        Log.d(
-                            "Status",
-                            "New mail detected! Send push and update fragment! Data: $newStatus"
-                        )
+                        Timber.d("New mail detected! Send push and update fragment! Data: $newStatus")
                         // This is return value
                         MyMessage(
                             "New mail detected!",
@@ -231,7 +261,7 @@ class MailboxApp : Application() {
                         )
                     }
                     false -> {
-                        Log.d("Status", "Mail picked up! Send push and update fragment")
+                        Timber.d("Mail picked up! Send push and update fragment")
                         // This is return value
                         MyMessage(
                             "Mail picked up by ${newStatus.username}!",
@@ -243,7 +273,7 @@ class MailboxApp : Application() {
                 }
                 // Push Notification only if it is not the first run
                 if (status.username != getInstance().getString(R.string.no_status_yet_username)) {
-                    Log.d("Status", "Not first run, Send push notification!")
+                    Timber.d("Not first run, Send push notification!")
                     util.pushNotification(msg)
                 }
             }
@@ -254,7 +284,7 @@ class MailboxApp : Application() {
             try {
                 alertViewModel.currentStatus.postValue(newStatus)
             } catch (e: UninitializedPropertyAccessException) {
-                Log.d("Soft error", "Model not yet instantiated - Could not update data for view")
+                Timber.d("Model not yet instantiated - Could not update data for view")
             } catch (e: Exception) {
                 throw e
             }
@@ -264,12 +294,9 @@ class MailboxApp : Application() {
         fun newBTData(time: String, onlyTimestamp: Boolean) {
 
             // TODO
-            // ensure correct format
-            // "timestamp":"2021-04-03T23:26:55.108"
-            Log.d(
-                "Main function",
-                "New data from device received: $time, only update the timestamp? $onlyTimestamp"
-            )
+            //  ensure correct format
+            //  "timestamp":"2021-04-03T23:26:55.108"
+            Timber.d("New data from device received: $time, only update the timestamp? $onlyTimestamp")
 
             // If we only update the current check timestamp and know nothing of the status of mail
             if (onlyTimestamp) {
@@ -292,11 +319,11 @@ class MailboxApp : Application() {
             val postTime = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 LocalDateTime.now().minusSeconds(time.toLong()).toString()
             } else {
-                Log.e("Time calculation", "Android version too low! Please upgrade your os")
+                Timber.e("Android version too low! Please upgrade your os")
                 throw error("Android version too low!")
             }
 
-            Log.d("Time calculation", "Time is set to: $postTime, which is $time ago.")
+            Timber.d("Time is set to: $postTime, which is $time ago.")
 
             // add update to API server - this automatically updates local state as well
             getUtil().setLastUpdate(
@@ -310,22 +337,19 @@ class MailboxApp : Application() {
 
         // increment clickCounter
         fun incrementClickCounter(): Int {
-            Log.d(
-                "MailboxApp",
-                "Increment counter +1! Value before increment: ${clickCounter.get()}"
-            )
+            Timber.d("Increment counter +1! Value before increment: " + clickCounter.get())
             return clickCounter.incrementAndGet()
         }
 
         // set clickCounter 0
         fun setClickCounterZero() {
-            Log.d("MailboxApp", "Set to 0! Current value of counter: ${clickCounter.get()}.")
+            Timber.d("Set to 0! Current value of counter: " + clickCounter.get() + ".")
             clickCounter.set(0)
         }
 
         // get clickCounter
         fun getClickCounter(): Int {
-            Log.d("MailboxApp", "Value of counter: ${clickCounter.get()}")
+            Timber.d("Value of counter: " + clickCounter.get())
             return clickCounter.get()
         }
 
@@ -336,11 +360,11 @@ class MailboxApp : Application() {
 
         // Set rssi data in debug mode
         fun setRSSIData(data: Int) {
-            Log.d("MailboxApp", "New RSSI received: $data")
+            Timber.d("New RSSI received: $data")
             try {
                 debugViewModel.rssi.postValue(data)
             } catch (e: UninitializedPropertyAccessException) {
-                Log.d("Soft error", "Model not yet instantiated - Could not update data for view")
+                Timber.d("SOFT ERROR - Model not yet instantiated - Could not update data for view")
             } catch (e: Exception) {
                 throw e
             }
@@ -348,13 +372,13 @@ class MailboxApp : Application() {
 
         // Call from BT function!
         fun setSensorData(data: Double) {
-            Log.d("MailboxApp", "New SensorData received: $data")
+            Timber.d("New SensorData received: $data")
             sensorData.add(data)
             val curValue = sensorData
             try {
                 debugViewModel.sensorData.postValue(curValue)
             } catch (e: UninitializedPropertyAccessException) {
-                Log.d("Soft error", "Model not yet instantiated - Could not update data for view")
+                Timber.d("Model not yet instantiated - Could not update data for view")
             } catch (e: Exception) {
                 throw e
             }

@@ -5,10 +5,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import com.robinlunde.mailbox.MailboxApp
 import com.robinlunde.mailbox.Util
+import timber.log.Timber
 
 class BootTrigger : BroadcastReceiver() {
     val util: Util = MailboxApp.getUtil()
@@ -16,8 +16,8 @@ class BootTrigger : BroadcastReceiver() {
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action === "android.intent.action.BOOT_COMPLETED"){
-            Log.d("BootTrigger", "Intent to set alarm sent!")
+        if (intent.action === "android.intent.action.BOOT_COMPLETED") {
+            Timber.d("Intent to set alarm sent!")
             util.activateAlarm(
                 prefs.getInt(
                     "alarm_hour",

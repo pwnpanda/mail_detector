@@ -6,7 +6,6 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -18,6 +17,7 @@ import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.NavHostFragment
 import com.flask.colorpicker.ColorPickerView
 import com.flask.colorpicker.builder.ColorPickerDialogBuilder
@@ -27,6 +27,7 @@ import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.databinding.FragmentPillBinding
 import com.robinlunde.mailbox.datamodel.pill.Pill
 import kotlinx.coroutines.*
+import timber.log.Timber
 import java.lang.reflect.Method
 import java.util.*
 
@@ -46,7 +47,6 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private val util: Util = MailboxApp.getUtil()
     private val timer: Timer = Timer()
     private var selectedPill: Pill? = null
-    val logTag = "PillFragment -"
 
     // setup coroutine
     private val mainActivityJob = Job()
@@ -58,7 +58,31 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
         // Include top menu
         setHasOptionsMenu(true)
 
-        // Update UI if new data!
+        // Watch data
+        val observer = Observer<MutableList<Pill>> { newData ->
+            spinner = binding.pillTakenLayoutIncl.dropdown
+
+            spinner.adapter = createAdapter(util.pillrepo.data.value!!, spinner)
+            spinner.onItemSelectedListener = this
+
+            // Create click listener
+            binding.pillTakenLayoutIncl.takenButton.setOnClickListener {
+                registerPillTakenAction(
+                    selectedPill
+                )
+            }
+            // Notify new data at end
+            (spinner.adapter as PillTakenAdapter).notifyDataSetChanged()
+            // TODO make logic for changing and inserting data. This is not good enough and is wrong, but works ad hoc
+            /**
+             * val curSize = binding.pillLogEntries.adapter?.itemCount!!
+             * val newItems = util.pillrepo.data.value?.size!!
+             * if (curSize < newItems) binding.pillLogEntries.adapter?.notifyItemRangeInserted(curSize, newItems-curSize)
+             */
+
+        }
+        util.pillrepo.data.observe(this, observer)
+
 
         /** Todo: Possible UI updates:
          *   New pill is added
@@ -122,6 +146,23 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
         super.onDestroy()
     }
 
+    private fun createAdapter(pills: MutableList<Pill>, spinner: Spinner): PillTakenAdapter {
+        val data = mutableListOf<Pill>()
+        for (pill in pills) {
+            if (!pill.active) continue
+            val records = util.recordrepo.findRecordsByPill(pill)
+            var taken = false
+            if (records != null) {
+                for (rec in records) if (rec.day!!.today == util.today()) taken = rec.taken
+            }
+            if (taken) continue
+            data.add(pill)
+        }
+        // https://www.tutorialsbuzz.com/2019/09/android-kotlin-custom-spinner-image-text.html
+        // TODO change from dropdown to checkbox list?
+        return PillTakenAdapter(this, data, requireContext(), spinner)
+    }
+
     private fun registerPillTakenButton() {
         // Show current pills
 
@@ -130,30 +171,17 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
         // Show input
         binding.pillTakenLayoutIncl.pillTakenLayout.visibility = View.VISIBLE
 
-        // TODO change from dropdown to checkbox list?
-        val data = mutableListOf<Pill>()
-        for (pill in util.pillrepo.data.value!!) {
-            if (!pill.active) continue
-            // TODO needs troubleshooting and verification from here
-            val records = util.recordrepo.findRecordsByPill(pill)
-            var taken = false
-            if (records != null) {
-                for (rec in records)    if(rec.day!!.today == util.today())    taken = rec.taken
-            }
-            if (taken) continue
-            data.add(pill)
-        }
-
         spinner = binding.pillTakenLayoutIncl.dropdown
 
-        // https://www.tutorialsbuzz.com/2019/09/android-kotlin-custom-spinner-image-text.html
-        val customAdapter = PillTakenAdapter(this, data, requireContext(), spinner)
-
-        spinner.adapter = customAdapter
+        spinner.adapter = createAdapter(util.pillrepo.data.value!!, spinner)
         spinner.onItemSelectedListener = this
 
         // Create click listener
-        binding.pillTakenLayoutIncl.takenButton.setOnClickListener { registerPillTakenAction(selectedPill) }
+        binding.pillTakenLayoutIncl.takenButton.setOnClickListener {
+            registerPillTakenAction(
+                selectedPill
+            )
+        }
 
         // Go back!
         binding.pillTakenLayoutIncl.cancelButton.setOnClickListener {
@@ -167,14 +195,10 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
     private fun registerPillTakenAction(pill: Pill?) {
 
-        // TODO actually do operations
-        // Clicking one sends relevant API request to register it as taken
-        // Update alarm-setting logic (pill is taken, so cancel alarm if all are taken)
-
         // Co-routine handling
         val errorHandler = CoroutineExceptionHandler { _, exception ->
-            Log.d("$logTag registerPillTakenAction", "Received error: ${exception.message}!")
-            Log.e("$logTag registerPillTakenAction", "Trace: ${exception.printStackTrace()}!")
+            Timber.d("Received error: ${exception.message}!")
+            Timber.e("Trace: ${exception.printStackTrace()}!")
             Toast.makeText(
                 MailboxApp.getContext(),
                 "Failed to register pill as taken for Pill: $pill!",
@@ -182,12 +206,16 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
             ).show()
         }
 
-        if (pill != null){
-            Log.d("$logTag registerPilLTakenAction", "Pill $pill selected. Processing!")
+        if (pill != null) {
+            Timber.d("Pill $pill selected. Processing!")
             coroutineScope.launch(errorHandler) {
                 val curDay = util.dayrepo.createDay(util.today())
-                val record = util.recordrepo.createRecord(day_id = curDay.id!!, pill_id = pill.id!!, taken = true)
-                Log.d("$logTag registerPillTakenAction", "Created record: $record")
+                val record = util.recordrepo.createRecord(
+                    day_id = curDay.id!!,
+                    pill_id = pill.id!!,
+                    taken = true
+                )
+                Timber.d("Created record: $record")
             }
         }
 
@@ -213,9 +241,9 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
         // Create click listener for picking color - set color!
         button.setOnClickListener {
             // TODO https://github.com/QuadFlask/colorpicker
-            // Need dialog for picking from set of colors or picking individual color
-            // Then show correct view - maybe alert dialog or similar?
-            // TODO IDEA: Show custom view with 2 "buttons" (nicely designed selectors on top) for each type and the actual view underneath?
+            //  Need dialog for picking from set of colors or picking individual color
+            //  Then show correct view - maybe alert dialog or similar?
+            //  IDEA: Show custom view with 2 "buttons" (nicely designed selectors on top) for each type and the actual view underneath?
             ColorPickerDialogBuilder
                 .with(context)
                 .setTitle("Choose color")
@@ -224,12 +252,12 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 .density(12)
                 .setOnColorSelectedListener { selectedColor ->
                     color = selectedColor
-                    Log.d("$logTag ColorSelector", "Temporary selected color $selectedColor")
+                    Timber.d("Temporary selected color $selectedColor")
                 }
                 .setPositiveButton("ok") { dialog, selectedColor, allColors ->
                     color = selectedColor
                     button.setBackgroundColor(selectedColor)
-                    Log.d("$logTag ColorSelector", "Selected color $selectedColor")
+                    Timber.d("Selected color $selectedColor")
                 }
                 .setNegativeButton("cancel") { dialog, which -> }
                 .build()
@@ -237,11 +265,11 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
         }
 
         var active = binding.pillCreateLayoutIncl.activePill.isChecked
-        Log.d("$logTag createPill", "isActive: $active")
+        Timber.d("isActive: $active")
         // Needs onclick to not just stay at initial value
         binding.pillCreateLayoutIncl.activePill.setOnClickListener {
             active = binding.pillCreateLayoutIncl.activePill.isChecked
-            Log.d("$logTag createPill", "isActive: $active")
+            Timber.d("isActive: $active")
         }
 
         // Create click listener for creating a pill
@@ -264,8 +292,8 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         // Co-routine handling
         val errorHandler = CoroutineExceptionHandler { _, exception ->
-            Log.d("$logTag createPillAction", "Received error: ${exception.message}!")
-            Log.e("$logTag createPillAction", "Trace: ${exception.printStackTrace()}!")
+            Timber.d("Received error: ${exception.message}!")
+            Timber.e("Trace: ${exception.printStackTrace()}!")
             Toast.makeText(
                 MailboxApp.getContext(),
                 "Failed to fetch data!",
@@ -276,9 +304,9 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
             // Store name & pillId pair in secureSharedPreferences
             val name = binding.pillCreateLayoutIncl.createPillNameInput.text
-            Log.d("$logTag createPillAction", "Name of pill is: $name")
+            Timber.d("Name of pill is: $name")
             if (name.toString() == "") {
-                Log.d("$logTag createPillAction", "Name is nulL! Please fill in a name!")
+                Timber.d("Name is nulL! Please fill in a name!")
                 Toast.makeText(
                     MailboxApp.getContext(),
                     "A name is required. Please fill in a name!",
@@ -293,12 +321,12 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
                     putString(pill.uuid!!.toString(), name.toString())
                     apply()
                 }
-                Log.d("$logTag createPillAction", "Stored ${pill.uuid!!} - $name in sharedPrefs")
+                Timber.d("Stored ${pill.uuid!!}  - $name  in sharedPrefs")
 
                 // Update alarm-setting logic (creating a pill assumes it is taken that day)
-                val day = util.dayrepo.createDay( util.today() )
+                val day = util.dayrepo.createDay(util.today())
                 val record = util.recordrepo.createRecord(day.id!!, pill.id!!, taken = true)
-                Log.d("$logTag createPillAction", "Created record for pill $pill as taken for today ${day.today}! Record: $record")
+                Timber.d("Created record for pill " + pill + " as taken for today " + day.today + "! Record: " + record)
             }
         }
 
@@ -319,8 +347,8 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     private fun pillHistory() {
-        // TODO Fetch all all history async
-        //  This is also needed for the week, but can be done using different API to only get within the last week
+        // Fetch all history async
+        util.fetchRepoData()
 
         // Go to own fragment
         NavHostFragment.findNavController(this)
@@ -338,15 +366,23 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private fun handlePillsTaken(buttonList: LinearLayoutCompat) {
         // TODO add logging
         val allButtons = buttonList.touchables
-        val colors = util.recordrepo.getTakenColors( util.today() )
-        if (colors == null){
+        val colors = util.recordrepo.getTakenColors(util.today())
+        if (colors == null) {
             buttonList.visibility = View.INVISIBLE
+            Timber.d("No colors available due to no pills taken. Hiding visibility")
             return
+        } else {
+            buttonList.visibility = View.VISIBLE
         }
-        var i = 0
-        for (button in allButtons) {
-            button.setBackgroundColor(colors[i++])
-            if (i >= colors.size) button.visibility = View.GONE
+
+        for ((i, button) in allButtons.withIndex()) {
+            button.setBackgroundColor(colors[i])
+            if (i >= colors.size) {
+                button.visibility = View.GONE
+                Timber.d("No more colors, Button $i is removed")
+            } else {
+                Timber.d("Button $i has color ${colors[i]}")
+            }
         }
     }
 
@@ -357,11 +393,12 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
         // Set background color
         drawable.setColor(requireContext().getColor(R.color.background))
         val recordRepo = util.recordrepo
-        val dateTimeIndex = curWeekDatesDay.indexOf( obj.text.toString().toInt() )
+        val dateTimeIndex = curWeekDatesDay.indexOf(obj.text.toString().toInt())
         val dateTime = curWeekDates[dateTimeIndex]
-        val date = "${dateTime.get(Calendar.YEAR)}-${dateTime.get(Calendar.MONTH)}-${dateTime.get(Calendar.DATE)}"
-        Log.d("$logTag setIsTakenColor", "Checking for day ${obj.text} - translates to $date")
-        if ( recordRepo.areAllTaken( date ) ) {
+        val date =
+            "${dateTime.get(Calendar.YEAR)}-${dateTime.get(Calendar.MONTH)}-${dateTime.get(Calendar.DATE)}"
+        Timber.d("Checking for day " + obj.text + " - translates to " + date)
+        if (recordRepo.areAllTaken(date)) {
             // Set border
             drawable.setStroke(8, requireContext().getColor(R.color.green_pill))
         } else {
@@ -376,7 +413,7 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
     @RequiresApi(Build.VERSION_CODES.N)
     private fun dayUIUpdate() {
-        Log.d("$logTag dayUIUpdate", "Today $todayDate All Dates ${curWeekDatesDay.joinToString(",")}")
+        Timber.d("Today " + todayDate + " All Dates " + curWeekDatesDay.joinToString(","))
         for (i in 0..6) {
             // Today
             if (curWeekDatesDay[i] == todayDate) {
@@ -424,8 +461,7 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 @RequiresApi(Build.VERSION_CODES.N)
                 override fun run() {
                     // If tomorrow is this week, just log it
-                    if (tomorrowObject.get(Calendar.DATE) in curWeekDatesDay) Log.d(
-                        "$logTag detectNewDay",
+                    if (tomorrowObject.get(Calendar.DATE) in curWeekDatesDay) Timber.d(
                         "Date ${tomorrowObject.get(Calendar.DATE)} is this week (in ${curWeekDatesDay.joinToString { "," }})"
                     )
                     // If not, update the WeekView
@@ -474,9 +510,10 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
         )
 
         todayObject = Calendar.getInstance()
-        Log.d(
-            "$logTag updateWeekView",
-            "Weekday ${todayObject.get(Calendar.DAY_OF_WEEK)} Date ${todayObject.get(Calendar.DAY_OF_MONTH)}"
+        Timber.d(
+            "Weekday " + todayObject.get(Calendar.DAY_OF_WEEK) + " Date " + todayObject.get(
+                Calendar.DAY_OF_MONTH
+            )
         )
 
         todayDate = todayObject.get(Calendar.DAY_OF_MONTH)
@@ -559,9 +596,11 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
             dayCircleObjects[i].text = tmpCurDateInt.toString()
         }
 
-        Log.d("$logTag updateWeekView", "curDate $todayDate mondayDate $dateMonday ")
+        Timber.d("curDate $todayDate mondayDate $dateMonday ")
         // TODO test
-        Log.d("$logTag updateWeekView", "curWeekDates: ${curWeekDates.map { day -> "${day.get(Calendar.DAY_OF_MONTH)}-" }}")
+        Timber.d(
+            "curWeekDates: ${curWeekDates.map { day -> "${day.get(Calendar.DAY_OF_MONTH)}-" }}"
+        )
 
         // Organize days and color correctly
         dayUIUpdate()
@@ -574,7 +613,7 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
         val alarmHour = binding.setAlarm.hour
         val alarmMinute = binding.setAlarm.minute
 
-        Log.d("PillFragment - handleAlarm", "Pressed! $alarmHour:$alarmMinute")
+        Timber.d("Pressed! $alarmHour:$alarmMinute")
 
         // Store new alarm value in shared preferences
         with(prefs.edit()) {
@@ -631,12 +670,11 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     private fun setAlarmIfConfigured() {
-        val funcTag = "$logTag setAlarmIfConfigured"
         // Set the time for the alarm clock to the currently set value
         val hour = prefs.getInt("alarm_hour", -1)
         val minute = prefs.getInt("alarm_minute", -1)
         if (hour != -1 && minute != -1) {
-            Log.d(funcTag, "Alarm time is set in sharedPrefs: $hour:$minute")
+            Timber.d("Alarm time is set in sharedPrefs: $hour:$minute")
             binding.setAlarm.hour = hour
             binding.setAlarm.minute = minute
 
@@ -654,10 +692,10 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
         pos: Int,
         id: Long
     ) {
-        Log.d("SpinnerActivity - dropdownItemSelected", "Selected item: $pos")
+        Timber.d("Selected item: $pos")
         spinner.setSelection(pos)
         selectedPill = spinner.getItemAtPosition(pos) as Pill
-        Log.d("SpinnerActivity - dropdownItemSelected", "Selected item: $selectedPill")
+        Timber.d("Selected item: $selectedPill")
         try {
             // https://stackoverflow.com/a/46906393/4400482
             val method: Method = Spinner::class.java.getDeclaredMethod("onDetachedFromWindow")
@@ -670,6 +708,6 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     override fun onNothingSelected(parent: AdapterView<*>?) {
-        Log.d("$logTag dropdownNoItemSelected", "No selected item!")
+        Timber.d("No selected item!")
     }
 }
