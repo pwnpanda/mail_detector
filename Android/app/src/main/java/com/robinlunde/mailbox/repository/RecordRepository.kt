@@ -58,6 +58,7 @@ class RecordRepository(val util: Util) : RepositoryInterface<Record> {
 
     fun findRecordsByDay(day: Day): MutableList<Record>? {
         val rec: MutableList<Record> = mutableListOf()
+        if (data.value == null) return null
         for (item in data.value!!) {
             if (day == item.day) rec.add(item)
             else if (day.id == item.day_id) rec.add(item)
@@ -89,10 +90,16 @@ class RecordRepository(val util: Util) : RepositoryInterface<Record> {
     fun areAllTaken(today: String): Boolean {
         // Check if any pills are active
         val noActivePills = util.pillrepo.noActivePillsExists()
+        Timber.d("No active pills: $noActivePills")
         // If we cannot find a day for today, return true (all pills taken) if there are no active pills. Otherwise return false
         val curDay = util.dayrepo.findByDate(today) ?: return noActivePills
+        Timber.d("Today: $curDay")
         // If no records exists, return true (all pills taken) if there are no active pills. Otherwise return false
         val records = findRecordsByDay(curDay) ?: return noActivePills
+        Timber.d("Records:")
+        records.map {r -> Timber.d("record - $r")}
+        // Confirm all active pills have records for the day
+        if (util.pillrepo.activePills() != records.size)    return noActivePills
         return records.all { record -> record.taken }
     }
 

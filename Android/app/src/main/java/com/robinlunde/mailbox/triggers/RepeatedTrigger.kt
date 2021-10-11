@@ -31,9 +31,16 @@ class RepeatedTrigger : BroadcastReceiver() {
 
         Timber.d("Alarm triggered for: " + hour + ":" + minute + " at " + LocalDateTime.now())
 
-        // Update repository data
-        util.fetchRepoData()
+        // TODO still not synchronous
 
+        // Update repository data
+        util.fetchRepoData{
+            Timber.d("All data fetched!")
+            continueRun(util, context)
+        }
+    }
+
+    private fun continueRun(util: Util, context: Context){
         if (util.recordrepo.areAllTaken(util.today())) {
             Timber.d("All pills taken, no cause to sound alarm!")
             return
@@ -66,7 +73,5 @@ class RepeatedTrigger : BroadcastReceiver() {
         ringtone.audioAttributes =
             AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).build()
         ringtone!!.play()
-
-
     }
 }

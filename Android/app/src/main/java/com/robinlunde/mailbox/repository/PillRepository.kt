@@ -12,7 +12,8 @@ class PillRepository(val util: Util) : RepositoryInterface<Pill> {
     override var data = MutableLiveData<MutableList<Pill>>()
 
 
-    private var pillInterface: ApiInterfacePill = HttpRequestLib2.getClient(util).create(ApiInterfacePill::class.java)
+    private var pillInterface: ApiInterfacePill =
+        HttpRequestLib2.getClient(util).create(ApiInterfacePill::class.java)
 
     suspend fun getPill(pill_id: Int): Pill {
         val pill = pillInterface.getPill(util.user!!.id!!, pill_id)
@@ -59,7 +60,11 @@ class PillRepository(val util: Util) : RepositoryInterface<Pill> {
         return pillInterface.deletePill(util.user!!.id!!, pill_id)
     }
 
-    fun noActivePillsExists(): Boolean{
+    fun noActivePillsExists(): Boolean {
         return data.value!!.none { pill -> pill.active }
+    }
+
+    fun activePills(): Int {
+        return data.value!!.count { pill -> pill.active }
     }
 }

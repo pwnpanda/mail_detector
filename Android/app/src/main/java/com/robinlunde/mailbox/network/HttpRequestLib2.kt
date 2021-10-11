@@ -1,7 +1,6 @@
 package com.robinlunde.mailbox.network
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.robinlunde.mailbox.Util
 import okhttp3.OkHttpClient
@@ -35,16 +34,7 @@ class HttpRequestLib2 {
                 .connectTimeout(10, TimeUnit.SECONDS).build()
 
             val objectMapper = ObjectMapper()
-            objectMapper.registerModule(
-                KotlinModule.Builder()
-                    .withReflectionCacheSize(512)
-                    .configure(KotlinFeature.NullToEmptyCollection, false)
-                    .configure(KotlinFeature.NullToEmptyMap, false)
-                    .configure(KotlinFeature.NullIsSameAsDefault, false)
-                    .configure(KotlinFeature.SingletonSupport, DISABLED)
-                    .configure(KotlinFeature.StrictNullChecks, false)
-                    .build()
-            )
+            objectMapper.registerModule( KotlinModule() )
             val factory = JacksonConverterFactory.create(objectMapper)
 
             if (retrofit == null) {

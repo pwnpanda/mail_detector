@@ -48,6 +48,7 @@ class MailboxApp : Application() {
             }
         })
         try {
+            // TODO maybe log to sdcard?
             val logsDir = File(filesDir, "logs")
             if (!logsDir.exists()) logsDir.mkdirs()
             val t: Timber.Tree =

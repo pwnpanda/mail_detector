@@ -503,6 +503,14 @@ class Util {
         else Timber.e("Name $name not found - cannot redirect to login fragment")
     }
 
+    fun fetchRepoData(callback: () -> Unit ){
+        val coroutineScope = CoroutineScope(Job() + Dispatchers.Main)
+        coroutineScope.launch {
+            // TODO still not synchronous
+            fetchRepoData()
+            callback.invoke()
+        }
+    }
     fun fetchRepoData() {
         // setup coroutine
         val mainActivityJob = Job()
@@ -520,9 +528,11 @@ class Util {
         coroutineScope.launch(errorHandler) {
             // fetch data in the background
             dayrepo.getDays()
+            Timber.d("Get all days finished")
             pillrepo.getPills()
+            Timber.d("Get all pills finished")
             recordrepo.getRecords()
-            Timber.d("Repository sizes:\nPills: ${pillrepo.data.value?.size ?: 0} - Records${recordrepo.data.value?.size ?: 0}")
+            Timber.d("Repository sizes - Pills: ${pillrepo.data.value?.size ?: 0} - Records: ${recordrepo.data.value?.size ?: 0}")
         }
     }
 
