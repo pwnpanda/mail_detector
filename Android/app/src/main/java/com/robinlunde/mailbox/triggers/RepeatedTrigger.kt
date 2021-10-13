@@ -31,8 +31,6 @@ class RepeatedTrigger : BroadcastReceiver() {
 
         Timber.d("Alarm triggered for: " + hour + ":" + minute + " at " + LocalDateTime.now())
 
-        // TODO still not synchronous
-
         // Update repository data
         util.fetchRepoData{
             Timber.d("All data fetched!")

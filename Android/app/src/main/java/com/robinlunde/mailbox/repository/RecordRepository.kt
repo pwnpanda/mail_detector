@@ -24,7 +24,7 @@ class RecordRepository(val util: Util) : RepositoryInterface<Record> {
         val records = recordInterface.getRecords(util.user!!.id!!)
         data.value?.clear()
         data.value = records
-        Timber.d("Found records $records in getRecords")
+        Timber.d("Found records ${records.joinToString(" - ")} in getRecords")
         return records
     }
 
@@ -96,10 +96,10 @@ class RecordRepository(val util: Util) : RepositoryInterface<Record> {
         Timber.d("Today: $curDay")
         // If no records exists, return true (all pills taken) if there are no active pills. Otherwise return false
         val records = findRecordsByDay(curDay) ?: return noActivePills
-        Timber.d("Records:")
-        records.map {r -> Timber.d("record - $r")}
+        Timber.d("Records: ${records.joinToString(" - ")}")
         // Confirm all active pills have records for the day
-        if (util.pillrepo.activePills() != records.size)    return noActivePills
+        if (util.pillrepo.activePills() != records.size) return noActivePills
+        Timber.d("Size of records is same as size of active pills. Means that if all are taken, we can skip the alarm")
         return records.all { record -> record.taken }
     }
 

@@ -3,7 +3,6 @@ package com.robinlunde.mailbox.login
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -29,8 +28,8 @@ class LoginFragment : Fragment() {
 
     private val exceptionHandler = CoroutineExceptionHandler { coroutineContext, exception ->
         val name = coroutineContext[CoroutineName].toString() //Thread.currentThread().name
-        Log.d("Login - $name", "Received error: ${exception.message}!")
-        Log.e("Login - $name", "Trace: ${exception.printStackTrace()}!")
+        Timber.d("Received error: " + exception.message + "!")
+        Timber.e("Trace: " + exception.printStackTrace() + "!")
         if (name != "token") {
             val text =
                 if (name == "") "User-check failed! Please login or signup!" else "Login or signup failed! Please try again"
@@ -64,11 +63,11 @@ class LoginFragment : Fragment() {
             MainScope().launch {
                 username = MailboxApp.getPrefs().getString(getString(R.string.username_pref), "")
                     .toString()
-                Log.d("LoginFragment - onCreateView", "Async Username is: $username")
+                Timber.d("Async Username is: $username")
                 setUsername(username)
             }
         } else {
-            Log.d("LoginFragment - onCreateView", "Username is: $username")
+            Timber.d("Username is: $username")
             setUsername(username)
         }
 
@@ -82,11 +81,11 @@ class LoginFragment : Fragment() {
             // If username is set and we have a valid user from previously, rock and roll
             // check if token is in sharedprefs and working, if it is, use it to log in
             val token = prefs.getString("Token", "")
-            Log.d("LoginFragment - OnCreateView","Token from sharedPrefs: $token")
+            Timber.d("Token from sharedPrefs: $token")
             if (token != null && token != "") {
                 util.authInterceptor.Token(token)
                 val user = util.getUsers()
-                Log.d("LoginFragment - OnCreateView","Get user from API: $user")
+                Timber.d("Get user from API: $user")
                 if (user.id != null) {
 
                     util.user = user
@@ -95,10 +94,10 @@ class LoginFragment : Fragment() {
                     util.fetchRepoData()
                     moveUponResult()
                 } else {
-                    Log.d("LoginFragment - OnCreateView","No userid in response! $user")
+                    Timber.d("No userid in response! $user")
                 }
             } else {
-                Log.d("LoginFragment - OnCreateView","Token not found stored - fallback!")
+                Timber.d("Token not found stored - fallback!")
             }
         }
 
@@ -174,22 +173,23 @@ class LoginFragment : Fragment() {
              */
 
             val user = User(newUsername, password)
-            Log.d("Login - $func", "$user ${user.password}")
+            Timber.d("$user  " + user.password)
 
             val coroutineScope = CoroutineScope(Job() + Dispatchers.Main + CoroutineName(func))
 
             if (func == "signup") coroutineScope.launch(exceptionHandler) {
                 val userLoc: User = util.signup(user)
-                Log.d("Login - $func", "Returned $userLoc")
+                Timber.d("Returned $userLoc")
 
                 util.user = userLoc
                 util.user!!.password = user.password
-                Log.d("Login - $func", "Final user: ${util.user}")
+                Timber.d("Final user: " + util.user)
                 util.authInterceptor.Token(util.user!!.token.toString())
 
                 // Store token for later user!
                 with(prefs.edit()) {
                     putString("Token", util.user!!.token.toString())
+                    putInt("user_id", util.user!!.id!!)
                     apply()
                 }
                 // Fetch data in the background
@@ -212,6 +212,7 @@ class LoginFragment : Fragment() {
 
                 with(prefs.edit()) {
                     putString("Token", userLoc.token.toString())
+                    putInt("user_id", util.user!!.id!!)
                     apply()
                 }
 

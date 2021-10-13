@@ -1,15 +1,11 @@
 package com.robinlunde.mailbox
 
-import android.Manifest
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 import com.robinlunde.mailbox.alert.AlertViewModel
@@ -97,36 +93,19 @@ class MailboxApp : Application() {
             )
         }
 
-// Need to start with string long enough to not trigger fault
+        // Need to start with string long enough to not trigger fault
         status = PostUpdateStatus(
             false,
             "FOOTBARBAZFOOBARBAZ",
             getString(R.string.no_status_yet_username)
         )
 
-// BT
+        // BT
         btConnection = NativeBluetooth()
 
         appScope.launch {
             // Setup refresher on API to update data every 30min
             util.startDataRenewer()
-
-            // Setup bluetooth
-            val PERMISSION_CODE = getString(R.string.bt_id_integer).toInt()
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                if (ContextCompat.checkSelfPermission(
-                        baseContext,
-                        Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                    )
-                    != PackageManager.PERMISSION_GRANTED
-                ) {
-                    ActivityCompat.requestPermissions(
-                        MainActivity.myActivity,
-                        arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                        PERMISSION_CODE
-                    )
-                }
-            }
         }
 
     }

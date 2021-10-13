@@ -33,7 +33,7 @@ class DayRepository(val util: Util) : RepositoryInterface<Day> {
         val days = dayInterface.getDays(util.user!!.id!!)
         data.value?.clear()
         data.value = days
-        Timber.d( "Found days ${days.map { day -> day.toString() }} in getDays")
+        Timber.d( "Found days ${days.joinToString(" - ")} in getDays")
         return days
     }
 

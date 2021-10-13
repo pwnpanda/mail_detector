@@ -503,28 +503,47 @@ class Util {
         else Timber.e("Name $name not found - cannot redirect to login fragment")
     }
 
+    private val errorHandler = CoroutineExceptionHandler { _, exception ->
+        Timber.d("Received error: " + exception.message + "!")
+        Timber.e("Trace: " + exception.printStackTrace() + "!")
+        Toast.makeText(
+            MailboxApp.getContext(),
+            "Failed to fetch data!",
+            Toast.LENGTH_LONG
+        ).show()
+    }
+
     fun fetchRepoData(callback: () -> Unit ){
         val coroutineScope = CoroutineScope(Job() + Dispatchers.Main)
-        coroutineScope.launch {
-            // TODO still not synchronous
-            fetchRepoData()
+        coroutineScope.launch(errorHandler) {
+            val prefs = MailboxApp.getPrefs()
+
+            // TODO this only works if we have a valid token
+            //  wat do if token is expired? We need refresh token or long lived token!
+            val token = prefs.getString("Token", "")
+            Timber.d("Token from sharedPrefs: $token")
+
+            if (token != "" && token != null) authInterceptor.Token(token)
+            else    Timber.e("Something went very wrong - user has no Token: $token")
+
+            if (user == null)  user = getUsers()
+            Timber.d("User: $user")
+            // fetch data in the background
+            dayrepo.getDays()
+            Timber.d("Get all days finished")
+            pillrepo.getPills()
+            Timber.d("Get all pills finished")
+            recordrepo.getRecords()
+            Timber.d("Repository sizes - Pills: ${pillrepo.data.value?.size ?: 0} - Records: ${recordrepo.data.value?.size ?: 0}")
             callback.invoke()
         }
     }
+
+
+
     fun fetchRepoData() {
         // setup coroutine
-        val mainActivityJob = Job()
-        val errorHandler = CoroutineExceptionHandler { _, exception ->
-            Timber.d("Received error: " + exception.message + "!")
-            Timber.e("Trace: " + exception.printStackTrace() + "!")
-            Toast.makeText(
-                MailboxApp.getContext(),
-                "Failed to fetch data!",
-                Toast.LENGTH_LONG
-            ).show()
-        }
-
-        val coroutineScope = CoroutineScope(mainActivityJob + Dispatchers.Main)
+        val coroutineScope = CoroutineScope(Job() + Dispatchers.Main)
         coroutineScope.launch(errorHandler) {
             // fetch data in the background
             dayrepo.getDays()

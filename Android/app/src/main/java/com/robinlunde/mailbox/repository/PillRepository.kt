@@ -26,7 +26,7 @@ class PillRepository(val util: Util) : RepositoryInterface<Pill> {
         val pills = pillInterface.getPills(util.user!!.id!!)
         data.value?.clear()
         data.postValue(pills)
-        Timber.d("Found pills $pills in getPills")
+        Timber.d("Found pills ${pills.joinToString(" - ")} in getPills")
         return pills
     }
 
