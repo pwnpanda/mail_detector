@@ -15,6 +15,7 @@ import android.os.Looper
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -47,6 +48,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         myActivity = this
         super.onCreate(savedInstanceState)
+
+        promptGivePermission()
 
         // Setup bluetooth
         val PERMISSION_CODE = getString(R.string.bt_id_integer).toInt()
@@ -197,23 +200,37 @@ class MainActivity : AppCompatActivity() {
 
     // Send BT enable intent to OS
     private fun Activity.enableBluetooth() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            requestMultiplePermissions.launch(arrayOf(
+                Manifest.permission.BLUETOOTH_SCAN,
+                Manifest.permission.BLUETOOTH_CONNECT))
+        }
+        else{
+            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+            requestBluetooth.launch(enableBtIntent)
+        }
         val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
         startActivityForResult(enableBtIntent, RequestCodeConst.EnableBluetooth)
     }
 
     // If we get the wrong result, we call the function recursively, as app does not work without BT or Location
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            // If we requested BT
-            RequestCodeConst.EnableBluetooth -> {
-                Timber.d("Bluetooth permission not granted")
-                if (resultCode != RESULT_OK) {
-                    promptGivePermission()
-                }
-            }
+    private var requestBluetooth = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            //granted
+            Timber.d("BT Permissions enabled")
+        }else{
+            //deny
+            Timber.d("Bluetooth permission not granted")
+            promptGivePermission()
         }
     }
+
+    private val requestMultiplePermissions =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            permissions.entries.forEach {
+                Timber.d("test006", "${it.key} = ${it.value}")
+            }
+        }
 
     // Catch result of permission check
     override fun onRequestPermissionsResult(

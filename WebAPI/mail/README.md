@@ -9,6 +9,7 @@
 ## Important:
 - If issues with prod db, remove all! (docker-compose down -v)
 - Redeploy: docker-compose up --build --force-recreate
+- Can also use: docker-compose up --detach --build
 ### Built:
 - https://medium.com/@oliver.seq/creating-a-rest-api-with-rails-2a07f548e5dc
 - https://codebrains.io/build-todolist-rest-api-ruby-rails/

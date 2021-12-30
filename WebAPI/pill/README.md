@@ -157,7 +157,8 @@ Follow (this article)[https://medium.com/@mshostdrive/how-to-run-a-rails-app-in-
 		- put secret in "secret.txt" with dockerfile and docker-compse.yml
 		- docker-compose up -d	
 
-
+  - Restart the previously running container:
+    - docker-compose up --detach --build
 	
 	- Build image: `docker build --tag mail_api:latest .`
 	- Cleanup previous fragments `docker ps -aq --filter "name=mail_api"|grep -q . && docker stop mail_api && docker container rm -fv mail_api || true`

@@ -29,6 +29,8 @@ import com.robinlunde.mailbox.datamodel.pill.Pill
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.lang.reflect.Method
+import java.text.DecimalFormat
+import java.text.NumberFormat
 import java.util.*
 
 
@@ -433,16 +435,17 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 handlePillsTaken(dayPillTakenObjects[i])
             }
 
-            // Day has passed
-            if (curWeekDatesDay[i] < todayDate || todayDate < 7 && curWeekDatesDay[i] > 29) {
-                setIsTakenColor(dayCircleObjects[i])
-                handlePillsTaken(dayPillTakenObjects[i])
-                // Day is in the future
-            } else if (curWeekDatesDay[i] > todayDate) {
+            // Day is in the future
+            if (curWeekDatesDay[i] > todayDate || todayDate >= 23 && curWeekDatesDay[i] <=6 ) {
                 setBackgroundColor(dayCircleObjects[i], R.color.grey)
                 dayCircleObjects[i].setTextColor(requireContext().getColor(R.color.background))
                 dayPillTakenObjects[i].visibility = View.GONE
+            // Day has passed
+            } else if (curWeekDatesDay[i] < todayDate || todayDate < 7 && curWeekDatesDay[i] > 29) {
+                setIsTakenColor(dayCircleObjects[i])
+                handlePillsTaken(dayPillTakenObjects[i])
             }
+
         }
     }
 
@@ -633,6 +636,9 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
             // Send alarm to set and handle alarm 5 min before
             util.activateAlarm(alarmHour, alarmMinute)
         }
+        val formatString: NumberFormat = DecimalFormat("00")
+        // Show user new alarm is set
+        Toast.makeText(context, "Alarm set for ${formatString.format(alarmHour)}:${formatString.format(alarmMinute)}!", Toast.LENGTH_SHORT).show()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
