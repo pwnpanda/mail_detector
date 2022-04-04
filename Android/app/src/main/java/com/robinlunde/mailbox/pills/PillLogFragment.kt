@@ -15,6 +15,7 @@ import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.databinding.FragmentPillLogBinding
 import com.robinlunde.mailbox.datamodel.pill.Record
+import timber.log.Timber
 
 // use this and migrate to calendar? https://github.com/kizitonwose/CalendarView
 
@@ -33,6 +34,7 @@ class PillLogFragment : Fragment() {
             binding.pillLogEntries.adapter = PillLogAdapter(newData, util, binding)
             // Update layout manager
             binding.pillLogEntries.layoutManager = LinearLayoutManager(context)
+
             // Notify new data at end
             binding.pillLogEntries.adapter?.notifyDataSetChanged()
             // TODO make logic for changing and inserting data. This is not good enough and is wrong, but works ad hoc
@@ -62,7 +64,18 @@ class PillLogFragment : Fragment() {
         // If not logged in, jump to login view
         if (util.user == null)  util.moveToLoginFragment("pillLog",this)
 
-        val adapter = util.recordrepo.data.value?.let { PillLogAdapter(it, util, binding) }
+        binding.pillScreenTitle2.setOnClickListener{
+            Timber.d("Text clicked to invert sorting")
+            // Sort if set
+            val newData = util.recordrepo.data.value!!
+            // Sort newest first
+            newData.reverse()
+            util.recordrepo.data.postValue(newData)
+            // Notify new data at end
+            binding.pillLogEntries.adapter?.notifyDataSetChanged()
+        }
+
+        val adapter = util.recordrepo.data.value?.let { PillLogAdapter( it, util, binding) }
         binding.pillLogEntries.adapter = adapter
         util.pillLogAdapter = adapter!!
         binding.pillLogEntries.layoutManager = LinearLayoutManager(context)
