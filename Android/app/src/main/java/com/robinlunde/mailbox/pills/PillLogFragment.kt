@@ -22,6 +22,7 @@ import timber.log.Timber
 class PillLogFragment : Fragment() {
     private lateinit var binding: FragmentPillLogBinding
     private val util: Util = MailboxApp.getUtil()
+    private var first = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +35,11 @@ class PillLogFragment : Fragment() {
             binding.pillLogEntries.adapter = PillLogAdapter(newData, util, binding)
             // Update layout manager
             binding.pillLogEntries.layoutManager = LinearLayoutManager(context)
+
+            // Strange hack as it is called twice, but works
+            if (first++ < 2) {
+                newData.reverse()
+            }
 
             // Notify new data at end
             binding.pillLogEntries.adapter?.notifyDataSetChanged()
