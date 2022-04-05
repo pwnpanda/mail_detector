@@ -52,7 +52,7 @@ class MailboxApp : Application() {
                     .withFileName("MailboxApp%g.log")
                     .withDir(logsDir)
                     .withSizeLimit(75000)
-                    .withFileLimit(5)
+                    .withFileLimit(20)
                     .withMinPriority(Log.DEBUG)
                     .appendToFile(true)
                     .build()

@@ -75,6 +75,7 @@ class Util {
     val dayrepo: DayRepository = DayRepository(this)
     val pillrepo: PillRepository = PillRepository(this)
     val recordrepo: RecordRepository = RecordRepository(this)
+    var triggeredAlarm = false
 
     lateinit var pillUpdateAdapter: PillUpdateAdapter
     lateinit var pillLogAdapter: PillLogAdapter
@@ -393,17 +394,33 @@ class Util {
 
         Timber.d("Received values: $hour:$minute")
 
-        cancelAlarm()
-
         val context: Context? = MailboxApp.getContext()
 
         alarmManager =
             (context?.getSystemService(Context.ALARM_SERVICE) as? AlarmManager)!!
 
 
+        // Current time
+        val timeNow = Calendar.getInstance()
+
+        // When the actual alarm is supposed to go off
+        val alertTime = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
+
+            Timber.d("Cur: " + timeNow + " - alertTime: " + this.timeInMillis)
+            // If it is passed the trueAlertTime, add a day
+            if (timeNow.timeInMillis >= this.timeInMillis) {
+                Timber.d("Time passed - increasing day by 1")
+                add(Calendar.DAY_OF_MONTH, 1)
+            }
+        }
+
+        // TODO New
         val alarmIntent = Intent(context, RepeatedTrigger::class.java)
             .putExtra("hour", hour)
             .putExtra("minute", minute)
+            .putExtra("alertTime", alertTime)
         alarmIntent.action = "AlarmAction"
 
         Timber.d(
@@ -419,26 +436,12 @@ class Util {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        // Current time
-        val timeNow = Calendar.getInstance().timeInMillis
 
-        // When the actual alarm is supposed to go off
-        val alertTime = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, hour)
-            set(Calendar.MINUTE, minute)
-
-            Timber.d("Cur: " + timeNow + " - alertTime: " + this.timeInMillis)
-            // If it is passed the trueAlertTime, add a day
-            if (timeNow >= this.timeInMillis) {
-                Timber.d("Time passed - increasing day by 1")
-                add(Calendar.DAY_OF_MONTH, 1)
-            }
-        }
-
+        // Change to every hour, then check if correct hour in RepeatedTrigger?
         alarmManager.setInexactRepeating(
             AlarmManager.RTC_WAKEUP,
             alertTime.timeInMillis,
-            AlarmManager.INTERVAL_DAY,
+            AlarmManager.INTERVAL_HOUR,
             alarmPendingIntent
         )
     }
@@ -505,7 +508,8 @@ class Util {
 
     private val errorHandler = CoroutineExceptionHandler { _, exception ->
         Timber.d("Received error: " + exception.message + "!")
-        Timber.e("Trace: " + exception.printStackTrace() + "!")
+        // TODO Does this work?
+        Timber.e("Trace:", exception.printStackTrace())
         Toast.makeText(
             MailboxApp.getContext(),
             "Failed to fetch data!",
