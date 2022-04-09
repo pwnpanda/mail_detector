@@ -1,6 +1,13 @@
 #!/bin/bash
 
 # test suite
+if [[ "$#" -ne 2 ]]; then
+    echo "Please use like this"
+    echo "Arg1: domain and port"
+    echo "Arg2: protocol"
+    echo "Ex: ./test_suite.sh 127.0.0.1:12122 http"
+    exit 0
+fi
 
 # $1 is domain name and port
 if [[ $2 -eq "http" ]]; then
@@ -14,7 +21,7 @@ URL=$1
 echo "-----------**--------------"
 
 # Create user
-TOKEN=$(curl -s -H "Content-Type: application/json" -POST -d '{"username":"x","password":"#abcd"}' $PROTO://$URL/api/v1/signup | jq -r .token)
+TOKEN=$(curl -s -H "Content-Type: application/json" -POST -d '{"username":"x_x","password":"#abcd"}' $PROTO://$URL/api/v1/signup | jq -r .token)
 if [ "$TOKEN" = null ]; then
     echo "1 fail"
     exit
@@ -26,7 +33,7 @@ echo "-----------**--------------"
 
 check_user(){
     # Create user not valid
-    ERR=$(curl -s -H "Content-Type: application/json" -POST -d '{"username":"x","password":""}' $PROTO://$URL/api/v1/signup | jq -r .message)
+    ERR=$(curl -s -H "Content-Type: application/json" -POST -d '{"username":"x_x","password":""}' $PROTO://$URL/api/v1/signup | jq -r .message)
 
     if [ "$ERR" = "User not created! An error occurred - Username may be taken" ]; then
         echo "2 OK - User not created, user already exists and no pw given"
@@ -50,7 +57,7 @@ check_user(){
     echo "-----------**--------------"
 
     # Login
-    TOKEN=$(curl -s -H "Content-Type: application/json" -POST -d '{"username":"x","password":"#abcd"}' $PROTO://$URL/api/v1/login | jq -r .token)
+    TOKEN=$(curl -s -H "Content-Type: application/json" -POST -d '{"username":"x_x","password":"#abcd"}' $PROTO://$URL/api/v1/login | jq -r .token)
     if [ "$TOKEN" = null ]; then
         echo "3 fail"
         exit
@@ -62,7 +69,7 @@ check_user(){
 
     # Get my user
     USER=$(curl -s -H "Authorization: Bearer $TOKEN" $PROTO://$URL/api/v1/users | jq -r .username)
-    if [ "$USER" = "x" ]; then
+    if [ "$USER" = "x_x" ]; then
         echo "4 OK - Get my user - User: $USER"
     else
         echo "4 fail"
@@ -73,7 +80,7 @@ check_user(){
 
     # Get myuser by ID
     USER=$(curl -s -H "Authorization: Bearer $TOKEN" $PROTO://$URL/api/v1/users/1 | jq -r .username)
-    if [ "$USER" = "x" ]; then
+    if [ "$USER" = "x_x" ]; then
         echo "5 OK - Get my user by ID - User: $USER"
     else
         echo "5 fail"
@@ -84,7 +91,7 @@ check_user(){
 
     # Get myuser by ID
     USER=$(curl -s -H "Authorization: Bearer $TOKEN" $PROTO://$URL/api/v1/users/2 | jq -r .username)
-    if [ "$USER" = "x" ]; then
+    if [ "$USER" = "x_x" ]; then
         echo "5b fail"
         exit
     else
