@@ -52,7 +52,7 @@ enum characteristic {
 };
 typedef enum characteristic characteristic;
 // ----------------------------------------------------------------------------------
-const int sensorPin = 25;
+const int sensorPin = GPIO_NUM_25;
 int sensorValue = -1;
 /* 
  * - Set detectTime upon sensor wakeup
@@ -281,7 +281,7 @@ void setup() {
 	// BLEDevice::startAdvertising();
 	Serial.println("Characteristic defined! Now you can read it in your phone!");
   
-	// Set sleep wakeup condition - WakeUp if GPIO Goes to High!
+	// Set sleep wakeup condition - WakeUp if GPIO Goes to level set in GPIO_LEVEL!
 	esp_sleep_enable_ext0_wakeup(GPIO_NUM, GPIO_LEVEL);
 }
 
@@ -309,7 +309,7 @@ void loop() {
 			// analogRead returns value between 0 - 4095
 			sensorValue = analogRead(sensorPin);
 			
-			if (sensorValue < 0)	Serial.println("No value read from pin");
+			if (sensorValue <= 0)	Serial.println("No value read from pin");
 			else Serial.printf("Value from light sensor - read: %d\n", val);
 
 			char *LDRSensorData = new char [25]
