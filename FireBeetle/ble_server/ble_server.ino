@@ -29,8 +29,7 @@
 #define CHARACTERISTIC_DEBUG_UUID "0f06709f-e038-4f4f-8795-31c514ec22dd"
 // ----------------------------------------------------------------------------------
 #define uS_TO_S_FACTOR 1000000  // Conversion factor for micro seconds to seconds
-#define S_TO_HR_FACTOR 3600			// Conversion factor for seconds to hours
-#define TIME_TO_SLEEP_HOURS  40		// Time ESP32 will go to sleep (in hours)
+#define TIME_TO_REST_FOR_SEND_SECONDS 30 // Time to rest before retransmitting
 // ----------------------------------------------------------------------------------
 #define GPIO_NUM GPIO_NUM_1		// Which GPIO PIN we are using to wake up
 #define GPIO_LEVEL 0	// If wakeup is on high or low edge (0 means wakeup will trigger when value is ~0)
@@ -42,11 +41,13 @@ BLECharacteristic *pCharacteristic_real;
 BLECharacteristic *pCharacteristic_debug;
 // ----------------------------------------------------------------------------------
 bool connected = false;
-bool debug = false;
+int sleep_length_ms = 5000;
 int sleep_counter = 0;
 char *curTime = new char[11];
-// Store through sleep!
-RTC_DATA_ATTR unsigned long detectTime;
+// Store through sleep - if 0 it means unset!
+RTC_DATA_ATTR unsigned long detectTime = 0;
+RTC_DATA_ATTR bool debug = false;
+
 enum characteristic {
 	c_real, c_debug, unknown
 };
@@ -54,11 +55,13 @@ typedef enum characteristic characteristic;
 // ----------------------------------------------------------------------------------
 const int sensorPin = GPIO_NUM_25;
 int sensorValue = -1;
+
 /* 
  * - Set detectTime upon sensor wakeup
  * - Check deep sleep
  * - Test sensor data from env
 */
+
 //-------------------------------------BLE Functions-------------------------------------------------
 // Helper function for finding characteristic type
 characteristic getCharacteristic(BLECharacteristic *blechar){
@@ -93,34 +96,6 @@ void setSendValue(BLECharacteristic *pCharacteristic, char *buffer){
 	// Do actual operation
 	pCharacteristic->setValue(buffer);
 	pCharacteristic->notify();
-}
-
-// Calculate how long it was since last mail arrived
-unsigned long getTimeSincePostArrived(){
-	unsigned long now = getCurrent();
-	
-	//  Calculate offset if overflow occurs
-	if (now < detectTime){
-		Serial.printf("Overflow! Time since detection: %d seconds!", (ULONG_MAX - detectTime) + now);
-		return (ULONG_MAX - detectTime) + now;
-	}
-
-	// If no overflow, handle normally
-	Serial.printf("Time since detection: %d seconds!", now - detectTime);
-	return now - detectTime;
-}
-
-// Get current time since start in milliseconds
-unsigned long getCurrent(){
-	return millis();
-}
-
-// Convert time to string
-char *getTimeAsString(char *buf, unsigned long time){
-	ltoa(time, buf, 10);
-	Serial.print(F("Time is: "));
-	Serial.println(buf);
-	return buf;
 }
 
 // ConnectionCallbacks from BLE Server
@@ -162,13 +137,19 @@ class MyCallbacks: public BLECharacteristicCallbacks {
 					Serial.println("Ack from device received, going to sleep!");
 					// If we are currently debugging, do not go to sleep!
 
+					// We have received an ack from a phone, meaning alert is sent successfully
 					if (!debug){
-						// TODO implement deep sleep
-						// goto sleep!
-						// esp_wifi_stop();
-						// esp_bt_controller_disable();
-						// esp_bluedroid_disable();
-						// esp_deep_sleep_start();	
+						/*
+						* Reset detection!!
+						* 1. Set detectTime to 0
+						* 2. Sleep until sensor again detects post
+						*/
+						
+						detectTime = 0;
+						esp_wifi_stop();
+						esp_bt_controller_disable();
+						esp_bluedroid_disable();
+						esp_deep_sleep_start();	
 					}
 					return;
 				}
@@ -217,18 +198,11 @@ class MyCallbacks: public BLECharacteristicCallbacks {
 		}
 	}
 };
-//-------------------------------------Sensor Functions-------------------------------------------------
-unsigned long onTrigger(){
-	detectTime = getCurrent();
-	Serial.printf("Detected post at: %d\n", detectTime);
-	return detectTime;
-}
+// Start listening and running bluetooth connections
+void start_bluetooth() {
 
-//---------------------------------------Main Functions-------------------------------------------------
-
-void setup() {
-	Serial.begin(115200);
-	Serial.println(F("Starting BLE work!"));
+	esp_bt_controller_enable();
+	esp_bluedroid_enable();
 
 	BLEDevice::init("FireBeetle ESP32-E Robin");
 	// Initiate callback class
@@ -280,30 +254,124 @@ void setup() {
 	pAdvertising->start();
 	// BLEDevice::startAdvertising();
 	Serial.println("Characteristic defined! Now you can read it in your phone!");
-  
-	// Set sleep wakeup condition - WakeUp if GPIO Goes to level set in GPIO_LEVEL!
-	esp_sleep_enable_ext0_wakeup(GPIO_NUM, GPIO_LEVEL);
+}
+//-------------------------------------Sensor and time Functions-------------------------------------------------
+unsigned long mailDetected(){
+	detectTime = getCurrent();
+	Serial.printf("Detected post at: %d\n", detectTime);
+	return detectTime;
 }
 
+// Calculate how long it was since last mail arrived
+unsigned long getTimeSincePostArrived(){
+	unsigned long now = getCurrent();
+	
+	//  Calculate offset if overflow occurs
+	if (now < detectTime){
+		Serial.printf("Overflow! Time since detection: %d seconds!", (ULONG_MAX - detectTime) + now);
+		return (ULONG_MAX - detectTime) + now;
+	}
+
+	// If no overflow, handle normally
+	Serial.printf("Time since detection: %d seconds!", now - detectTime);
+	return now - detectTime;
+}
+
+// Get current time since start in milliseconds
+unsigned long getCurrent(){
+	return millis();
+}
+
+// Convert time to string
+char *getTimeAsString(char *buf, unsigned long time){
+	ltoa(time, buf, 10);
+	Serial.print(F("Time is: "));
+	Serial.println(buf);
+	return buf;
+}
+
+//---------------------------------------Main Functions-------------------------------------------------
+// Send info continously for a short interval, then go to long sleep
+// Short interval is small transmission window, long interval is long transmission break
+void sendAndSleep() {
+	// sleep interval and send interval
+	int interval = TIME_TO_REST_FOR_SEND_SECONDS * uS_TO_S_FACTOR;
+
+	int sleep_length_uS = (sleep_length_ms * 1000)
+
+	int round = 0;
+	int limit = interval / sleep_length_uS;
+	while(round * sleep_length_uS < limit) {
+		// send new value every 5 seconds
+		getTimeAsString(curTime, getTimeSincePostArrived() );
+		setSendValue(pCharacteristic_real, curTime);
+		round++;
+		// Sleep short time until next small transmission window (short sleep)
+		delay(sleep_length_ms);
+	}
+
+	// sleep for big transmission break (long sleep)
+	esp_sleep_enable_timer_wakeup(interval);
+}
+
+void setup() {
+	Serial.begin(115200);
+		
+	// Set sleep wakeup condition - WakeUp if GPIO Goes to level set in GPIO_LEVEL!
+	// Wakeup if beam is broken
+	esp_sleep_enable_ext0_wakeup(GPIO_NUM, GPIO_LEVEL);
+
+	// Detect reason for wakeup
+	esp_sleep_wakeup_cause_t wakeup_reason;
+  	wakeup_reason = esp_sleep_get_wakeup_cause();
+	
+	// New mail detected
+	if (wakeup_reason == ESP_SLEEP_WAKEUP_EXT0 && detectTime == 0 && !debug){
+		// Set detection timestamp
+		mailDetected();
+		Serial.println(F("Starting BLE work!"));
+		start_bluetooth();
+		// send data for x seconds, then sleep for x seconds
+		sendAndSleep();
+	}
+
+	if (wakeup_reason == ESP_SLEEP_WAKEUP_TIMER && detectTime!= 0 && !debug){
+		sendAndSleep();
+	}
+
+	// Mail already detected, retry transmission
+	if(detectTime != 0 && !debug){
+		Serial.println(F("Starting BLE work!"));
+		start_bluetooth();
+		// send data for x seconds, then sleep for x seconds
+		sendAndSleep();
+	}
+
+	// Sleep if nothing to report and we are not debugging
+	if (detectTime == 0 && !debug){
+		esp_deep_sleep_start();
+	}
+
+	// If debug is on, never go to sleep - use loop!
+	if (debug){
+		Serial.println(F("Starting BLE work!"));
+		start_bluetooth();
+	}
+}
+
+// Only runs if debug mode!
 void loop() {
-	int sleep = 5000;
 
 	if (connected) {
-		// TODO change to sending time since post detected
 
-		// When post is detected, get time. Then when sending notification to phone, get current time and deduct previous time
-		
-		// getTimeAsString(curTime getTimeSincePostArrived() );
-		getTimeAsString(curTime, getCurrent());
+		// When post is detected, get time. Then when sending notification to phone, get current time and deduct previous time	
+
+		getTimeAsString(curTime, getTimeSincePostArrived());
 		setSendValue(pCharacteristic_real, curTime);
 
 		if (debug) {
 			sleep_counter++;
-			sleep = 1000;
-
-			// TODO
-			// Add wakeup on sensor data from deep sleep
-			// Store timestamp of wakeup (meaning post received) as detectTime
+			sleep_length_ms = 1000;
 			
 			// real LDR sensor data
 			// analogRead returns value between 0 - 4095
@@ -314,19 +382,7 @@ void loop() {
 
 			char *LDRSensorData = new char [25]
 			snprintf(LDRSensorData, 25, "%f", sensorValue );
-			pCharacteristic_debug->setValue( LDRSensorData );
-			pCharacteristic_debug->notify();
-			Serial.print("Sending data: ");
-			Serial.println(LDRSensorData);
-
-			/* Test routine
-			char * LDRSignal = new char[25];
-			snprintf(LDRSignal, 25, "%f", ((double) rand() / (RAND_MAX)) );
-			setSendValue(pCharacteristic_debug, LDRSignal);
-
-			Serial.print("Sending data: ");
-			Serial.println(LDRSignal);
-			*/
+			setSendValue(pCharacteristic_debug, LDRSensorData);
 		}
 	}
 
@@ -334,10 +390,10 @@ void loop() {
 	if (sleep_counter >= 30){
 		debug = false;
 		sleep_counter = 0;
-		sleep = 5000;
+		sleep_length_ms = 5000;
 		Serial.println("Reported debug signal for 30 sec. Setting Debug off!");
 	}
 
-	// Sleep for 1 sec
-	delay(sleep);
+	// Sleep for set period
+	delay(sleep_length_ms);
 }
