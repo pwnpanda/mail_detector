@@ -4,6 +4,7 @@
     package="com.robinlunde.mailbox">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.MANAGE_NETWORK_POLICY" tools:ignore="ProtectedPermissions"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission
         android:name="android.permission.BLUETOOTH_PRIVILEGED"
