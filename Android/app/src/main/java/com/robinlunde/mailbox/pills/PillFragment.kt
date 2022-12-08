@@ -31,6 +31,10 @@ import timber.log.Timber
 import java.lang.reflect.Method
 import java.text.DecimalFormat
 import java.text.NumberFormat
+import java.text.SimpleDateFormat
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.temporal.TemporalAdjusters
 import java.util.*
 
 
@@ -39,12 +43,11 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private lateinit var dayCircleObjects: Array<Button>
     private lateinit var dayHeaderObjects: Array<TextView>
     private lateinit var dayPillTakenObjects: Array<LinearLayoutCompat>
-    private lateinit var todayObject: Calendar
+    private lateinit var today: LocalDate
     private lateinit var spinner: Spinner
-    private var curWeekDatesDay = IntArray(7)
-    private var curWeekDates: Array<Calendar> = Array(7) { Calendar.getInstance() }
-    private var todayIndex: Int = -1
-    private var todayDate: Int = -1
+    @RequiresApi(Build.VERSION_CODES.O)
+    // Organized from 0 - 6, where 0 is monday and 6 is sunday
+    private var curWeekDates: Array<LocalDate> = Array(7) { LocalDate.now() }
     private val prefs: SharedPreferences = MailboxApp.getPrefs()
     private val util: Util = MailboxApp.getUtil()
     private val timer: Timer = Timer()
@@ -84,24 +87,9 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         }
         util.pillrepo.data.observe(this, observer)
-
-
-        /** Todo: Possible UI updates:
-         *   New pill is added
-         *   Pill is taken
-         *   Pill is disabled
-         *   Alarm is changed and/or set
-         *   Date changes - If date changes, check if it is in dates. If it is, update today and call updateWeekView()
-         **/
-
-        /** Todo: Check if alarm should be disabled when:
-         *   Pill is disabled
-         *   Pill is taken
-         **/
-
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -242,10 +230,6 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         // Create click listener for picking color - set color!
         button.setOnClickListener {
-            // TODO https://github.com/QuadFlask/colorpicker
-            //  Need dialog for picking from set of colors or picking individual color
-            //  Then show correct view - maybe alert dialog or similar?
-            //  IDEA: Show custom view with 2 "buttons" (nicely designed selectors on top) for each type and the actual view underneath?
             ColorPickerDialogBuilder
                 .with(context)
                 .setTitle("Choose color")
@@ -389,18 +373,19 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     // Set color if all pills are taken for a given day
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun setIsTakenColor(obj: Button) {
         val drawable = GradientDrawable()
         drawable.shape = GradientDrawable.OVAL
         // Set background color
         drawable.setColor(requireContext().getColor(R.color.background))
         val recordRepo = util.recordrepo
-        val dateTimeIndex = curWeekDatesDay.indexOf(obj.text.toString().toInt())
-        val dateTime = curWeekDates[dateTimeIndex]
-        val date =
-            "${dateTime.get(Calendar.YEAR)}-${dateTime.get(Calendar.MONTH)}-${dateTime.get(Calendar.DATE)}"
+        val dateOnButton = obj.text.toString().toInt()
+        val date = curWeekDates.single { it.dayOfMonth == dateOnButton }
+
         Timber.d("Checking for day " + obj.text + " - translates to " + date)
-        if (recordRepo.areAllTaken(date)) {
+
+        if (recordRepo.areAllTaken(date.toString())) {
             // Set border
             drawable.setStroke(8, requireContext().getColor(R.color.green_pill))
         } else {
@@ -413,12 +398,12 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
         obj.background = drawable
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun dayUIUpdate() {
-        Timber.d("Today " + todayDate + " All Dates " + curWeekDatesDay.joinToString(","))
         for (i in 0..6) {
             // Today
-            if (curWeekDatesDay[i] == todayDate) {
+            if (curWeekDates[i].isEqual(today)) {
+                Timber.d("Index $i - Day ${curWeekDates[i]} is today ($today)")
                 val drawable = GradientDrawable()
                 drawable.shape = GradientDrawable.OVAL
                 // Set border
@@ -436,50 +421,48 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
             }
 
             // Day is in the future
-            if (curWeekDatesDay[i] > todayDate || todayDate >= 23 && curWeekDatesDay[i] <=6 ) {
+            if (curWeekDates[i].isAfter(today)) {
+                Timber.d("Index $i - Day ${curWeekDates[i]} is after today ($today)")
                 setBackgroundColor(dayCircleObjects[i], R.color.grey)
                 dayCircleObjects[i].setTextColor(requireContext().getColor(R.color.background))
                 dayPillTakenObjects[i].visibility = View.GONE
+
             // Day has passed
-            } else if (curWeekDatesDay[i] < todayDate || todayDate < 7 && curWeekDatesDay[i] > 29) {
+            } else if (curWeekDates[i].isBefore(today)) {
+                Timber.d("Index $i - Day ${curWeekDates[i]} is before today ($today)")
                 setIsTakenColor(dayCircleObjects[i])
                 handlePillsTaken(dayPillTakenObjects[i])
             }
 
+            // Temporarily hide all the individual pill indicators
+            // TODO remove this and create a proper method for displaying which pills were taken
+            dayPillTakenObjects[i].visibility = View.INVISIBLE
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun detectNewDay() {
-        val tomorrowObject =
-            (todayObject.clone() as Calendar).apply {
-                add(Calendar.DATE, 1)
-                set(Calendar.HOUR_OF_DAY, 0)
-                set(Calendar.MINUTE, 0)
-                set(Calendar.SECOND, 0)
-                set(Calendar.MILLISECOND, 0)
-            }
+        val tomorrow = today.plusDays(1)
 
         timer.schedule(
             object : TimerTask() {
-                @RequiresApi(Build.VERSION_CODES.N)
                 override fun run() {
                     // If tomorrow is this week, just log it
-                    if (tomorrowObject.get(Calendar.DATE) in curWeekDatesDay) Timber.d(
-                        "Date ${tomorrowObject.get(Calendar.DATE)} is this week (in ${curWeekDatesDay.joinToString { "," }})"
+                    if (tomorrow in curWeekDates) Timber.d(
+                        "Date $tomorrow is this week - (in ${curWeekDates.joinToString(",")})"
                     )
                     // If not, update the WeekView
                     else updateWeekView()
 
                     // Set new today values
-                    todayObject = Calendar.getInstance()
-                    todayIndex += 1
+                    today = tomorrow
                 }
             },
-            tomorrowObject.time
+            SimpleDateFormat("yyyy-MM-dd").parse(tomorrow.toString())
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
+    @RequiresApi(Build.VERSION_CODES.O)
     fun updateWeekView() {
 
         dayCircleObjects = arrayOf(
@@ -512,97 +495,18 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
             binding.pillsTakenSun
         )
 
-        todayObject = Calendar.getInstance()
+        today = LocalDate.now()
         Timber.d(
-            "Weekday " + todayObject.get(Calendar.DAY_OF_WEEK) + " Date " + todayObject.get(
-                Calendar.DAY_OF_MONTH
-            )
-        )
-
-        todayDate = todayObject.get(Calendar.DAY_OF_MONTH)
-        val testDate: Calendar = todayObject.clone() as Calendar
-
-        // Get index of today's date and the date for monday this week
-        val dateMonday: Int = when (todayObject.get(Calendar.DAY_OF_WEEK)) {
-            Calendar.SUNDAY -> {
-                testDate.add(Calendar.DATE, -6)
-                curWeekDatesDay[6] = testDate.get(Calendar.DAY_OF_MONTH)
-                curWeekDates[6] = testDate
-                todayIndex = 6
-                testDate.get(Calendar.DAY_OF_MONTH)
-            }
-
-            Calendar.MONDAY -> {
-                todayIndex = 0
-                curWeekDates[0] = todayObject
-                todayDate
-            }
-
-            Calendar.TUESDAY -> {
-                testDate.add(Calendar.DATE, -1)
-                curWeekDatesDay[1] = testDate.get(Calendar.DAY_OF_MONTH)
-                curWeekDates[1] = testDate
-                todayIndex = 1
-                testDate.get(Calendar.DAY_OF_MONTH)
-            }
-
-            Calendar.WEDNESDAY -> {
-                testDate.add(Calendar.DATE, -2)
-                curWeekDatesDay[2] = testDate.get(Calendar.DAY_OF_MONTH)
-                curWeekDates[2] = testDate
-                todayIndex = 2
-                testDate.get(Calendar.DAY_OF_MONTH)
-            }
-
-            Calendar.THURSDAY -> {
-                testDate.add(Calendar.DATE, -3)
-                curWeekDatesDay[3] = testDate.get(Calendar.DAY_OF_MONTH)
-                curWeekDates[3] = testDate
-                todayIndex = 3
-                testDate.get(Calendar.DAY_OF_MONTH)
-            }
-
-            Calendar.FRIDAY -> {
-                testDate.add(Calendar.DATE, -4)
-                curWeekDatesDay[4] = testDate.get(Calendar.DAY_OF_MONTH)
-                curWeekDates[4] = testDate
-                todayIndex = 4
-                testDate.get(Calendar.DAY_OF_MONTH)
-            }
-
-            Calendar.SATURDAY -> {
-                testDate.add(Calendar.DATE, -5)
-                curWeekDatesDay[5] = testDate.get(Calendar.DAY_OF_MONTH)
-                curWeekDates[5] = testDate
-                todayIndex = 5
-                testDate.get(Calendar.DAY_OF_MONTH)
-            }
-
-            else -> -1
-        }
-        // Fill correct dates
-        curWeekDates[0] = testDate
-        curWeekDatesDay[0] = dateMonday
-        dayCircleObjects[0].text = curWeekDatesDay[0].toString()
-        for (i in 1..6) {
-            // Get current date
-            val tmpCurDate = (curWeekDates[0].clone() as Calendar).apply {
-                add(Calendar.DATE, i)
-            }
-            //Log.d("$logTag updateWeekView", "$tmpCurDate")
-            val tmpCurDateInt = tmpCurDate.get(Calendar.DAY_OF_MONTH)
-            // Store date in correct place
-            curWeekDatesDay[i] = tmpCurDateInt
-            // Store date object in array
-            curWeekDates[i] = tmpCurDate
-            // Fill information in correct circle
-            dayCircleObjects[i].text = tmpCurDateInt.toString()
+            "Weekday " + today.dayOfWeek + " Date " + today.toString() )
+        val monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        Timber.d("Monday this week: $monday")
+        for (i in 0..6) {
+            curWeekDates[i] = monday.plusDays(i.toLong())
+            dayCircleObjects[i].text = curWeekDates[i].dayOfMonth.toString()
         }
 
-        Timber.d("curDate $todayDate mondayDate $dateMonday ")
-        // TODO test
         Timber.d(
-            "curWeekDates: ${curWeekDates.map { day -> "${day.get(Calendar.DAY_OF_MONTH)}-" }}"
+            "curWeekDates: ${curWeekDates.joinToString(",")}}"
         )
 
         // Organize days and color correctly
@@ -610,6 +514,7 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         // Detect if there's a new day
         detectNewDay()
+
     }
 
     private fun handleAlarm() {
@@ -638,7 +543,11 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
         }
         val formatString: NumberFormat = DecimalFormat("00")
         // Show user new alarm is set
-        Toast.makeText(context, "Alarm set for ${formatString.format(alarmHour)}:${formatString.format(alarmMinute)}!", Toast.LENGTH_SHORT).show()
+        Toast.makeText(
+            context,
+            "Alarm set for ${formatString.format(alarmHour)}:${formatString.format(alarmMinute)}!",
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

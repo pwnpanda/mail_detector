@@ -60,7 +60,9 @@ class DayRepository(val util: Util) : RepositoryInterface<Day> {
     }
 
     fun findByDate(today: String): Day? {
+        Timber.d("Find day $today in dayList")
         for (day in data.value!!){
+            //Timber.d("Day: ${day.today} check against given date $today ")
             if (day.today == today) return day
         }
         return null

@@ -75,7 +75,6 @@ class Util {
     val dayrepo: DayRepository = DayRepository(this)
     val pillrepo: PillRepository = PillRepository(this)
     val recordrepo: RecordRepository = RecordRepository(this)
-    var triggeredAlarm = false
 
     lateinit var pillUpdateAdapter: PillUpdateAdapter
     lateinit var pillLogAdapter: PillLogAdapter
@@ -417,7 +416,6 @@ class Util {
             }
         }
 
-        // TODO New
         val alarmIntent = Intent(context, RepeatedTrigger::class.java)
             .putExtra("hour", hour)
             .putExtra("minute", minute)
@@ -509,7 +507,6 @@ class Util {
 
     private val errorHandler = CoroutineExceptionHandler { _, exception ->
         Timber.d("Received error: " + exception.message + "!")
-        // TODO Does this work?
         Timber.e("Trace:", exception.printStackTrace())
         Toast.makeText(
             MailboxApp.getContext(),
@@ -523,8 +520,6 @@ class Util {
         coroutineScope.launch(errorHandler) {
             val prefs = MailboxApp.getPrefs()
 
-            // TODO this only works if we have a valid token
-            //  wat do if token is expired? We need refresh token or long lived token!
             val token = prefs.getString("Token", "")
             Timber.d("Token from sharedPrefs: $token")
 

@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
-import android.icu.util.Calendar
 import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.net.Uri
@@ -33,22 +32,7 @@ class RepeatedTrigger : BroadcastReceiver() {
 
         Timber.d("Alarm triggered for: " + hour + ":" + minute + " at " + LocalDateTime.now())
 
-        if (util.triggeredAlarm) {
-            val timeNow = Calendar.getInstance()
-            val alertTime = Calendar.getInstance()
-            alertTime.timeInMillis = intentAlertTime
-
-            // Only set to false if the alarm has ran, the time currently is bigger than alarm time and the day of alarm has passed
-            // TODO TEST
-            if (timeNow.timeInMillis > alertTime.timeInMillis && timeNow.get(Calendar.DAY_OF_YEAR) > alertTime.get(
-                    Calendar.DAY_OF_YEAR
-                )
-            ) util.triggeredAlarm = false
-
-            return
-        }
-
-        // Update repository data
+        // Update repository data - probably OK as in case of 401, it should still run and it is an edgecase
         util.fetchRepoData {
             Timber.d("All data fetched!")
             continueRun(util, context)
@@ -88,7 +72,5 @@ class RepeatedTrigger : BroadcastReceiver() {
         ringtone.audioAttributes =
             AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).build()
         ringtone!!.play()
-
-        util.triggeredAlarm = true
     }
 }
