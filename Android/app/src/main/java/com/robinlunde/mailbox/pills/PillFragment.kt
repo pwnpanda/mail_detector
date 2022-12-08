@@ -26,6 +26,7 @@ import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.databinding.FragmentPillBinding
 import com.robinlunde.mailbox.datamodel.pill.Pill
+import com.robinlunde.mailbox.repository.RecordRepository
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.lang.reflect.Method
@@ -45,6 +46,7 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
     private lateinit var dayPillTakenObjects: Array<LinearLayoutCompat>
     private lateinit var today: LocalDate
     private lateinit var spinner: Spinner
+    private lateinit var recordRepo: RecordRepository
     @RequiresApi(Build.VERSION_CODES.O)
     // Organized from 0 - 6, where 0 is monday and 6 is sunday
     private var curWeekDates: Array<LocalDate> = Array(7) { LocalDate.now() }
@@ -87,6 +89,7 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
         }
         util.pillrepo.data.observe(this, observer)
+        recordRepo = util.recordrepo
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -379,7 +382,6 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
         drawable.shape = GradientDrawable.OVAL
         // Set background color
         drawable.setColor(requireContext().getColor(R.color.background))
-        val recordRepo = util.recordrepo
         val dateOnButton = obj.text.toString().toInt()
         val date = curWeekDates.single { it.dayOfMonth == dateOnButton }
 
@@ -406,8 +408,13 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 Timber.d("Index $i - Day ${curWeekDates[i]} is today ($today)")
                 val drawable = GradientDrawable()
                 drawable.shape = GradientDrawable.OVAL
-                // Set border
-                drawable.setStroke(8, requireContext().getColor(R.color.charcoal_light))
+
+                // Set border to black if not taken, and green if taken
+                if (recordRepo.areAllTaken(today.toString())) {
+                    drawable.setStroke(10, requireContext().getColor(R.color.green_pill))
+                } else {
+                    drawable.setStroke(10, requireContext().getColor(R.color.charcoal_light))
+                }
                 // Set background color
                 drawable.setColor(requireContext().getColor(R.color.highlight))
                 dayCircleObjects[i].background = drawable
@@ -415,8 +422,10 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 dayCircleObjects[i].text = Html.fromHtml("<b>${dayCircleObjects[i].text}</b>", 0)
                 // Set underline on header
                 dayHeaderObjects[i].text = Html.fromHtml("<u>${dayHeaderObjects[i].text}</u>", 0)
+
                 // Set color black for current day in header
                 dayHeaderObjects[i].setTextColor(Color.BLACK)
+
                 handlePillsTaken(dayPillTakenObjects[i])
             }
 
