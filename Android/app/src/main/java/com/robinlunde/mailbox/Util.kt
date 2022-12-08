@@ -349,6 +349,7 @@ class Util {
     // ----------------------------- BT -------------------------------
     fun btEnabled() {
         Timber.d("Proxied from Util")
+
         MailboxApp.getBTConn().btEnabledConfirmed()
     }
 
@@ -408,7 +409,7 @@ class Util {
             set(Calendar.HOUR_OF_DAY, hour)
             set(Calendar.MINUTE, minute)
 
-            Timber.d("Cur: " + timeNow + " - alertTime: " + this.timeInMillis)
+            Timber.d("Cur: " + timeNow.timeInMillis + " - alertTime: " + this.timeInMillis)
             // If it is passed the trueAlertTime, add a day
             if (timeNow.timeInMillis >= this.timeInMillis) {
                 Timber.d("Time passed - increasing day by 1")
@@ -420,14 +421,14 @@ class Util {
         val alarmIntent = Intent(context, RepeatedTrigger::class.java)
             .putExtra("hour", hour)
             .putExtra("minute", minute)
-            .putExtra("alertTime", alertTime)
+            .putExtra("alertTime", alertTime.timeInMillis)
         alarmIntent.action = "AlarmAction"
 
         Timber.d(
             "Intent values: " + alarmIntent.getIntExtra(
                 "hour",
                 -1
-            ) + ":" + alarmIntent.getIntExtra("minute", -1)
+            ) + ":" + alarmIntent.getIntExtra("minute", -1) + " - " + alarmIntent.getLongExtra("alertTime", -1)
         )
         alarmPendingIntent = PendingIntent.getBroadcast(
             context,

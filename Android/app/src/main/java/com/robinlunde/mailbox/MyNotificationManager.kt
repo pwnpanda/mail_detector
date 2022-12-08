@@ -48,74 +48,76 @@ class MyNotificationManager(private val ctx: Context) {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     fun createPush(
         message: MyMessage,
         pillAlert: Boolean = false,
         @DrawableRes smallIconApp: Int = R.drawable.mailbox_thick_outline_icon,
         @DrawableRes smallIconPill: Int = R.drawable.pill_thick_outline_alert_icon
     ) {
-
-        val largeIcon = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val icon: Int =
-                if (pillAlert) R.drawable.pill_thick_outline_alert_icon else R.drawable.mailbox_thick_outline_icon
-            ResourcesCompat.getDrawable(
-                MailboxApp.getInstance().resources,
-                icon,
+        if (myNotificationManager.areNotificationsEnabled()) {
+            val largeIcon = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val icon: Int =
+                    if (pillAlert) R.drawable.pill_thick_outline_alert_icon else R.drawable.mailbox_thick_outline_icon
+                ResourcesCompat.getDrawable(
+                    MailboxApp.getInstance().resources,
+                    icon,
+                    null
+                )
+            } else {
+                Timber.d("Android version too old, ignoring push notifications!")
                 null
-            )
-        } else {
-            Timber.d("Android version too old, ignoring push notifications!")
-            null
-        }
-
-        // Final intent that will launch action if push notification is pressed
-        val intent = Intent(ctx, MainActivity::class.java).apply {
-            flags =
-                Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-        // Add in order to identify intent from our own app
-        intent.putExtra(MailboxApp.getInstance().getString(R.string.app_name), true)
-
-        // Create temporary intent for the push notification
-        val notifyPendingIntent =
-            PendingIntent.getActivity(
-                ctx,
-                0,
-                intent,
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-            )
-
-        // Build intent data for the push notification
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val builder = NotificationCompat.Builder(ctx, channelId).apply {
-                // Set small icon
-                if (pillAlert) this.setSmallIcon(smallIconPill)
-                if (!pillAlert) this.setSmallIcon(smallIconApp)
-                // Set big icon
-                this.setLargeIcon(largeIcon?.toBitmap())
-                // Ex: this.setContentTitle("New mail detected!")
-                this.setContentTitle(message.title)
-                // Ex:  this.setContentText("The mail was delivered at: $timeStamp")
-                this.setContentText(message.text)
-                priority = NotificationCompat.PRIORITY_MAX
-                // Removes notification when pressed
-                this.setAutoCancel(true)
-                //allow visibility on lock screen
-                this.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                //Set following intent
-                this.setContentIntent(notifyPendingIntent)
-                // Set big style
-                this.setStyle(NotificationCompat.BigTextStyle().bigText(message.text))
             }
 
-            // notificationId is a unique int for each notification that you must define
-            // If static, each notification will overwrite the previous one (PERFECT!! :) )
-            // Send it!
-            if (pillAlert) myNotificationManager.notify(pillNotificationId, builder.build())
-            else myNotificationManager.notify(mailNotificationId, builder.build())
+            // Final intent that will launch action if push notification is pressed
+            val intent = Intent(ctx, MainActivity::class.java).apply {
+                flags =
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+            // Add in order to identify intent from our own app
+            intent.putExtra(MailboxApp.getInstance().getString(R.string.app_name), true)
 
-        } else {
-            Timber.d("Android version too old, ignoring push notifications!")
+            // Create temporary intent for the push notification
+            val notifyPendingIntent =
+                PendingIntent.getActivity(
+                    ctx,
+                    0,
+                    intent,
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                )
+
+            // Build intent data for the push notification
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val builder = NotificationCompat.Builder(ctx, channelId).apply {
+                    // Set small icon
+                    if (pillAlert) this.setSmallIcon(smallIconPill)
+                    if (!pillAlert) this.setSmallIcon(smallIconApp)
+                    // Set big icon
+                    this.setLargeIcon(largeIcon?.toBitmap())
+                    // Ex: this.setContentTitle("New mail detected!")
+                    this.setContentTitle(message.title)
+                    // Ex:  this.setContentText("The mail was delivered at: $timeStamp")
+                    this.setContentText(message.text)
+                    priority = NotificationCompat.PRIORITY_MAX
+                    // Removes notification when pressed
+                    this.setAutoCancel(true)
+                    //allow visibility on lock screen
+                    this.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    //Set following intent
+                    this.setContentIntent(notifyPendingIntent)
+                    // Set big style
+                    this.setStyle(NotificationCompat.BigTextStyle().bigText(message.text))
+                }
+
+                // notificationId is a unique int for each notification that you must define
+                // If static, each notification will overwrite the previous one (PERFECT!! :) )
+                // Send it!
+                if (pillAlert) myNotificationManager.notify(pillNotificationId, builder.build())
+                else myNotificationManager.notify(mailNotificationId, builder.build())
+
+            } else {
+                Timber.d("Android version too old, ignoring push notifications!")
+            }
         }
     }
 }

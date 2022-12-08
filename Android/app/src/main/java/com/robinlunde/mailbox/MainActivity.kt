@@ -2,7 +2,6 @@ package com.robinlunde.mailbox
 
 import android.Manifest
 import android.Manifest.permission.ACCESS_FINE_LOCATION
-import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
@@ -15,7 +14,7 @@ import android.os.Looper
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -34,6 +33,20 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private var permCheckCount = 0
 
+    @RequiresApi(Build.VERSION_CODES.S)
+    private val PERMISSIONS_LOCATION = arrayOf(
+        ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION,
+        Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS,
+        Manifest.permission.BLUETOOTH_SCAN,
+        Manifest.permission.BLUETOOTH_CONNECT,
+        Manifest.permission.BLUETOOTH_PRIVILEGED
+    )
+    @RequiresApi(Build.VERSION_CODES.S)
+    private val PERMISSIONS_NOTIFICATION = arrayOf(
+        Manifest.permission.POST_NOTIFICATIONS
+    )
+
     // Create BT adapter
     private val bluetoothAdapter: BluetoothAdapter by lazy {
         val bluetoothManager =
@@ -45,11 +58,12 @@ class MainActivity : AppCompatActivity() {
         myActivity = this
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         myActivity = this
         super.onCreate(savedInstanceState)
 
-        promptGivePermission()
+        promptGivePermission2()
 
         // Setup bluetooth
         val PERMISSION_CODE = getString(R.string.bt_id_integer).toInt()
@@ -159,148 +173,36 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Make sure BT is enabled when we resume app
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onResume() {
         super.onResume()
-        if (promptGivePermission()) MailboxApp.getUtil().btEnabled()
+        if (promptGivePermission2()) MailboxApp.getUtil().btEnabled()
     }
 
     // ------------------- BT ---------------------
-
-    // Supportive function
-    private fun promptGivePermission(): Boolean {
-        if (permCheckCount > 0) {
-            Toast.makeText(
+    // https://stackoverflow.com/questions/70245463/java-lang-securityexception-need-android-permission-bluetooth-connect-permissio
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun promptGivePermission2(): Boolean {
+        val permissionBTLoc =
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN)
+        if (permissionBTLoc != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
                 this,
-                "This app requires these permissions! Please start app again and give permissions!",
-                Toast.LENGTH_LONG
-            ).show()
-            finishAndRemoveTask()
-        }
-        when {
-            // If we do not have BT permission
-            !bluetoothAdapter.isEnabled -> {
-                enableBluetooth()
-            }
-
-            // If we do not have location permissions
-            !hasLocationPermission -> {
-                /*Toast.makeText(this,
-                    "This app requires location permission for Bluetooth Low Energy, please allow it!",
-                    Toast.LENGTH_LONG).show()*/
-                requestLocationPermission()
-            }
-
-            // All permissions ready, run BT scan
-            else -> return true
+                PERMISSIONS_LOCATION,
+                1
+            )
         }
 
-        // Never reached
-        return false
-    }
-
-    // Send BT enable intent to OS
-    private fun Activity.enableBluetooth() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            requestMultiplePermissions.launch(arrayOf(
-                Manifest.permission.BLUETOOTH_SCAN,
-                Manifest.permission.BLUETOOTH_CONNECT))
+        val permissionNotification =
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+        if (permissionNotification != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this,
+                PERMISSIONS_NOTIFICATION,
+                1
+            )
         }
-        else{
-            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-            requestBluetooth.launch(enableBtIntent)
-        }
-        val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-        startActivityForResult(enableBtIntent, RequestCodeConst.EnableBluetooth)
-    }
-
-    // If we get the wrong result, we call the function recursively, as app does not work without BT or Location
-    private var requestBluetooth = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK) {
-            //granted
-            Timber.d("BT Permissions enabled")
-        }else{
-            //deny
-            Timber.d("Bluetooth permission not granted")
-            promptGivePermission()
-        }
-    }
-
-    private val requestMultiplePermissions =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            permissions.entries.forEach {
-                Timber.d("test006", "${it.key} = ${it.value}")
-            }
-        }
-
-    // Catch result of permission check
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        Timber.d("Permission counter is: $permCheckCount")
-
-        when (requestCode) {
-
-            RequestCodeConst.BothPermissions -> {
-                // Permissions granted
-                if ((grantResults.isNotEmpty() &&
-                            grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                ) {
-                    Timber.d("Permission for BT and Loc granted")
-                } else {
-                    // be unhappy
-                    Timber.d("Permission for BT and Loc DENIED!")
-                    permCheckCount++
-                }
-            }
-
-            RequestCodeConst.LocationPermission -> {
-                // Permissions granted
-                if ((grantResults.isNotEmpty() &&
-                            grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                ) {
-                    // Be happy
-                    Timber.d("Permission for Loc granted")
-
-                } else {
-                    // be unhappy
-                    Timber.d("Permission for Loc DENIED!")
-                    permCheckCount++
-                }
-            }
-            else -> {
-                Timber.d("Unknown permission result")
-            }
-        }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    }
-
-    // Constants for requesting permissions
-    private object RequestCodeConst {
-        const val BothPermissions = 55000
-        const val EnableBluetooth = 55001
-        const val LocationPermission = 55002
-    }
-
-    /**
-     * Shows the native Android permission request dialog.
-     *
-     * The result of the dialog will come back via [Activity.onRequestPermissionsResult] method.
-     */
-    private fun Activity.requestLocationPermission() {
-        val permissions = arrayOf(ACCESS_FINE_LOCATION)
-        ActivityCompat.requestPermissions(this, permissions, RequestCodeConst.LocationPermission)
-    }
-
-    // Check if we have location permissions
-    private val Context.hasLocationPermission: Boolean
-        get() = hasPermission(ACCESS_FINE_LOCATION)
-
-    // Supportive function for checking permissions
-    private fun Context.hasPermission(permissionType: String): Boolean {
-        return ContextCompat.checkSelfPermission(this, permissionType) ==
-                PackageManager.PERMISSION_GRANTED
+        return true
     }
 
     companion object {
