@@ -409,14 +409,16 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
                 val drawable = GradientDrawable()
                 drawable.shape = GradientDrawable.OVAL
 
-                // Set border to black if not taken, and green if taken
+                // Set border to black
+                drawable.setStroke(8, requireContext().getColor(R.color.charcoal_light))
+
+                // Set fill color to green if taken, to normal if not
                 if (recordRepo.areAllTaken(today.toString())) {
-                    drawable.setStroke(10, requireContext().getColor(R.color.green_pill))
+                    drawable.setColor(requireContext().getColor(R.color.green_circle))
                 } else {
-                    drawable.setStroke(10, requireContext().getColor(R.color.charcoal_light))
+                    drawable.setColor(requireContext().getColor(R.color.highlight))
                 }
-                // Set background color
-                drawable.setColor(requireContext().getColor(R.color.highlight))
+
                 dayCircleObjects[i].background = drawable
                 // Set bold font
                 dayCircleObjects[i].text = Html.fromHtml("<b>${dayCircleObjects[i].text}</b>", 0)
