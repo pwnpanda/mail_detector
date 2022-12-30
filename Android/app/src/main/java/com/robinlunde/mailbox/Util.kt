@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.icu.util.Calendar
 import android.os.Build
+import android.os.Build.VERSION_CODES.R
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
@@ -25,24 +26,24 @@ import com.robinlunde.mailbox.datamodel.pill.User
 import com.robinlunde.mailbox.debug.DebugFragmentDirections
 import com.robinlunde.mailbox.debug.ScanType
 import com.robinlunde.mailbox.logview.PostViewFragmentDirections
-import com.robinlunde.mailbox.network.ApiInterfaceUser
-import com.robinlunde.mailbox.network.AuthenticationInterceptor
-import com.robinlunde.mailbox.network.HttpRequestLib
-import com.robinlunde.mailbox.network.HttpRequestLib2
+import com.robinlunde.mailbox.network.*
 import com.robinlunde.mailbox.pills.*
 import com.robinlunde.mailbox.repository.DayRepository
 import com.robinlunde.mailbox.repository.PillRepository
 import com.robinlunde.mailbox.repository.RecordRepository
 import com.robinlunde.mailbox.triggers.RepeatedTrigger
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 import timber.log.Timber
+import java.io.IOException
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
 import kotlin.coroutines.suspendCoroutine
 import kotlin.math.pow
-
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 // TODO http data has become blocking when changing fragments!!
 
@@ -62,9 +63,10 @@ class Util {
 
     private val httpRequests = HttpRequestLib()
 
+    private var httpRequestLib2 = HttpRequestLib2.getClient(this)
 
     private var apiInterfaceUser: ApiInterfaceUser =
-        HttpRequestLib2.getClient(this).create(ApiInterfaceUser::class.java)
+        httpRequestLib2.create(ApiInterfaceUser::class.java)
     lateinit var authInterceptor: AuthenticationInterceptor
 
     private val updateURL: URL = URL(
@@ -78,6 +80,9 @@ class Util {
 
     lateinit var pillUpdateAdapter: PillUpdateAdapter
     lateinit var pillLogAdapter: PillLogAdapter
+
+    private var apiInterfaceMailNotifications: ApiInterfaceMailNotifications =
+        httpRequestLib2.create(ApiInterfaceMailNotifications::class.java)
 
     // ----------------------------- Notification -------------------------------
 
@@ -103,6 +108,135 @@ class Util {
      * https://stackoverflow.com/a/34967554
      */
 
+    // TODO Rewrite all of the re-newers etc. below with coroutines and use updated network calls
+    // TODO Then change login flow and data flow to fix "slow network" login issues
+
+    private data class MailboxStatus(
+        val curStatus: PostUpdateStatus,
+        val logs: MutableList<PostLogEntry>
+    )
+
+    // Helper-flow for running task periodically
+    // https://kotlinlang.org/docs/flow.html#flow-cancellation-basics
+    // https://stackoverflow.com/questions/54827455/how-to-implement-timer-with-kotlin-coroutines
+    private fun tickerFlow(period: Duration, initialDelay: Duration = Duration.ZERO) = flow {
+        delay(initialDelay)
+        while (true) {
+            MailboxApp.getBTConn().bleScan(ScanType.BACKGROUND)
+            val getLogs =
+                apiInterfaceMailNotifications.getRecentMailboxStatus() // getAllPostNotificationFromWebHelper(null)
+            val getStatus =
+                apiInterfaceMailNotifications.getLastMailboxStatus() //getAllPostNotificationFromWebHelper(updateURL)
+            val myMailboxStatus = MailboxStatus(getStatus, getLogs)
+            emit(myMailboxStatus)
+            delay(period)
+        }
+    }
+
+    // TODO Change name - remove 2
+    fun startDataRenewer() {
+        val appScope = MailboxApp.getAppScope()
+        appScope.launch {
+            // Run every 10 minutes, and wait 1 second before starting the first time
+            tickerFlow((60 * 10).seconds, 1.seconds).collect { result ->
+                newDataReceivedHelper(result)
+            }
+        }
+    }
+
+    // Helper handling the data from the network call and sending it for further processing
+    private fun newDataReceivedHelper(result: MailboxStatus) {
+        // Handle status update
+        if (result.curStatus.timestamp != null) {
+            Timber.d("Received status: ${result.curStatus}")
+            MailboxApp.setStatus(result.curStatus)
+        } else Timber.d("No mail has yet been received!")
+
+        // Handle log update
+        if (result.logs.isNotEmpty()) {
+            Timber.d("Received logs: ${result.logs}")
+            MailboxApp.setPostEntries(result.logs)
+        } else Timber.d("No logs exist!")
+
+    }
+
+    // Exponential backoff function
+    suspend fun <T> retryIO(
+        times: Int = 7,
+        initialDelay: Long = 1000, // 1 second
+        maxDelay: Long = 1000 * 60 * 30,    // 30 minutes
+        factor: Double = 2.0,
+        block: suspend () -> T
+    ): T {
+        var currentDelay = initialDelay
+        repeat(times - 1) {
+            try {
+                return block()
+            } catch (e: IOException) {
+                // you can log an error here and/or make a more finer-grained
+                // analysis of the cause to see if retry is needed
+            }
+            delay(currentDelay)
+            currentDelay = (currentDelay * factor).toLong().coerceAtMost(maxDelay)
+        }
+        return block() // last attempt
+    }
+
+    fun doNetworkRequest(type: String, timestamp: String?, id: Int?, newMail: Boolean?) {
+        val instance: MailboxApp = MailboxApp.getInstance()
+        MailboxApp.getAppScope().launch {
+
+            when (type) {
+                
+                // Send the log off to api after picking up the mail
+                instance.getString(R.string.sendLogsMethod) -> {
+                    if (timestamp == null) {
+                        Timber.d("Timestamp is null when trying to add new post log entry")
+                        throw NullPointerException()
+                    }
+                    apiInterfaceMailNotifications.setPostPickedUp(timestamp)
+                }
+
+                // Delete a log entry
+                instance.getString(R.string.deleteLogsMethod) -> {
+                    if (id == null) {
+                        Timber.d("Id is null when trying to delete log entry")
+                        throw NullPointerException()
+                    }
+                    apiInterfaceMailNotifications.deleteMailboxStatusById(id)
+                }
+
+                // Look for new post submitted by others (status)
+                instance.getString(R.string.get_last_status_update_method) -> {
+                    apiInterfaceMailNotifications.getLastMailboxStatus()
+                }
+
+                // New communication with BT device / new mail pickup - share with online api
+                instance.getString(R.string.set_last_status_update_method) -> {
+                    if (newMail == null) {
+                        Timber.d("newMail is null when trying to set new status update")
+                        throw NullPointerException()
+                    }
+
+                    val postUpdateStatus: PostUpdateStatus = PostUpdateStatus(newMail, timestamp = getTime(), username = MailboxApp.getUsername())
+                    apiInterfaceMailNotifications.setLastMailboxStatus(postUpdateStatus)
+
+                }
+
+                // Get update from server (logs)
+                instance.getString(R.string.get_logs) -> {
+                    apiInterfaceMailNotifications.getRecentMailboxStatus()
+                }
+
+                else -> throw java.lang.Exception("Unknown http method!")
+            }
+        }
+    }
+
+    // ----------- OLD ------------------
+    /*
+
+    // TODO remove and use new version instead
     fun startDataRenewer() {
         //Log.e("Debug", "Util initiated")
         // on init
@@ -113,11 +247,11 @@ class Util {
             myHandler.postDelayed(object : Runnable {
                 override fun run() {
                     // Check if error when getting new data
-                    if (!getDataWeb(null)) {
+                    if (!getAllPostNotificationFromWebHelper(null)) {
                         Timber.d("Error when getting logs from server")
                     }
                     MailboxApp.getBTConn().bleScan(ScanType.BACKGROUND)
-                    val lastCheck = getDataWeb(updateURL)
+                    val lastCheck = getAllPostNotificationFromWebHelper(updateURL)
                     // if there was new mail
                     if (!lastCheck) {
                         Timber.d("Error when checking for new status with server")
@@ -133,7 +267,7 @@ class Util {
         }
     }
 
-    suspend fun tryRequest(type: String, timestamp: String?, id: Int?, newMail: Boolean?): Boolean {
+    suspend fun doNetworkRequest(type: String, timestamp: String?, id: Int?, newMail: Boolean?): Boolean {
         return suspendCoroutine {
             val context = MailboxApp.getInstance()
             // Do async thread with network request
@@ -160,7 +294,7 @@ class Util {
                                     Timber.d("Timestamp is null when trying to add new post log entry")
                                     throw NullPointerException()
                                 }
-                                sendLog(timestamp).also { sent = it }
+                                notifyPostPickedUpByUserHelper(timestamp).also { sent = it }
                             }
 
                             // Delete an entry
@@ -174,7 +308,7 @@ class Util {
 
                             // Look for new post submitted by others (status)
                             context.getString(R.string.get_last_status_update_method) -> {
-                                getDataWeb(updateURL).also { sent = it }
+                                getAllPostNotificationFromWebHelper(updateURL).also { sent = it }
                             }
 
                             // New communication with BT device / new mail pickup - share with online api
@@ -183,7 +317,7 @@ class Util {
                                     Timber.d("newMail is null when trying to set new status update")
                                     throw NullPointerException()
                                 }
-                                setLastUpdate(
+                                sendUpdateFromBTSensorToWebHelper(
                                     PostUpdateStatus(
                                         newMail,
                                         timestamp = getTime(),
@@ -194,7 +328,7 @@ class Util {
 
                             // Get update from server (logs)
                             context.getString(R.string.get_logs) -> {
-                                getDataWeb(null).also { sent = it }
+                                getAllPostNotificationFromWebHelper(null).also { sent = it }
                             }
 
                             else -> throw java.lang.Exception("Unknown http method!")
@@ -227,12 +361,12 @@ class Util {
     }
 
     // Set last time we got info from BT Device
-    fun setLastUpdate(data: PostUpdateStatus): Boolean {
+    fun sendUpdateFromBTSensorToWebHelper(data: PostUpdateStatus): Boolean {
         val res = runBlocking {
             // Create thread
             var tmpRes = false
             try {
-                httpRequests.setNewUpdateWeb(data).also {
+                httpRequests.sendUpdateFromBTSensorToWeb(data).also {
                     tmpRes = it
                 }
             } catch (e: Exception) {
@@ -242,18 +376,18 @@ class Util {
         }
         Timber.d(res.toString())
         // Update with latest info from server
-        if (!getDataWeb(updateURL)) Timber.d("Error when getting status from server!")
+        if (!getAllPostNotificationFromWebHelper(updateURL)) Timber.d("Error when getting status from server!")
 
         return res
     }
 
     // Send log to server, telling it we picked up the mail
-    private fun sendLog(timestamp: String): Boolean {
+    private fun notifyPostPickedUpByUserHelper(timestamp: String): Boolean {
         val res = runBlocking {
             // Create thread
             var tmpRes = false
             try {
-                httpRequests.sendDataWeb(timestamp).also {
+                httpRequests.notifyPostPickedUpByUser(timestamp).also {
                     tmpRes = it
                 }
             } catch (e: Exception) {
@@ -263,19 +397,19 @@ class Util {
         }
         Timber.d(res.toString())
         // Update with latest info from server
-        if (!getDataWeb(updateURL)) Timber.d("Error when getting status from server!")
+        if (!getAllPostNotificationFromWebHelper(updateURL)) Timber.d("Error when getting status from server!")
         return res
     }
 
     // Get data from API, can be Logs or Update
-    fun getDataWeb(myUrl: URL?): Boolean {
+    fun getAllPostNotificationFromWebHelper(myUrl: URL?): Boolean {
         val res = runBlocking {
             // Create thread
             var tmpRes = ""
             val thread = Thread {
                 // Try to send web request to base url
                 try {
-                    httpRequests.getDataWeb(myUrl).also {
+                    httpRequests.getAllPostNotificationFromWeb(myUrl).also {
                         tmpRes = it
                     }
                 } catch (e: Exception) {
@@ -331,7 +465,7 @@ class Util {
         }
         Timber.d(res.toString())
         // Fetch new data from web
-        if (!getDataWeb(null)) Timber.d("Error when getting new logs from server!")
+        if (!getAllPostNotificationFromWebHelper(null)) Timber.d("Error when getting new logs from server!")
         return res
     }
 
@@ -344,6 +478,10 @@ class Util {
     private fun updateLogs(data: MutableList<PostLogEntry>) {
         MailboxApp.setPostEntries(data)
     }
+
+
+     */
+    // ----------- END OLD ------------------
 
     // ----------------------------- BT -------------------------------
     fun btEnabled() {
@@ -426,7 +564,10 @@ class Util {
             "Intent values: " + alarmIntent.getIntExtra(
                 "hour",
                 -1
-            ) + ":" + alarmIntent.getIntExtra("minute", -1) + " - " + alarmIntent.getLongExtra("alertTime", -1)
+            ) + ":" + alarmIntent.getIntExtra(
+                "minute",
+                -1
+            ) + " - " + alarmIntent.getLongExtra("alertTime", -1)
         )
         alarmPendingIntent = PendingIntent.getBroadcast(
             context,
@@ -515,7 +656,7 @@ class Util {
         ).show()
     }
 
-    fun fetchRepoData(callback: () -> Unit ){
+    fun fetchRepoData(callback: () -> Unit) {
         val coroutineScope = CoroutineScope(Job() + Dispatchers.Main)
         coroutineScope.launch(errorHandler) {
             val prefs = MailboxApp.getPrefs()
@@ -524,9 +665,9 @@ class Util {
             Timber.d("Token from sharedPrefs: $token")
 
             if (token != "" && token != null) authInterceptor.Token(token)
-            else    Timber.e("Something went very wrong - user has no Token: $token")
+            else Timber.e("Something went very wrong - user has no Token: $token")
 
-            if (user == null)  user = getUsers()
+            if (user == null) user = getUsers()
             Timber.d("User: $user")
             // fetch data in the background
             dayrepo.getDays()
@@ -538,7 +679,6 @@ class Util {
             callback.invoke()
         }
     }
-
 
 
     fun fetchRepoData() {

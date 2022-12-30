@@ -27,7 +27,8 @@ class HttpRequestLib {
      */
 
     // Get results for last 14 days
-    fun getDataWeb(myUrl: URL?): String {
+    fun getAllPostNotificationFromWeb(myUrl: URL?): String {
+        Timber.i("getDataWeb")
         val urlNow: URL = myUrl ?: url
         val request = Request.Builder()
             .url(urlNow)
@@ -44,7 +45,8 @@ class HttpRequestLib {
     }
 
     // Send latest data to Server
-    fun sendDataWeb(timestamp: String): Boolean {
+    fun notifyPostPickedUpByUser(timestamp: String): Boolean {
+        Timber.i("sendDataWeb")
         Timber.d("Timestamp in: $timestamp")
         val pickupTime = MailboxApp.getUtil().getTime()
         //Using jackson to get string to JSON
@@ -77,6 +79,7 @@ class HttpRequestLib {
 
     // delete entry
     fun deleteLog(id: Int): Boolean {
+        Timber.i("deleteLog")
         Timber.d("Entered process for id:$id")
         val newUrl = URL("$url/$id")
         val request = Request.Builder()
@@ -95,7 +98,8 @@ class HttpRequestLib {
 
 
     // Send latest data to Server
-    fun setNewUpdateWeb(data: PostUpdateStatus): Boolean {
+    fun sendUpdateFromBTSensorToWeb(data: PostUpdateStatus): Boolean {
+        Timber.i("setNewUpdateWeb")
         val urlNow = URL(MailboxApp.getInstance().getString(R.string.post_update_url))
         //Using jackson to get string to JSON
         val mapperAll = ObjectMapper()

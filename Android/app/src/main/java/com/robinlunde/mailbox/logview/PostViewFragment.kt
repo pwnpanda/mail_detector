@@ -75,7 +75,7 @@ class PostViewFragment : Fragment() {
                 util.logButtonPress("Logview - logo")
                 // Try to fetch new data, if we fail we don't care
                 CoroutineScope(Dispatchers.IO + Job()).launch {
-                    util.tryRequest(
+                    util.doNetworkRequest(
                         getString(R.string.get_last_status_update_method),
                         null,
                         null,

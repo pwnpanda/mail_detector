@@ -280,13 +280,13 @@ class MailboxApp : Application() {
 
             // If we only update the current check timestamp and know nothing of the status of mail
             if (onlyTimestamp) {
-                getUtil().setLastUpdate(
-                    PostUpdateStatus(
-                        getStatus().newMail,
-                        time,
-                        getUsername()
-                    )
+                getUtil().doNetworkRequest(
+                    type = getInstance().getString(R.string.set_last_status_update_method),
+                    timestamp = time,
+                    id = null,
+                    newMail = getStatus().newMail
                 )
+
                 return
             }
 
@@ -306,12 +306,11 @@ class MailboxApp : Application() {
             Timber.d("Time is set to: $postTime, which is $time ago.")
 
             // add update to API server - this automatically updates local state as well
-            getUtil().setLastUpdate(
-                PostUpdateStatus(
-                    newMail = true,
-                    postTime,
-                    getUsername()
-                )
+            getUtil().doNetworkRequest(
+                type = getInstance().getString(R.string.set_last_status_update_method),
+                timestamp = postTime,
+                id = null,
+                newMail = true
             )
         }
 

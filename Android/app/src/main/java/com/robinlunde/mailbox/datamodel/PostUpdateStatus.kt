@@ -5,13 +5,13 @@ import com.robinlunde.mailbox.MailboxApp
 
 class PostUpdateStatus(
     val newMail: Boolean,
-    val timestamp: String,
+    val timestamp: String? = null,
     val username: String
 ) {
     @JsonIgnore
     val util = MailboxApp.getUtil()
-    val date = reverseDate(util.getMyDate(timestamp))
-    val time = util.getMyTime(timestamp)
+    val date = if (timestamp != null )   util.getMyDate(timestamp) else ""
+    val time = if (timestamp != null ) util.getMyTime(timestamp) else ""
     private fun reverseDate(str: String): String {
         return str.split("-").reversed().joinToString("-")
     }

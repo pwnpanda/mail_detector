@@ -1,7 +1,6 @@
 package com.robinlunde.mailbox.debug
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -143,7 +142,7 @@ class DebugFragment : Fragment() {
                 util.logButtonPress("Debug - logs")
                 // Try to fetch data to update logview - if we fail, we don't care
                 CoroutineScope(Dispatchers.IO + Job()).launch {
-                    util.tryRequest(getString(R.string.get_logs), null, null, null)
+                    util.doNetworkRequest(getString(R.string.get_logs), null, null, null)
                 }
                 // Go to logview (now named PostView)
                 NavHostFragment.findNavController(this)

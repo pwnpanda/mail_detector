@@ -1,7 +1,6 @@
 package com.robinlunde.mailbox.alert
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -86,11 +85,11 @@ class AlertFragment : Fragment() {
             nwScope.launch {
                 // Try to log to web
                 val request1: Boolean =
-                    util.tryRequest(getString(R.string.sendLogsMethod), timestamp, null, null)
+                    util.doNetworkRequest(getString(R.string.sendLogsMethod), timestamp, null, null)
                 if (!request1) makeToast("Could not register post pickup over Web!")
                 else makeToast("Post pickup registered!")
 
-                val request2: Boolean = util.tryRequest(
+                val request2: Boolean = util.doNetworkRequest(
                     getString(R.string.set_last_status_update_method),
                     null,
                     null,
@@ -193,7 +192,7 @@ class AlertFragment : Fragment() {
                 util.logButtonPress("Alert - logs")
                 // Try to fetch data to update logview - if we fail, we don't care
                 CoroutineScope(Dispatchers.IO + Job()).launch {
-                    util.tryRequest(getString(R.string.get_logs), null, null, null)
+                    util.doNetworkRequest(getString(R.string.get_logs), null, null, null)
                 }
                 util.logButtonPress("Alert - logs - after HTTP")
                 // Go to logview (now named PostView)

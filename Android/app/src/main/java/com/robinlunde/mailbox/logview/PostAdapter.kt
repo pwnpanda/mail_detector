@@ -59,7 +59,7 @@ class PostAdapter(private val postLogEntries: MutableList<PostLogEntry>) :
                     //Log.e("DeletePress", "Pressed for ID ${item.id}")
                     // Delete the log with ID id
                     CoroutineScope(Dispatchers.IO + Job()).launch {
-                        MailboxApp.getUtil().tryRequest(
+                        MailboxApp.getUtil().doNetworkRequest(
                             MailboxApp.getInstance().getString(R.string.deleteLogsMethod),
                             null,
                             postLogEntry.id,
