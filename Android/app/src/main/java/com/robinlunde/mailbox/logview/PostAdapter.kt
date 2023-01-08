@@ -13,13 +13,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.robinlunde.mailbox.MailboxApp
 import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.Util
+import com.robinlunde.mailbox.databinding.FragmentLogviewBinding
 import com.robinlunde.mailbox.datamodel.PostLogEntry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class PostAdapter(private val postLogEntries: MutableList<PostLogEntry>) :
+class PostAdapter(private val postLogEntries: MutableList<PostLogEntry>, val binding: FragmentLogviewBinding) :
     RecyclerView.Adapter<Util.LogItemViewHolder>() {
 
     override fun getItemCount() = postLogEntries.size
@@ -28,10 +29,18 @@ class PostAdapter(private val postLogEntries: MutableList<PostLogEntry>) :
     override fun onBindViewHolder(holder: Util.LogItemViewHolder, position: Int) {
         // If there is data, render it!
         if (itemCount > 0) {
-            holder.constraintLayout.findViewById<RecyclerView>(R.id.post_entries).visibility =
+            // TODO something wrong here!
+            // TODO  java.lang.NullPointerException: Attempt to invoke virtual method 'void androidx.recyclerview.widget.RecyclerView.setVisibility(int)' on a null object reference
+            // Timber.d("Holder: $holder, constraint: ${holder.constraintLayout}, specific: ${holder.constraintLayout.findViewById<RecyclerView>(R.id.post_entries)}")
+            // Specific views (textview, recyclerview) are null. WHY?!?
+            // if (holder.constraintLayout.findViewById<RecyclerView>(R.id.post_entries) == null)
+            binding.postEntries.visibility = View.VISIBLE
+            binding.errorLogs.visibility = View.INVISIBLE
+            /*holder.constraintLayout.findViewById<RecyclerView>(R.id.post_entries).visibility =
                 View.VISIBLE
             holder.constraintLayout.findViewById<TextView>(R.id.error_logs).visibility =
                 View.INVISIBLE
+             */
 
             val postLogEntry = postLogEntries[position]
 
@@ -64,15 +73,19 @@ class PostAdapter(private val postLogEntries: MutableList<PostLogEntry>) :
                             null,
                             postLogEntry.id,
                             null
-                        )
+                        ).await()
                     }
                 }
             // If there is no data found, show error
         } else {
+            binding.postEntries.visibility = View.INVISIBLE
+            binding.errorLogs.visibility = View.VISIBLE
+            /*
             holder.constraintLayout.findViewById<RecyclerView>(R.id.post_entries).visibility =
                 View.INVISIBLE
             holder.constraintLayout.findViewById<TextView>(R.id.error_logs).visibility =
                 View.VISIBLE
+             */
         }
     }
 

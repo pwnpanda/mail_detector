@@ -16,9 +16,7 @@ import com.robinlunde.mailbox.debug.DebugViewModel
 import com.robinlunde.mailbox.logview.PostViewModel
 import com.robinlunde.mailbox.network.NativeBluetooth
 import fr.bipi.tressence.file.FileLoggerTree
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
@@ -254,7 +252,9 @@ class MailboxApp : Application() {
                 // Push Notification only if it is not the first run
                 if (status.username != getInstance().getString(R.string.no_status_yet_username)) {
                     Timber.d("Not first run, Send push notification!")
-                    util.pushNotification(msg)
+                    // If there is no new mail and we are responsible for the update
+                    if (newStatus.username == getUsername() && !newStatus.newMail) Timber.d("We picked up the mail, do not notify")
+                    else util.pushNotification(msg)
                 }
             }
 
@@ -278,14 +278,18 @@ class MailboxApp : Application() {
             //  "timestamp":"2021-04-03T23:26:55.108"
             Timber.d("New data from device received: $time, only update the timestamp? $onlyTimestamp")
 
+            val nwScope = CoroutineScope(Dispatchers.IO + Job())
+
             // If we only update the current check timestamp and know nothing of the status of mail
             if (onlyTimestamp) {
-                getUtil().doNetworkRequest(
-                    type = getInstance().getString(R.string.set_last_status_update_method),
-                    timestamp = time,
-                    id = null,
-                    newMail = getStatus().newMail
-                )
+                nwScope.launch {
+                    getUtil().doNetworkRequest(
+                        type = getInstance().getString(R.string.set_last_status_update_method),
+                        timestamp = time,
+                        id = null,
+                        newMail = getStatus().newMail
+                    ).await()
+                }
 
                 return
             }
@@ -306,12 +310,14 @@ class MailboxApp : Application() {
             Timber.d("Time is set to: $postTime, which is $time ago.")
 
             // add update to API server - this automatically updates local state as well
-            getUtil().doNetworkRequest(
-                type = getInstance().getString(R.string.set_last_status_update_method),
-                timestamp = postTime,
-                id = null,
-                newMail = true
-            )
+            nwScope.launch {
+                getUtil().doNetworkRequest(
+                    type = getInstance().getString(R.string.set_last_status_update_method),
+                    timestamp = postTime,
+                    id = null,
+                    newMail = true
+                ).await()
+            }
         }
 
         // increment clickCounter

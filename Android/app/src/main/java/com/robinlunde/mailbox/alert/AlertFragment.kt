@@ -1,16 +1,21 @@
 package com.robinlunde.mailbox.alert
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.text.HtmlCompat
+import androidx.core.text.bold
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.NavHostFragment
 import com.robinlunde.mailbox.MailboxApp
 import com.robinlunde.mailbox.R
@@ -84,18 +89,18 @@ class AlertFragment : Fragment() {
 
             nwScope.launch {
                 // Try to log to web
-                val request1: Boolean =
-                    util.doNetworkRequest(getString(R.string.sendLogsMethod), timestamp, null, null)
-                if (!request1) makeToast("Could not register post pickup over Web!")
+                val request1 =
+                    util.doNetworkRequest(getString(R.string.sendLogsMethod), timestamp, null, null).await()
+                if (request1 == false) makeToast("Could not register post pickup over Web!")
                 else makeToast("Post pickup registered!")
 
-                val request2: Boolean = util.doNetworkRequest(
+                val request2 = util.doNetworkRequest(
                     getString(R.string.set_last_status_update_method),
                     null,
                     null,
                     newMail = false
-                )
-                if (!request2) makeToast("Could not send latest Status Update over web")
+                ).await()
+                if (request2 == false) makeToast("Could not send latest Status Update over web")
                 else makeToast("New status registered!")
             }
         }
@@ -104,9 +109,12 @@ class AlertFragment : Fragment() {
     }
 
     private fun makeToast(msg: String) {
-        Toast.makeText(
-            context, msg, Toast.LENGTH_SHORT
-        ).show()
+        Handler(Looper.getMainLooper()).post {
+            Toast.makeText(
+                context, msg, Toast.LENGTH_SHORT
+            ).show()
+        }
+
     }
 
     // Updates fragment with new data from Status API
@@ -166,12 +174,14 @@ class AlertFragment : Fragment() {
         Timber.d("New mail!")
         binding.clearNotifyBtn.visibility = View.VISIBLE
         binding.timestampTime.visibility = View.VISIBLE
-        // If you got the last message from the BT device
-        if (status.username == MailboxApp.getUsername()) binding.status.text =
-            getString(R.string.last_update_new_string, "You")
-        // If someone else got the last message from the BT device
-        else binding.status.text =
-            getString(R.string.last_update_new_string, status.username)
+
+        var str: SpannableStringBuilder = SpannableStringBuilder()
+            .append(getString(R.string.last_update_new_string))
+
+        if (status.username == MailboxApp.getUsername()) str.bold{ append(" You") }
+        else    str.bold { append(" " + status.username) }
+
+        binding.status.text = str
 
         binding.postBox.visibility = View.INVISIBLE
         binding.timestampText.text = getString(R.string.timestamp_text)
@@ -190,14 +200,16 @@ class AlertFragment : Fragment() {
 
             R.id.logs -> {
                 util.logButtonPress("Alert - logs")
-                // Try to fetch data to update logview - if we fail, we don't care
-                CoroutineScope(Dispatchers.IO + Job()).launch {
-                    util.doNetworkRequest(getString(R.string.get_logs), null, null, null)
+                val frag = this
+
+                model.viewModelScope.launch {
+                    util.doNetworkRequest(getString(R.string.get_logs), null, null, null).await()
+                    util.logButtonPress("Alert - logs - after HTTP")
+                    // Go to logview (now named PostView)
+                    NavHostFragment.findNavController(frag)
+                        .navigate(AlertFragmentDirections.actionAlertFragmentToLogviewFragment())
                 }
-                util.logButtonPress("Alert - logs - after HTTP")
-                // Go to logview (now named PostView)
-                NavHostFragment.findNavController(this)
-                    .navigate(AlertFragmentDirections.actionAlertFragmentToLogviewFragment())
+
                 true
             }
 

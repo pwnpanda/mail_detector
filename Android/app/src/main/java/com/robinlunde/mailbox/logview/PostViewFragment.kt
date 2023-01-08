@@ -37,7 +37,7 @@ class PostViewFragment : Fragment() {
             //Log.d("Observer - PostView", newData.toString())
             // do something with new data
             // Update correct view with new data
-            binding.postEntries.adapter = PostAdapter(newData)
+            binding.postEntries.adapter = PostAdapter(newData, binding)
             binding.postEntries.layoutManager = LinearLayoutManager(context)
             // Tell view it has changed
             binding.postEntries.adapter?.notifyDataSetChanged()
@@ -62,7 +62,7 @@ class PostViewFragment : Fragment() {
         if (util.user == null)  util.moveToLoginFragment("postView",this)
 
         this.binding = binding
-        val adapter = model.mutablePostEntries.value?.let { PostAdapter(it) }
+        val adapter = model.mutablePostEntries.value?.let { PostAdapter(it, binding) }
         binding.postEntries.adapter = adapter
         binding.postEntries.layoutManager = LinearLayoutManager(context)
         binding.lifecycleOwner = viewLifecycleOwner
@@ -80,7 +80,7 @@ class PostViewFragment : Fragment() {
                         null,
                         null,
                         null
-                    )
+                    ).await()
                 }
                 //Move to Alert fragment
                 findNavController(this).navigate(

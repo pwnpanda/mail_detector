@@ -1,32 +1,31 @@
 package com.robinlunde.mailbox.network
 
-import com.robinlunde.mailbox.datamodel.PostLogEntry
-import com.robinlunde.mailbox.datamodel.PostUpdateStatus
+import com.robinlunde.mailbox.datamodel.*
+import retrofit2.Call
 import retrofit2.http.*
 
 interface ApiInterfaceMailNotifications {
 
     // Get last update for the mailbox-status from the Web-API (AKA last status submitted by others)
-    @GET("/post/status")
-    suspend fun getLastMailboxStatus(): PostUpdateStatus
+    @GET("post/status")
+    fun getLastMailboxStatus(): Call<PostUpdateStatus>
 
     // Set the latest received mailbox-status, by forwarding received data from the BT sensor
-    // TODO should not return boolean I think
-    @POST("/post/status")
-    suspend fun setLastMailboxStatus(data: PostUpdateStatus): Boolean
+    @POST("post/status")
+    fun setLastMailboxStatus(@Body data: PostUpdateStatus): Call<SetLastMailboxStatus>
 
     // Get all statuses from the last 14 days, for logging purposes
-    @GET("/posts")
-    suspend fun getRecentMailboxStatus(): MutableList<PostLogEntry>
+    @GET("posts")
+    fun getRecentMailboxStatus(): Call<MutableList<PostLogEntry>>
 
     // Register that the mail has been picked up by the current user
-    // TODO should not return boolean I think
-    @POST("/posts")
-    suspend fun setPostPickedUp(timestamp: String): Boolean
+    @POST("posts")
+    fun setPostPickedUp(
+        @Body pickupStatus: pickupStatus
+    ): Call<SetPostPickedUpResponse>
 
     // Delete a mailbox status update by ID
-    // TODO should not return boolean I think
-    @DELETE("/posts/{id}")
-    suspend fun deleteMailboxStatusById(@Path("id") post_id: Int): Boolean
+    @DELETE("posts/{id}")
+    fun deleteMailboxStatusById(@Path("id") post_id: Int): Call<DeleteMailboxStatusResponse>
 
 }

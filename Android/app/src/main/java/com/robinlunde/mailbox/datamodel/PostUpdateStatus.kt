@@ -10,8 +10,8 @@ class PostUpdateStatus(
 ) {
     @JsonIgnore
     val util = MailboxApp.getUtil()
-    val date = if (timestamp != null )   util.getMyDate(timestamp) else ""
-    val time = if (timestamp != null ) util.getMyTime(timestamp) else ""
+    val date = if (timestamp != "" && timestamp != null )   util.getMyDate(timestamp) else ""
+    val time = if (timestamp != "" && timestamp != null ) util.getMyTime(timestamp) else ""
     private fun reverseDate(str: String): String {
         return str.split("-").reversed().joinToString("-")
     }

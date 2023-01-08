@@ -142,7 +142,7 @@ class DebugFragment : Fragment() {
                 util.logButtonPress("Debug - logs")
                 // Try to fetch data to update logview - if we fail, we don't care
                 CoroutineScope(Dispatchers.IO + Job()).launch {
-                    util.doNetworkRequest(getString(R.string.get_logs), null, null, null)
+                    util.doNetworkRequest(getString(R.string.get_logs), null, null, null).await()
                 }
                 // Go to logview (now named PostView)
                 NavHostFragment.findNavController(this)
