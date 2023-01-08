@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    android:label="loginFragment"
+    app:startDestination="@id/loginFragment">
+    <fragment
+        android:id="@+id/pillFragment"
+        android:name="com.robinlunde.mailbox.pills.PillFragment"
+        android:label="fragment_pill"
+        tools:layout="@layout/fragment_pill">
+        <action
+            android:id="@+id/action_pillFragment_to_alertFragment"
+            app:destination="@id/alertFragment" />
+        <action
+            android:id="@+id/action_pillFragment_to_logviewFragment"
+            app:destination="@id/logviewFragment" />
+        <action
+            android:id="@+id/action_pillFragment_to_debugFragment"
+            app:destination="@id/debugFragment" />
+        <action
+            android:id="@+id/action_pillFragment_to_pillLogFragment"
+            app:destination="@+id/pillLogFragment" />
+        <action
+            android:id="@+id/action_pillFragment_to_LoginFragment"
+            app:destination="@+id/loginFragment" />
+        <action
+            android:id="@+id/action_pillFragment_to_PillUpdateFragment"
+            app:destination="@+id/pillUpdateFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/pillLogFragment"
+        android:name="com.robinlunde.mailbox.pills.PillLogFragment"
+        android:label="fragment_pill_log"
+        tools:layout="@layout/fragment_pill_log">
+        <action
+            android:id="@+id/action_pillLogFragment_to_alertFragment"
+            app:destination="@id/alertFragment" />
+        <action
+            android:id="@+id/action_pillLogFragment_to_logviewFragment"
+            app:destination="@id/logviewFragment" />
+        <action
+            android:id="@+id/action_pillLogFragment_to_debugFragment"
+            app:destination="@id/debugFragment" />
+        <action
+            android:id="@+id/action_pillLogFragment_to_pillFragment"
+            app:destination="@+id/pillFragment" />
+        <action
+            android:id="@+id/action_pillLogFragment_to_LoginFragment"
+            app:destination="@+id/loginFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/pillUpdateFragment"
+        android:name="com.robinlunde.mailbox.pills.PillUpdateFragment"
+        android:label="fragment_pill_update"
+        tools:layout="@layout/fragment_pill_update">
+        <action
+            android:id="@+id/action_pillUpdateFragment_to_alertFragment"
+            app:destination="@id/alertFragment" />
+        <action
+            android:id="@+id/action_pillUpdateFragment_to_logviewFragment"
+            app:destination="@id/logviewFragment" />
+        <action
+            android:id="@+id/action_pillUpdateFragment_to_debugFragment"
+            app:destination="@id/debugFragment" />
+        <action
+            android:id="@+id/action_pillUpdateFragment_to_pillFragment"
+            app:destination="@+id/pillFragment" />
+        <action
+            android:id="@+id/action_pillUpdateFragment_to_LoginFragment"
+            app:destination="@+id/loginFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.robinlunde.mailbox.login.LoginFragment"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_loginFragment_to_alertFragment"
+            app:destination="@id/alertFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_logviewFragment"
+            app:destination="@id/logviewFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_debugFragment"
+            app:destination="@id/debugFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_pillFragment"
+            app:destination="@+id/pillFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/alertFragment"
+        android:name="com.robinlunde.mailbox.alert.AlertFragment"
+        android:label="fragment_alert"
+        tools:layout="@layout/fragment_alert">
+        <action
+            android:id="@+id/action_alertFragment_to_logviewFragment"
+            app:destination="@id/logviewFragment" />
+        <action
+            android:id="@+id/action_alertFragment_to_debugFragment"
+            app:destination="@id/debugFragment" />
+        <action
+            android:id="@+id/action_alertFragment_to_pillFragment"
+            app:destination="@+id/pillFragment" />
+        <action
+            android:id="@+id/action_alertFragment_to_LoginFragment"
+            app:destination="@+id/loginFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/logviewFragment"
+        android:name="com.robinlunde.mailbox.logview.PostViewFragment"
+        android:label="LogviewFragment">
+        <action
+            android:id="@+id/action_logviewFragment_to_alertFragment"
+            app:destination="@id/alertFragment" />
+        <action
+            android:id="@+id/action_logviewFragment_to_debugFragment"
+            app:destination="@id/debugFragment" />
+        <action
+            android:id="@+id/action_logviewFragment_to_pillFragment"
+            app:destination="@+id/pillFragment" />
+        <action
+            android:id="@+id/action_logviewFragment_to_LoginFragment"
+            app:destination="@+id/loginFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/debugFragment"
+        android:name="com.robinlunde.mailbox.debug.DebugFragment"
+        android:label="fragment_debug"
+        tools:layout="@layout/fragment_debug">
+        <action
+            android:id="@+id/action_debugFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/action_debugFragment_to_AlertFragment"
+            app:destination="@id/alertFragment" />
+        <action
+            android:id="@+id/action_debugFragment_to_logviewFragment"
+            app:destination="@id/logviewFragment" />
+        <action
+            android:id="@+id/action_debugFragment_to_pillFragment"
+            app:destination="@+id/pillFragment" />
+    </fragment>
+</navigation>

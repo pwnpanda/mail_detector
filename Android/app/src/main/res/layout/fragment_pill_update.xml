@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/frag_pill_update"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/colorSecondary"
+        tools:context=".pills.PillUpdateFragment"
+        tools:layout="@layout/fragment_pill_update">
+
+        <TextView
+            android:id="@+id/pill_update_screen_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:gravity="center|center_horizontal|center_vertical"
+            android:text="@string/pill_icon_name"
+            android:textSize="30sp"
+            app:layout_constraintBottom_toTopOf="@+id/divider_update"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/frag_pill_update"
+            tools:text="Pills" />
+
+        <View
+            android:id="@+id/divider_update"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="?android:attr/listDivider"
+            app:layout_constraintBottom_toTopOf="@+id/pill_update_entries"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/pill_update_screen_title" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/pill_update_entries"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/divider_update" />
+
+        <TextView
+            android:id="@+id/pill_update"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:gravity="center|center_horizontal|center_vertical"
+            android:textColor="@color/super_red"
+            android:textSize="30sp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/frag_pill_update"
+            app:layout_constraintEnd_toEndOf="@+id/frag_pill_update"
+            app:layout_constraintStart_toStartOf="@+id/frag_pill_update"
+            app:layout_constraintTop_toTopOf="@+id/frag_pill_update"
+            tools:text="@string/no_content" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

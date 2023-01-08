@@ -1,0 +1,800 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frag_pill"
+    tools:context="com.robinlunde.mailbox.pills.PillFragment"
+    tools:layout="@layout/fragment_pill">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/colorSecondary">
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="?android:attr/listDivider"
+            app:layout_constraintBottom_toTopOf="@id/divider_2"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/divider_2"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="?android:attr/listDivider"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/divider" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/weekview"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
+            app:layout_constraintBottom_toTopOf="@id/divider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0">
+
+            <TextView
+                android:id="@+id/monday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:text="@string/mon"
+                android:textSize="8pt"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/date_circle_mon"
+                app:layout_constraintEnd_toEndOf="@id/date_circle_mon"
+                app:layout_constraintStart_toStartOf="@id/date_circle_mon"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_chainStyle="spread" />
+
+            <Button
+                android:id="@+id/date_circle_mon"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:background="@drawable/round_button"
+                android:clickable="false"
+                android:text="7"
+                android:textSize="6pt"
+                app:layout_constraintBottom_toBottomOf="@id/weekview"
+                app:layout_constraintEnd_toStartOf="@id/date_circle_tue"
+                app:layout_constraintStart_toStartOf="@id/weekview"
+                app:layout_constraintTop_toTopOf="@+id/weekview"
+                app:layout_constraintVertical_bias="0.41000003" />
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/pills_taken_mon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                app:layout_constraintBottom_toBottomOf="@id/weekview"
+                app:layout_constraintEnd_toEndOf="@id/date_circle_mon"
+                app:layout_constraintStart_toStartOf="@id/date_circle_mon"
+                app:layout_constraintTop_toTopOf="@+id/date_circle_mon">
+
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingTop="1dp"
+                    android:paddingBottom="1dp">
+
+                    <Button
+                        android:id="@+id/circle_pill_mon_1"
+                        android:layout_width="10dp"
+                        android:layout_height="10dp"
+                        android:background="@drawable/round_button"
+                        android:clickable="false"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/pills_taken_mon" />
+
+                    <Button
+                        android:id="@+id/circle_pill_mon_2"
+                        android:layout_width="10dp"
+                        android:layout_height="10dp"
+                        android:background="@drawable/round_button"
+                        android:clickable="false"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/circle_pill_mon_1"
+                        app:layout_constraintTop_toBottomOf="@+id/pills_taken_mon" />
+
+                    <Button
+                        android:id="@+id/circle_pill_mon_3"
+                        android:layout_width="10dp"
+                        android:layout_height="10dp"
+                        android:background="@drawable/round_button"
+                        android:clickable="false"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/circle_pill_mon_2"
+                        app:layout_constraintTop_toBottomOf="@+id/pills_taken_mon" />
+
+                    <Button
+                        android:id="@+id/circle_pill_mon_4"
+                        android:layout_width="10dp"
+                        android:layout_height="10dp"
+                        android:background="@drawable/round_button"
+                        android:clickable="false"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/circle_pill_mon_3"
+                        app:layout_constraintTop_toBottomOf="@+id/pills_taken_mon" />
+                </androidx.appcompat.widget.LinearLayoutCompat>
+
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingTop="1dp"
+                    android:paddingBottom="1dp"
+                    app:showDividers="middle">
+
+                    <Button
+                        android:id="@+id/circle_pill_mon_1_2"
+                        android:layout_width="10dp"
+                        android:layout_height="10dp"
+                        android:background="@drawable/round_button"
+                        android:clickable="false"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/pills_taken_mon" />
+
+                    <Button
+                        android:id="@+id/circle_pill_mon_2_2"
+                        android:layout_width="10dp"
+                        android:layout_height="10dp"
+                        android:background="@drawable/round_button"
+                        android:clickable="false"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/circle_pill_mon_1_2"
+                        app:layout_constraintTop_toBottomOf="@+id/pills_taken_mon" />
+
+                    <Button
+                        android:id="@+id/circle_pill_mon_3_2"
+                        android:layout_width="10dp"
+                        android:layout_height="10dp"
+                        android:background="@drawable/round_button"
+                        android:clickable="false"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/circle_pill_mon_2_2"
+                        app:layout_constraintTop_toBottomOf="@+id/pills_taken_mon" />
+
+                    <Button
+                        android:id="@+id/circle_pill_mon_4_2"
+                        android:layout_width="10dp"
+                        android:layout_height="10dp"
+                        android:background="@drawable/round_button"
+                        android:clickable="false"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/circle_pill_mon_3_2"
+                        app:layout_constraintTop_toBottomOf="@+id/pills_taken_mon" />
+                </androidx.appcompat.widget.LinearLayoutCompat>
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+
+            <TextView
+                android:id="@+id/tuesday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tue"
+                android:textSize="8pt"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/monday"
+                app:layout_constraintEnd_toEndOf="@id/date_circle_tue"
+                app:layout_constraintStart_toStartOf="@id/date_circle_tue"
+                app:layout_constraintTop_toTopOf="@id/monday"
+                app:layout_constraintVertical_chainStyle="packed" />
+
+            <Button
+                android:id="@+id/date_circle_tue"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:background="@drawable/round_button"
+                android:clickable="false"
+                android:text="8"
+                android:textSize="6pt"
+                app:layout_constraintBottom_toBottomOf="@id/date_circle_mon"
+                app:layout_constraintEnd_toStartOf="@id/date_circle_wed"
+                app:layout_constraintStart_toEndOf="@id/date_circle_mon"
+                app:layout_constraintTop_toTopOf="@+id/date_circle_mon" />
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/pills_taken_tue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                app:layout_constraintBottom_toBottomOf="@id/pills_taken_mon"
+                app:layout_constraintEnd_toEndOf="@id/date_circle_tue"
+                app:layout_constraintStart_toStartOf="@id/date_circle_tue"
+                app:layout_constraintTop_toTopOf="@+id/pills_taken_mon">
+
+                <Button
+                    android:id="@+id/circle_pill_tue_1"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/round_button"
+                    android:clickable="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/pills_taken_tue" />
+
+                <Button
+                    android:id="@+id/circle_pill_tue_2"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/round_button"
+                    android:clickable="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/circle_pill_tue_1"
+                    app:layout_constraintTop_toBottomOf="@+id/pills_taken_tue" />
+
+                <Button
+                    android:id="@+id/circle_pill_tue_3"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/round_button"
+                    android:clickable="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/circle_pill_tue_2"
+                    app:layout_constraintTop_toBottomOf="@+id/pills_taken_tue" />
+
+                <Button
+                    android:id="@+id/circle_pill_tue_4"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/round_button"
+                    android:clickable="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/circle_pill_tue_3"
+                    app:layout_constraintTop_toBottomOf="@+id/pills_taken_tue" />
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <TextView
+                android:id="@+id/wednesday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/wed"
+                android:textSize="8pt"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/tuesday"
+                app:layout_constraintEnd_toEndOf="@id/date_circle_wed"
+                app:layout_constraintStart_toStartOf="@id/date_circle_wed"
+                app:layout_constraintTop_toTopOf="@id/tuesday"
+                app:layout_constraintVertical_chainStyle="packed" />
+
+            <Button
+                android:id="@+id/date_circle_wed"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:background="@drawable/round_button"
+                android:clickable="false"
+                android:text="9"
+                android:textSize="6pt"
+                app:layout_constraintBottom_toBottomOf="@id/date_circle_tue"
+                app:layout_constraintEnd_toStartOf="@id/date_circle_thu"
+                app:layout_constraintStart_toEndOf="@id/date_circle_tue"
+                app:layout_constraintTop_toTopOf="@+id/date_circle_tue" />
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/pills_taken_wed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                app:layout_constraintBottom_toBottomOf="@id/pills_taken_tue"
+                app:layout_constraintEnd_toEndOf="@id/date_circle_wed"
+                app:layout_constraintStart_toStartOf="@id/date_circle_wed"
+                app:layout_constraintTop_toTopOf="@+id/pills_taken_tue">
+
+                <Button
+                    android:id="@+id/circle_pill_wed_1"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/round_button"
+                    android:clickable="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/pills_taken_wed" />
+
+                <Button
+                    android:id="@+id/circle_pill_wed_2"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/round_button"
+                    android:clickable="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/circle_pill_wed_1"
+                    app:layout_constraintTop_toBottomOf="@+id/pills_taken_wed" />
+
+                <Button
+                    android:id="@+id/circle_pill_wed_3"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/round_button"
+                    android:clickable="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/circle_pill_wed_2"
+                    app:layout_constraintTop_toBottomOf="@+id/pills_taken_wed" />
+
+                <Button
+                    android:id="@+id/circle_pill_wed_4"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/round_button"
+                    android:clickable="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/circle_pill_wed_3"
+                    app:layout_constraintTop_toBottomOf="@+id/pills_taken_wed" />
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <TextView
+                android:id="@+id/thursday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/thur"
+                android:textSize="8pt"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/wednesday"
+                app:layout_constraintEnd_toEndOf="@id/date_circle_thu"
+                app:layout_constraintStart_toStartOf="@id/date_circle_thu"
+                app:layout_constraintTop_toTopOf="@id/wednesday"
+                app:layout_constraintVertical_chainStyle="packed" />
+
+            <Button
+                android:id="@+id/date_circle_thu"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:background="@drawable/round_button"
+                android:clickable="false"
+                android:text="10"
+                android:textSize="6pt"
+                app:layout_constraintBottom_toBottomOf="@id/date_circle_wed"
+                app:layout_constraintEnd_toStartOf="@id/date_circle_fri"
+                app:layout_constraintStart_toEndOf="@id/date_circle_wed"
+                app:layout_constraintTop_toTopOf="@+id/date_circle_wed" />
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/pills_taken_thu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                app:layout_constraintBottom_toBottomOf="@id/pills_taken_wed"
+                app:layout_constraintEnd_toEndOf="@id/date_circle_thu"
+                app:layout_constraintStart_toStartOf="@id/date_circle_thu"
+                app:layout_constraintTop_toTopOf="@+id/pills_taken_wed">
+
+                <Button
+                    android:id="@+id/circle_pill_thu_1"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/round_button"
+                    android:clickable="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/pills_taken_thu" />
+
+                <Button
+                    android:id="@+id/circle_pill_thu_2"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/round_button"
+                    android:clickable="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/circle_pill_thu_1"
+                    app:layout_constraintTop_toBottomOf="@+id/pills_taken_thu" />
+
+                <Button
+                    android:id="@+id/circle_pill_thu_3"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/round_button"
+                    android:clickable="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/circle_pill_thu_2"
+                    app:layout_constraintTop_toBottomOf="@+id/pills_taken_thu" />
+
+                <Button
+                    android:id="@+id/circle_pill_thu_4"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/round_button"
+                    android:clickable="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/circle_pill_thu_3"
+                    app:layout_constraintTop_toBottomOf="@+id/pills_taken_thu" />
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <TextView
+                android:id="@+id/friday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/fri"
+                android:textSize="8pt"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/thursday"
+                app:layout_constraintEnd_toEndOf="@id/date_circle_fri"
+                app:layout_constraintStart_toStartOf="@id/date_circle_fri"
+                app:layout_constraintTop_toTopOf="@id/thursday"
+                app:layout_constraintVertical_chainStyle="packed" />
+
+            <Button
+                android:id="@+id/date_circle_fri"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:background="@drawable/round_button"
+                android:clickable="false"
+                android:text="11"
+                android:textSize="6pt"
+                app:layout_constraintBottom_toBottomOf="@id/date_circle_thu"
+                app:layout_constraintEnd_toStartOf="@id/date_circle_sat"
+                app:layout_constraintStart_toEndOf="@id/date_circle_thu"
+                app:layout_constraintTop_toTopOf="@+id/date_circle_thu" />
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/pills_taken_fri"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                app:layout_constraintBottom_toBottomOf="@id/pills_taken_thu"
+                app:layout_constraintEnd_toEndOf="@id/date_circle_fri"
+                app:layout_constraintStart_toStartOf="@id/date_circle_fri"
+                app:layout_constraintTop_toTopOf="@+id/pills_taken_thu">
+
+                <Button
+                    android:id="@+id/circle_pill_fri_1"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/round_button"
+                    android:clickable="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/pills_taken_fri" />
+
+                <Button
+                    android:id="@+id/circle_pill_fri_2"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/round_button"
+                    android:clickable="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/circle_pill_fri_1"
+                    app:layout_constraintTop_toBottomOf="@+id/pills_taken_fri" />
+
+                <Button
+                    android:id="@+id/circle_pill_fri_3"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/round_button"
+                    android:clickable="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/circle_pill_fri_2"
+                    app:layout_constraintTop_toBottomOf="@+id/pills_taken_fri" />
+
+                <Button
+                    android:id="@+id/circle_pill_fri_4"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/round_button"
+                    android:clickable="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/circle_pill_fri_3"
+                    app:layout_constraintTop_toBottomOf="@+id/pills_taken_fri" />
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <TextView
+                android:id="@+id/saturday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sat"
+                android:textSize="8pt"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/friday"
+                app:layout_constraintEnd_toEndOf="@id/date_circle_sat"
+                app:layout_constraintStart_toStartOf="@id/date_circle_sat"
+                app:layout_constraintTop_toTopOf="@id/friday"
+                app:layout_constraintVertical_chainStyle="packed" />
+
+            <Button
+                android:id="@+id/date_circle_sat"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:background="@drawable/round_button"
+                android:clickable="false"
+                android:text="12"
+                android:textSize="6pt"
+                app:layout_constraintBottom_toBottomOf="@id/date_circle_fri"
+                app:layout_constraintEnd_toStartOf="@id/date_circle_sun"
+                app:layout_constraintStart_toEndOf="@id/date_circle_fri"
+                app:layout_constraintTop_toTopOf="@+id/date_circle_fri"
+                app:layout_constraintVertical_chainStyle="packed" />
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/pills_taken_sat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                app:layout_constraintBottom_toBottomOf="@id/pills_taken_fri"
+                app:layout_constraintEnd_toEndOf="@id/date_circle_sat"
+                app:layout_constraintStart_toStartOf="@id/date_circle_sat"
+                app:layout_constraintTop_toTopOf="@+id/pills_taken_fri">
+
+                <Button
+                    android:id="@+id/circle_pill_sat_1"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/round_button"
+                    android:clickable="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/pills_taken_sat" />
+
+                <Button
+                    android:id="@+id/circle_pill_sat_2"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/round_button"
+                    android:clickable="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/circle_pill_sat_1"
+                    app:layout_constraintTop_toBottomOf="@+id/pills_taken_sat" />
+
+                <Button
+                    android:id="@+id/circle_pill_sat_3"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/round_button"
+                    android:clickable="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/circle_pill_sat_2"
+                    app:layout_constraintTop_toBottomOf="@+id/pills_taken_sat" />
+
+                <Button
+                    android:id="@+id/circle_pill_sat_4"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/round_button"
+                    android:clickable="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/circle_pill_sat_3"
+                    app:layout_constraintTop_toBottomOf="@+id/pills_taken_sat" />
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <TextView
+                android:id="@+id/sunday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sun"
+                android:textSize="8pt"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/saturday"
+                app:layout_constraintEnd_toEndOf="@id/date_circle_sun"
+                app:layout_constraintStart_toStartOf="@id/date_circle_sun"
+                app:layout_constraintTop_toTopOf="@id/saturday"
+                app:layout_constraintVertical_chainStyle="packed" />
+
+            <Button
+                android:id="@+id/date_circle_sun"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:background="@drawable/round_button"
+                android:clickable="false"
+                android:text="13"
+                android:textSize="6pt"
+                app:layout_constraintBottom_toBottomOf="@id/date_circle_sat"
+                app:layout_constraintEnd_toEndOf="@id/weekview"
+                app:layout_constraintStart_toEndOf="@id/date_circle_sat"
+                app:layout_constraintTop_toTopOf="@+id/date_circle_sat" />
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/pills_taken_sun"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                app:layout_constraintBottom_toBottomOf="@id/pills_taken_sat"
+                app:layout_constraintEnd_toEndOf="@id/date_circle_sun"
+                app:layout_constraintStart_toStartOf="@id/date_circle_sun"
+                app:layout_constraintTop_toTopOf="@+id/pills_taken_sat">
+
+                <Button
+                    android:id="@+id/circle_pill_sun_1"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/round_button"
+                    android:clickable="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/pills_taken_sun" />
+
+                <Button
+                    android:id="@+id/circle_pill_sun_2"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/round_button"
+                    android:clickable="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/circle_pill_sun_1"
+                    app:layout_constraintTop_toBottomOf="@+id/pills_taken_sun" />
+
+                <Button
+                    android:id="@+id/circle_pill_sun_3"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/round_button"
+                    android:clickable="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/circle_pill_sun_2"
+                    app:layout_constraintTop_toBottomOf="@+id/pills_taken_sun" />
+
+                <Button
+                    android:id="@+id/circle_pill_sun_4"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/round_button"
+                    android:clickable="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/circle_pill_sun_3"
+                    app:layout_constraintTop_toBottomOf="@+id/pills_taken_sun" />
+            </androidx.appcompat.widget.LinearLayoutCompat>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/middleSection"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
+            app:layout_constraintBottom_toTopOf="@+id/divider_2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/divider">
+
+            <include
+                android:id="@+id/pill_taken_layout_incl"
+                layout="@layout/pill_taken_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="gone" />
+
+            <include
+                android:id="@+id/pill_create_layout_incl"
+                layout="@layout/pill_create_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="gone" />
+
+            <include
+                android:id="@+id/pill_disable_layout_incl"
+                layout="@layout/fragment_pill_update"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="gone" />
+
+            <include
+                android:id="@+id/pill_button_layout_incl"
+                layout="@layout/pill_buttons_layout"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TimePicker
+            android:id="@+id/set_alarm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:timePickerMode="spinner"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/alarmButton"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/divider_2" />
+
+        <Button
+            android:id="@+id/alarmButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/button"
+            android:hapticFeedbackEnabled="true"
+            android:text="@string/set_alarm_button"
+            app:layout_constraintBottom_toTopOf="@+id/cancelAlarmButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/set_alarm"
+            app:layout_constraintTop_toTopOf="@+id/set_alarm"
+            app:layout_constraintVertical_chainStyle="spread"
+            tools:text="Set alarm" />
+
+        <Button
+            android:id="@+id/cancelAlarmButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/button"
+            android:hapticFeedbackEnabled="true"
+            android:text="@string/cancel_alarm_button"
+            app:layout_constraintBottom_toBottomOf="@+id/set_alarm"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/set_alarm"
+            app:layout_constraintTop_toBottomOf="@+id/alarmButton"
+            tools:text="Cancel alarm" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

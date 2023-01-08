@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/frag_pill_logview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/colorSecondary"
+        tools:context=".pills.PillLogFragment"
+        tools:layout="@layout/fragment_pill_log">
+
+        <TextView
+            android:id="@+id/pill_screen_title1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:gravity="center|center_horizontal|center_vertical"
+            android:text="@string/pill_header"
+            android:textSize="30sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/divider3"
+            app:layout_constraintEnd_toStartOf="@+id/pill_screen_title2"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.02"
+            tools:text="Pill" />
+
+        <TextView
+            android:id="@+id/pill_screen_title2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:gravity="center|center_horizontal|center_vertical"
+            android:text="@string/date_header"
+            android:textSize="30sp"
+            app:layout_constraintBottom_toBottomOf="@+id/pill_screen_title1"
+            app:layout_constraintEnd_toStartOf="@+id/pill_screen_title3"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/pill_screen_title1"
+            app:layout_constraintTop_toTopOf="@+id/pill_screen_title1"
+            tools:text="Date" />
+
+        <TextView
+            android:id="@+id/pill_screen_title3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:gravity="center|center_horizontal|center_vertical"
+            android:text="@string/taken_header"
+            android:textSize="30sp"
+            app:layout_constraintBottom_toBottomOf="@+id/pill_screen_title1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/pill_screen_title2"
+            app:layout_constraintTop_toTopOf="@+id/pill_screen_title2"
+            tools:text="Taken" />
+
+        <View
+            android:id="@+id/divider3"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="?android:attr/listDivider"
+            app:layout_constraintBottom_toTopOf="@+id/pill_log_entries"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/pill_screen_title1" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/pill_log_entries"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/divider3" />
+
+        <TextView
+            android:id="@+id/pill_logs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:gravity="center|center_horizontal|center_vertical"
+            android:textColor="@color/super_red"
+            android:textSize="30sp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/pill_log_entries"
+            app:layout_constraintEnd_toEndOf="@+id/pill_log_entries"
+            app:layout_constraintStart_toStartOf="@+id/pill_log_entries"
+            app:layout_constraintTop_toTopOf="@+id/pill_log_entries"
+            tools:text="@string/no_content" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

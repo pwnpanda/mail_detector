@@ -4,17 +4,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity" >
 
     <item
-        android:id="@+id/logo"
+        android:id="@+id/pill"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:clickable="true"
-        android:contentDescription="@string/logo_icon_name"
-        android:icon="@drawable/my_icon"
-        android:title="@string/logo_icon_name"
-        app:showAsAction="ifRoom|withText" />
+        android:contentDescription="@string/pill_icon_name"
+        android:icon="@mipmap/pill_foreground"
+        android:title="@string/pill_icon_name"
+        app:iconTint="@color/charcoal_light"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/bluetooth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:contentDescription="@string/bt_icon_name"
+        android:icon="@android:drawable/stat_sys_data_bluetooth"
+        android:title="@string/bt_icon_name"
+        app:showAsAction="always"
+        app:iconTint="@color/charcoal_light"/>
 
     <item
         android:id="@+id/logs"
@@ -24,6 +36,16 @@
         android:contentDescription="@string/logs_icon_name"
         android:icon="@drawable/logs"
         android:title="@string/logs_icon_name"
-        app:showAsAction="ifRoom|withText" />
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/alert"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:contentDescription="@string/alert_icon_name"
+        android:icon="@drawable/my_icon"
+        android:title="@string/alert_icon_name"
+        app:showAsAction="always" />
 
 </menu>

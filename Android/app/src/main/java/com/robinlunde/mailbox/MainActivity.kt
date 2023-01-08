@@ -1,249 +1,211 @@
 package com.robinlunde.mailbox
 
+import android.Manifest
+import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
-import android.util.Log
+import android.os.Handler
+import android.os.Looper
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.fasterxml.jackson.databind.ObjectMapper
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
-import java.lang.Thread.sleep
-import java.net.URL
-import kotlin.math.pow
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.databinding.DataBindingUtil
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
+import com.robinlunde.mailbox.databinding.ActivityMainBinding
+import com.robinlunde.mailbox.debug.ScanType
+import timber.log.Timber
 
+
+// TODO
+//  Get data from BT, call MailboxApp.setStatus(status), and send new status to web by calling
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var drawerLayout: DrawerLayout
+    private var permCheckCount = 0
 
-    // TODO
-    // - Save name on first start
-    // - Send data to API
-        // Name - Timestamp of post received (from BT) - Timestamp of pickup
-    // Get data from BT
+    @RequiresApi(Build.VERSION_CODES.S)
+    private val PERMISSIONS_LOCATION = arrayOf(
+        ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION,
+        Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS,
+        Manifest.permission.BLUETOOTH_SCAN,
+        Manifest.permission.BLUETOOTH_CONNECT,
+        Manifest.permission.BLUETOOTH_PRIVILEGED
+    )
+    @RequiresApi(Build.VERSION_CODES.S)
+    private val PERMISSIONS_NOTIFICATION = arrayOf(
+        Manifest.permission.POST_NOTIFICATIONS
+    )
 
-    private lateinit var linearLayoutManager: LinearLayoutManager
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        //val toasted = Toast.makeText(applicationContext, "Hello!", Toast.LENGTH_SHORT)
-        // Show toast
-        //toasted.show()
-
-        showStatus();
+    // Create BT adapter
+    private val bluetoothAdapter: BluetoothAdapter by lazy {
+        val bluetoothManager =
+            getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        bluetoothManager.adapter
     }
 
+    init {
+        myActivity = this
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        myActivity = this
+        super.onCreate(savedInstanceState)
+
+        promptGivePermission2()
+
+        // Setup bluetooth
+        val PERMISSION_CODE = getString(R.string.bt_id_integer).toInt()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(
+                    baseContext,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                )
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    myActivity,
+                    arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                    PERMISSION_CODE
+                )
+            }
+        }
+
+        if (!packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Toast.makeText(this, "Requires BLE to run!", Toast.LENGTH_SHORT).show()
+            finish()
+        }
+        val binding =
+            DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
+        drawerLayout = binding.drawerLayout
+        onNewIntent(intent)
+    }
+
+    // create and inflate menu here
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        super.onCreateOptionsMenu(menu)
         val inflater = menuInflater
+
         inflater.inflate(R.menu.my_menubar, menu)
+
+        /** Try to find out how to set size! Currently too big an icon
+         * supportActionBar!!.displayOptions = ActionBar.DISPLAY_SHOW_HOME or
+         * ActionBar.DISPLAY_SHOW_TITLE or ActionBar.DISPLAY_USE_LOGO
+         * supportActionBar!!.title = ""
+         * supportActionBar!!.setIcon(R.mipmap.mailbox_border_appicon)
+         */
+
         // return true so that the menu pop up is opened
         return true
     }
 
+    // Handles clicks on the menu
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.logo -> {
-                showStatus()
+        // Always arrives here first
+        return when (item.itemId) {
+            R.id.alert -> {
+                MailboxApp.setClickCounterZero()
+                MailboxApp.getUtil().logButtonPress("Main - alarm")
+                false
             }
+
             R.id.logs -> {
-                showLogs()
+                MailboxApp.setClickCounterZero()
+                MailboxApp.getUtil().logButtonPress("Main - logs")
+                false
             }
-        }
-        return super.onOptionsItemSelected(item)
-    }
 
-    private fun showStatus(): Boolean {
-        setContentView(R.layout.activity_main)
-        // Get time variables for text from view
-        val timestampText = findViewById<TextView>(R.id.timestamp_text)
-        val timestampTime = findViewById<TextView>(R.id.timestamp_time)
-        val timestampDay = findViewById<TextView>(R.id.timestamp_day)
-        // Get button from view
-        val button = findViewById<Button>(R.id.button)
-        // Get icon from view
-        val icon = findViewById<ImageView>(R.id.post_box)
-        // Get values from Bluetooth
-        // todo
-        // val timestamp = getValFromBT()
-
-        // If value received, show push notification!
-        // if pressed, shows main view - updated
-        // todo
-        // Parse string from BT - Split into time and day
-        // todo
-        val timestamp = "21:12:00 12.12.2012"
-        //val timestamp = ""
-        if (timestamp != ""){
-            var timestampParts = timestamp.split(" ")
-            Log.d("test", timestampParts.toString())
-            timestampDay.text = timestampParts[1]
-            timestampTime.text = timestampParts[0]
-
-        } else {
-            timestampText.text = "No new post received!"
-            timestampDay.visibility = View.INVISIBLE
-            timestampTime.visibility = View.INVISIBLE
-            button.visibility = View.INVISIBLE
-            icon.visibility = View.VISIBLE
-        }
-
-        // Register activity for button
-        // What happens when button is clicked
-        button.setOnClickListener{
-            // Send reply by BT
-            // TODO
-            showLogs()
-            // Try to send web request
-            trySendDataWeb(timestamp)
-        }
-        return true;
-    }
-
-    private fun trySendDataWeb(timestamp: String) {
-        // Do async thread with network request
-        var sent: Boolean = false
-        var tries: Int = 1
-        do {
-            // Create thread
-            val thread = Thread {
-                // Try to send webrequest
-                try {
-                    sendDataWeb(timestamp).also { sent = it }
-                } catch (e: Exception) {
-                    e.printStackTrace()
+            R.id.bluetooth -> {
+                MailboxApp.getUtil().logButtonPress("Main - BT")
+                // MailboxApp.getBTConn().startScan()
+                val cnt = MailboxApp.incrementClickCounter()
+                if (cnt == 1) {
+                    MailboxApp.getBTConn().bleScan(ScanType.ACTIVE)
+                    // Sets clickCounter to 0 in 3 seconds
+                    Handler(Looper.myLooper()!!).postDelayed({
+                        MailboxApp.setClickCounterZero()
+                    }, 3000)
                 }
+                false
             }
 
-            Log.d("Thread", "Sleeping")
-            // 5 seconds
-            var base: Double = 5000.0
-            // Exponentially increase wait time between tries
-            var time: Double = base.pow(tries)
-            // Sleep
-            sleep(time.toLong())
-            // Log try
-            Log.d("Thread", "Trying transmission $tries / 6")
-            // Start above thread
-            thread.start()
-            // Increase try counter
-            tries++
-            // Check for giving up
-            if (tries >= 7) {
-                sent = true
-                Log.d("Thread", "Tried 6 transmissions but failed - Giving up! ")
-                val toast = Toast.makeText(applicationContext, "Failed to save timestamp! Giving up!", Toast.LENGTH_LONG)
-                // Show toast
-                toast.show()
+            R.id.pill -> {
+                MailboxApp.getUtil().logButtonPress("Main - pill")
+                MailboxApp.setClickCounterZero()
+                false
             }
-        } while (!sent)
+
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
-    // Send latest data to Server
-    private fun sendDataWeb(timestamp: String): Boolean {
-        val client = OkHttpClient()
-        val url = URL("https://robinlunde.com/api/posts")
+    // Currently just logs information for debugging
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        Timber.d("Intent received: $intent")
 
-        //or using jackson
-        val mapperAll = ObjectMapper()
-        val jacksonObj = mapperAll.createObjectNode()
-        jacksonObj.put("timestamp", timestamp)
-        val jacksonString = jacksonObj.toString()
-
-        val mediaType = "application/json; charset=utf-8".toMediaType()
-        val body = jacksonString.toRequestBody(mediaType)
-
-        val request = Request.Builder()
-            .url(url)
-            .post(body)
-            .build()
-
-        val response = client.newCall(request).execute()
-
-        val responseBody = response.body!!.string()
-        // Log.d("HTTP-Post", "Response code: ${response.code}")
-        //Response
-        Log.d("HTTP-Post", "Response Body: $responseBody")
-        if (response.code == 200) {
-            val toast = Toast.makeText(applicationContext, "Timestamp saved!", Toast.LENGTH_LONG)
-            // Show toast
-            toast.show()
+        // It is my push notification intent!
+        if (intent.getBooleanExtra(getString(R.string.app_name), false)) {
+            Timber.d("My intent received: $intent")
+            // No need to update fragment, as it does so automatically upon intent clicked ^~^
         }
-
-        return response.code == 200
+        if (intent.getBooleanExtra("pill", false)) {
+            val curFragment: Fragment? = supportFragmentManager.findFragmentByTag("fragment_login")
+            /** TODO If you want pill notification to move to pill fragment! Add boolean to intent and iterate over fragments as follows
+             *  val visible = curFragment!!.isVisible
+             * val curController = NavHostFragment.findNavController(curFragment)
+             *
+             * switch (fragment_tags)
+             *   login -> curController.navigate(LoginFragmentDirections.actionLoginFragmentToPillFragment())
+             */
+        }
     }
 
-    // Get results for last 14 days
-    private fun getDataWeb(): Boolean {
-        val client = OkHttpClient()
-        val url = URL("https://robinlunde.com/api/posts")
-
-        val request = Request.Builder()
-                .url(url)
-                .build()
-        val response = client.newCall(request).execute()
-
-        val responseBody = response.body!!.string()
-        Log.d("HTTP-Get", "Response code: ${response.code}")
-        //Response
-        Log.d("HTTP-Get", "Response Body: $responseBody")
-        if (response.code == 200) {
-            // Render response
-            renderRecyclerView(responseBody)
-            // Create entry for each one in responseBody and display details in view
-            val toast = Toast.makeText(applicationContext, "Timestamp saved!", Toast.LENGTH_LONG)
-            // Show toast
-            toast.show()
-        }
-
-        return response.code == 200
+    // Make sure BT is enabled when we resume app
+    @RequiresApi(Build.VERSION_CODES.S)
+    override fun onResume() {
+        super.onResume()
+        if (promptGivePermission2()) MailboxApp.getUtil().btEnabled()
     }
 
-    private fun renderRecyclerView(data: String): Boolean {
-        // Show a different view!
-        setContentView(R.layout.activity_log)
-        // set up the RecyclerView
-        val postEntries = findViewById<RecyclerView>(R.id.post_entries)
-        postEntries.layoutManager = LinearLayoutManager(this)
-
-        // data to populate the RecyclerView with
-        // Convert data to ArrayList
-        //Use jackson if we got a JSON
-        val mapperAll = ObjectMapper()
-        val objData = mapperAll.readTree(data)
-        // TODO Map to List<String>!
-        objData.get("data").forEachIndexed { index, jsonNode ->
-            println("$index $jsonNode")
-        }
-        // Not needed, but correct format
-        // Test only
-        var testData = "ab}cd}de}fg"
-        val dataParsed: List<String> = testData.split("}")
-        //val dataParsed: List<String> = data.split("}")
-        //  Create adapter and ne view                                       This gives position of clicked item
-        postEntries.adapter = PostRecyclerViewAdapter(dataParsed, this){ position: Int ->
-            Log.e("List clicked", "Clicked on item at position $position")
+    // ------------------- BT ---------------------
+    // https://stackoverflow.com/questions/70245463/java-lang-securityexception-need-android-permission-bluetooth-connect-permissio
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun promptGivePermission2(): Boolean {
+        val permissionBTLoc =
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN)
+        if (permissionBTLoc != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this,
+                PERMISSIONS_LOCATION,
+                1
+            )
         }
 
+        val permissionNotification =
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+        if (permissionNotification != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this,
+                PERMISSIONS_NOTIFICATION,
+                1
+            )
+        }
         return true
     }
 
-    private fun showLogs(): Boolean {
-        // Show a different view!
-        setContentView(R.layout.activity_log)
-        GlobalScope.launch {
-            getDataWeb()
-        }
-        return true
+    companion object {
+        lateinit var myActivity: MainActivity
     }
 }
