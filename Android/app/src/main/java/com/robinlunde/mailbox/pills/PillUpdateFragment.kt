@@ -15,6 +15,10 @@ import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.databinding.FragmentPillUpdateBinding
 import com.robinlunde.mailbox.datamodel.pill.Pill
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 // Update circle-ui to reflect current status
 // Update alarm-setting logic (more / less pills needed for all to be taken)
@@ -75,6 +79,17 @@ class PillUpdateFragment : Fragment() {
         return when (item.itemId) {
             R.id.alert -> {
                 util.logButtonPress("PillUpdate - logo")
+
+                // Try to fetch new data, if we fail we don't care
+                CoroutineScope(Dispatchers.IO + Job()).launch {
+                    util.doNetworkRequest(
+                        getString(R.string.get_last_status_update_method),
+                        null,
+                        null,
+                        null
+                    ).await()
+                }
+
                 NavHostFragment.findNavController(this)
                     .navigate(PillUpdateFragmentDirections.actionPillUpdateFragmentToAlertFragment())
                 true

@@ -29,18 +29,8 @@ class PostAdapter(private val postLogEntries: MutableList<PostLogEntry>, val bin
     override fun onBindViewHolder(holder: Util.LogItemViewHolder, position: Int) {
         // If there is data, render it!
         if (itemCount > 0) {
-            // TODO something wrong here!
-            // TODO  java.lang.NullPointerException: Attempt to invoke virtual method 'void androidx.recyclerview.widget.RecyclerView.setVisibility(int)' on a null object reference
-            // Timber.d("Holder: $holder, constraint: ${holder.constraintLayout}, specific: ${holder.constraintLayout.findViewById<RecyclerView>(R.id.post_entries)}")
-            // Specific views (textview, recyclerview) are null. WHY?!?
-            // if (holder.constraintLayout.findViewById<RecyclerView>(R.id.post_entries) == null)
             binding.postEntries.visibility = View.VISIBLE
             binding.errorLogs.visibility = View.INVISIBLE
-            /*holder.constraintLayout.findViewById<RecyclerView>(R.id.post_entries).visibility =
-                View.VISIBLE
-            holder.constraintLayout.findViewById<TextView>(R.id.error_logs).visibility =
-                View.INVISIBLE
-             */
 
             val postLogEntry = postLogEntries[position]
 
@@ -80,12 +70,6 @@ class PostAdapter(private val postLogEntries: MutableList<PostLogEntry>, val bin
         } else {
             binding.postEntries.visibility = View.INVISIBLE
             binding.errorLogs.visibility = View.VISIBLE
-            /*
-            holder.constraintLayout.findViewById<RecyclerView>(R.id.post_entries).visibility =
-                View.INVISIBLE
-            holder.constraintLayout.findViewById<TextView>(R.id.error_logs).visibility =
-                View.VISIBLE
-             */
         }
     }
 

@@ -131,8 +131,19 @@ class DebugFragment : Fragment() {
         return when (item.itemId) {
 
             R.id.alert -> {
-                // Do nothing, we are in correct view
+                // Move to alert view
                 util.logButtonPress("Debug - logo")
+
+                // Try to fetch new data, if we fail we don't care
+                CoroutineScope(Dispatchers.IO + Job()).launch {
+                    util.doNetworkRequest(
+                        getString(R.string.get_last_status_update_method),
+                        null,
+                        null,
+                        null
+                    ).await()
+                }
+
                 NavHostFragment.findNavController(this)
                     .navigate(DebugFragmentDirections.actionDebugFragmentToAlertFragment())
                 true

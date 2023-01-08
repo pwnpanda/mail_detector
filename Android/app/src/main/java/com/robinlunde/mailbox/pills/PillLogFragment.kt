@@ -15,6 +15,10 @@ import com.robinlunde.mailbox.R
 import com.robinlunde.mailbox.Util
 import com.robinlunde.mailbox.databinding.FragmentPillLogBinding
 import com.robinlunde.mailbox.datamodel.pill.Record
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 // use this and migrate to calendar? https://github.com/kizitonwose/CalendarView
@@ -95,6 +99,17 @@ class PillLogFragment : Fragment() {
         return when (item.itemId) {
             R.id.alert -> {
                 util.logButtonPress("PillLog - logo")
+
+                // Try to fetch new data, if we fail we don't care
+                CoroutineScope(Dispatchers.IO + Job()).launch {
+                    util.doNetworkRequest(
+                        getString(R.string.get_last_status_update_method),
+                        null,
+                        null,
+                        null
+                    ).await()
+                }
+
                 NavHostFragment.findNavController(this)
                     .navigate(PillLogFragmentDirections.actionPillLogFragmentToAlertFragment())
                 true

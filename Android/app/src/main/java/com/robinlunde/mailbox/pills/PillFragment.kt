@@ -566,6 +566,17 @@ class PillFragment : Fragment(), AdapterView.OnItemSelectedListener {
         return when (item.itemId) {
             R.id.alert -> {
                 util.logButtonPress("Pill - logo")
+
+                // Try to fetch new data, if we fail we don't care
+                CoroutineScope(Dispatchers.IO + Job()).launch {
+                    util.doNetworkRequest(
+                        getString(R.string.get_last_status_update_method),
+                        null,
+                        null,
+                        null
+                    ).await()
+                }
+
                 NavHostFragment.findNavController(this)
                     .navigate(PillFragmentDirections.actionPillFragmentToAlertFragment())
                 true

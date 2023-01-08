@@ -10,7 +10,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import java.util.concurrent.TimeUnit
 
-// TODO Change this later and override it in specific versions for Mail-function instead
 private val BASEURL = MailboxApp.getInstance().getString(R.string.base_url) //"https://robinlunde.com/api/"
 
 // MailboxApp.getContext().getString(R.string.base_url)

@@ -44,8 +44,6 @@ import java.util.*
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-// TODO http data has become blocking when changing fragments!!
-
 class Util {
     private lateinit var myNotificationManager: MyNotificationManager
     private lateinit var alarmPendingIntent: PendingIntent
@@ -126,7 +124,6 @@ class Util {
         }
     }
 
-    // TODO Change name - remove 2
     fun startDataRenewer() {
         val appScope = MailboxApp.getAppScope()
         appScope.launch {
@@ -176,7 +173,6 @@ class Util {
         return block() // last attempt
     }
 
-    // TODO needs to ensure that exponential backoff actually waits before retrying! Currently just retries, due to no await()
     // https://www.valueof.io/blog/kotlin-flow-retry-policy-with-exponential-backoff ?
     fun doNetworkRequest(type: String, timestamp: String?, id: Int?, newMail: Boolean?) =
         CoroutineScope(Dispatchers.IO).async {
