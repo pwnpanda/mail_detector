@@ -21,6 +21,7 @@ void print_wakeup_reason(){
 }
 
 int val = 0;
+int anval = 0;
 void setup() {
 	Serial.begin(115200);
 	Serial.println(F("Starting work!"));
@@ -48,15 +49,18 @@ void setup() {
   }
   runNr++;
   Serial.println(F("Going to sleep!"));
-  esp_deep_sleep_start();
+  //esp_deep_sleep_start();
   
 }
 
 void loop() {
 	// put your main code here, to run repeatedly:
-	// val = analogRead(buttonPin);
+	anval = analogRead(buttonPin);
+  pinMode(buttonPin, INPUT);
+  delay(10);
   val = digitalRead(buttonPin);
 	//DUMP(val);
 	Serial.printf("Value read: %d\n",val);
+  Serial.printf("Analog value read: %d\n",anval);
 	delay(1000);
 }

@@ -12,6 +12,8 @@
 #include <BLEUtils.h>
 #include <BLEServer.h>
 #include <stdio.h>
+#include <esp_wifi.h>
+#include <esp_bt_main.h>
 
 // #include <ArduinoTrace.h>
 
@@ -53,7 +55,8 @@ enum characteristic {
 };
 typedef enum characteristic characteristic;
 // ----------------------------------------------------------------------------------
-const int sensorPin = GPIO_NUM_25;
+//const int sensorPin = GPIO_NUM_25;
+const int sensorPin = 25;
 int sensorValue = -1;
 
 /* 
@@ -201,7 +204,7 @@ class MyCallbacks: public BLECharacteristicCallbacks {
 // Start listening and running bluetooth connections
 void start_bluetooth() {
 
-	esp_bt_controller_enable();
+	esp_bt_controller_enable(ESP_BT_MODE_BLE);
 	esp_bluedroid_enable();
 
 	BLEDevice::init("FireBeetle ESP32-E Robin");
@@ -297,7 +300,7 @@ void sendAndSleep() {
 	// sleep interval and send interval
 	int interval = TIME_TO_REST_FOR_SEND_SECONDS * uS_TO_S_FACTOR;
 
-	int sleep_length_uS = (sleep_length_ms * 1000)
+	int sleep_length_uS = (sleep_length_ms * 1000);
 
 	int round = 0;
 	int limit = interval / sleep_length_uS;
@@ -316,14 +319,16 @@ void sendAndSleep() {
 
 void setup() {
 	Serial.begin(115200);
-		
+
+  Serial.println("Started!");
+    
 	// Set sleep wakeup condition - WakeUp if GPIO Goes to level set in GPIO_LEVEL!
 	// Wakeup if beam is broken
 	esp_sleep_enable_ext0_wakeup(GPIO_NUM, GPIO_LEVEL);
 
 	// Detect reason for wakeup
 	esp_sleep_wakeup_cause_t wakeup_reason;
-  	wakeup_reason = esp_sleep_get_wakeup_cause();
+  wakeup_reason = esp_sleep_get_wakeup_cause();
 	
 	// New mail detected
 	if (wakeup_reason == ESP_SLEEP_WAKEUP_EXT0 && detectTime == 0 && !debug){
@@ -378,9 +383,9 @@ void loop() {
 			sensorValue = analogRead(sensorPin);
 			
 			if (sensorValue <= 0)	Serial.println("No value read from pin");
-			else Serial.printf("Value from light sensor - read: %d\n", val);
+			else Serial.printf("Value from light sensor - read: %d\n", sensorValue);
 
-			char *LDRSensorData = new char [25]
+			char *LDRSensorData = new char [25];
 			snprintf(LDRSensorData, 25, "%f", sensorValue );
 			setSendValue(pCharacteristic_debug, LDRSensorData);
 		}
