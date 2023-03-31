@@ -81,11 +81,15 @@ class MyCallbacks: public BLECharacteristicCallbacks {
 						* 1. Set detectTime to 0
 						* 2. Sleep until sensor again detects post
 						*/
-						
+						Serial.println("Resetting and deep sleeping");
 						detectTime = 0;
 						esp_wifi_stop();
 						esp_bt_controller_disable();
 						esp_bluedroid_disable();
+            // Cancel all wakeup sources
+            esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_ALL);
+            // Activate IO wakeup source
+            setDeepSleepWakeup();
 						esp_deep_sleep_start();	
 					}
 					return;

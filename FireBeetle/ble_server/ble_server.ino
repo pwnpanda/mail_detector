@@ -319,6 +319,8 @@ void sendAndSleep() {
 void setup() {
 	Serial.begin(115200);
 
+  pinMode(sensorPin, INPUT);
+  
   Serial.println("Started!");
     
 	// Set sleep wakeup condition - WakeUp if GPIO Goes to level set in GPIO_LEVEL!
@@ -363,6 +365,19 @@ void setup() {
 	}
 }
 
+int getSensorData(){
+  // real LDR sensor data
+  // analogRead returns value between 0 - 4095
+  sensorValue = analogRead(sensorPin);
+  pinMode(sensorPin, INPUT);
+  sensorValueDigital = digitalRead(sensorPin);
+  
+  if (sensorValue <= 0) Serial.println("No value read from pin");
+  else Serial.printf("Value from light sensor - read: analog %d | digital %d\n", sensorValue, sensorValueDigital);
+
+  return sensorValue;
+}
+
 // Only runs if debug mode!
 void loop() {
 
@@ -377,12 +392,7 @@ void loop() {
 			sleep_counter++;
 			sleep_length_ms = 1000;
 			
-			// real LDR sensor data
-			// analogRead returns value between 0 - 4095
-			sensorValue = analogRead(sensorPin);
-			
-			if (sensorValue <= 0)	Serial.println("No value read from pin");
-			else Serial.printf("Value from light sensor - read: %d\n", sensorValue);
+			sensorValue = getSensorData();
 
 			char *LDRSensorData = new char [25];
 			snprintf(LDRSensorData, 25, "%f", sensorValue );
