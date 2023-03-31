@@ -300,14 +300,15 @@ class MailboxApp : Application() {
              * val sensorDetected = now() - valFromSensor
              * val pickupTime = now()
              */
+            val diffInSeconds = time.toLong() / 1000;
             val postTime = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                LocalDateTime.now().minusSeconds(time.toLong()).toString()
+                LocalDateTime.now().minusSeconds(diffInSeconds).toString()
             } else {
                 Timber.e("Android version too low! Please upgrade your os")
                 throw error("Android version too low!")
             }
 
-            Timber.d("Time is set to: $postTime, which is $time ago.")
+            Timber.d("Time is set to: $postTime, which is $diffInSeconds seconds ago.")
 
             // add update to API server - this automatically updates local state as well
             nwScope.launch {
