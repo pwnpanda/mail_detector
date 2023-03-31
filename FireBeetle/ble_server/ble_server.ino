@@ -33,7 +33,7 @@
 #define uS_TO_S_FACTOR 1000000  // Conversion factor for micro seconds to seconds
 #define TIME_TO_REST_FOR_SEND_SECONDS 30 // Time to rest before retransmitting
 // ----------------------------------------------------------------------------------
-#define GPIO_NUM GPIO_NUM_1		// Which GPIO PIN we are using to wake up
+#define GPIO_NUM GPIO_NUM_25		// Which GPIO PIN we are using to wake up
 #define GPIO_LEVEL 0	// If wakeup is on high or low edge (0 means wakeup will trigger when value is ~0)
 // ----------------------------------------------------------------------------------
 BLEServer *pServer;
@@ -55,8 +55,7 @@ enum characteristic {
 };
 typedef enum characteristic characteristic;
 // ----------------------------------------------------------------------------------
-//const int sensorPin = GPIO_NUM_25;
-const int sensorPin = 25;
+const int sensorPin = GPIO_NUM_25;
 int sensorValue = -1;
 
 /* 
