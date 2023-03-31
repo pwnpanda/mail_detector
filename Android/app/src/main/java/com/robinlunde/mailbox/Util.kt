@@ -102,23 +102,29 @@ class Util {
     // https://stackoverflow.com/questions/54827455/how-to-implement-timer-with-kotlin-coroutines
     private fun tickerFlow(period: Duration, initialDelay: Duration = Duration.ZERO) = flow {
         delay(initialDelay)
+        var run = -1;
         while (true) {
             MailboxApp.getBTConn().bleScan(ScanType.BACKGROUND)
-            CoroutineScope(Dispatchers.IO).async {
-                Timber.d("Fetching logs periodically and on startup!")
-                val getLogs =
-                    apiInterfaceMailNotifications.getRecentMailboxStatus().execute()
-                        .body()!! // getAllPostNotificationFromWebHelper(null)
-                MailboxApp.setPostEntries(getLogs)
-                Timber.d("getLogs done")
-                val getStatus =
-                    apiInterfaceMailNotifications.getLastMailboxStatus().execute()
-                        .body()!! //getAllPostNotificationFromWebHelper(updateURL)
-                MailboxApp.setStatus(getStatus)
-                Timber.d("getStatus done")
-                val myMailboxStatus = MailboxStatus(getStatus, getLogs)
-                Timber.d("MailboxStatus done")
-                emit(myMailboxStatus)
+            run++;
+            // Run once every 10 times, which is every 5 minutes.
+            if (run == 0 || run >= 10) {
+                CoroutineScope(Dispatchers.IO).async {
+                    Timber.d("Fetching logs periodically and on startup!")
+                    val getLogs =
+                        apiInterfaceMailNotifications.getRecentMailboxStatus().execute()
+                            .body()!! // getAllPostNotificationFromWebHelper(null)
+                    MailboxApp.setPostEntries(getLogs)
+                    Timber.d("getLogs done")
+                    val getStatus =
+                        apiInterfaceMailNotifications.getLastMailboxStatus().execute()
+                            .body()!! //getAllPostNotificationFromWebHelper(updateURL)
+                    MailboxApp.setStatus(getStatus)
+                    Timber.d("getStatus done")
+                    val myMailboxStatus = MailboxStatus(getStatus, getLogs)
+                    Timber.d("MailboxStatus done")
+                    emit(myMailboxStatus)
+                }
+                run = 0;
             }
         delay(period)
         }
@@ -127,8 +133,8 @@ class Util {
     fun startDataRenewer() {
         val appScope = MailboxApp.getAppScope()
         appScope.launch {
-            // Run every 10 minutes, and wait 1 second before starting the first time
-            tickerFlow((60 * 10).seconds, 1.seconds).collect { result ->
+            // Run every 30 seconds, and wait 1 second before starting the first time
+            tickerFlow((30).seconds, 1.seconds).collect { result ->
                 newDataReceivedHelper(result)
             }
         }
@@ -236,7 +242,7 @@ class Util {
 
                     val postUpdateStatus = PostUpdateStatus(
                         newMail,
-                        timestamp = getTime(),
+                        timestamp = timestamp ?: getTime(),
                         username = MailboxApp.getUsername()
                     )
                     return@async retryIO {

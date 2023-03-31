@@ -109,3 +109,9 @@ lint/tmp/
 # Secrets
 WebApi/mail/secret.txt
 WebApi/pill/secret.txt
+
+# Release items
+Android/app/release/
+Android/app/release/*
+KeyStore/
+KeyStore/*

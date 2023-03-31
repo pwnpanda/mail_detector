@@ -50,6 +50,7 @@ class NativeBluetooth {
         bleScan(ScanType.ACTIVE)
     }
 
+    // Scans for 10 sec, then relaunched 30 sec after
     fun bleScan(type: ScanType = ScanType.BACKGROUND) {
         scanner.let { scanner ->
             if (!scanning) { // Stops scanning after a pre-defined scan period.
