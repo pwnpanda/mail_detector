@@ -1,19 +1,26 @@
 package com.robinlunde.mailbox.network
 
+import android.Manifest
 import android.bluetooth.*
 import android.bluetooth.BluetoothDevice.*
 import android.bluetooth.BluetoothGatt.*
 import android.bluetooth.le.*
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.ParcelUuid
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
 import com.robinlunde.mailbox.MailboxApp
+import com.robinlunde.mailbox.MainActivity
 import com.robinlunde.mailbox.debug.ScanType
 import timber.log.Timber
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.pow
 
+private val ESP_MAC = "7C:9E:BD:D9:E1:1A"
 private val SERVICE_UUID = UUID.fromString("4fafc201-1fb5-459e-8fcc-c5c9c331914b")
 private val CHARACTERISTIC_REAL_UUID = UUID.fromString("beb5483e-36e1-4688-b7f5-ea07361b26a8")
 private val CHARACTERISTIC_DEBUG_UUID = UUID.fromString("0f06709f-e038-4f4f-8795-31c514ec22dd")
@@ -46,12 +53,66 @@ class NativeBluetooth {
     // Scan for 10 sec
     private val scanPeriod: Long = 10000
 
+    @RequiresApi(Build.VERSION_CODES.S)
+    public fun checkPermission() {
+        if (ActivityCompat.checkSelfPermission(
+            MailboxApp.getContext()!!,
+            Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED
+        ){
+            ActivityCompat.requestPermissions(
+                MainActivity.myActivity,
+                arrayOf(Manifest.permission.BLUETOOTH_CONNECT),
+                999
+            )
+        }
+
+    }
+    @RequiresApi(Build.VERSION_CODES.S)
+    public fun connectToDevice(){
+        checkPermission()
+
+        if (connected)  {
+            Timber.d("Device $device is already connected!")
+            return
+        }
+
+        if (this::device.isInitialized) {
+            Timber.d("Connect to previously found bonded device!")
+            device.connectGatt(MailboxApp.getContext(), true, gattCallback, TRANSPORT_LE)
+            return
+        }
+
+        val pairedDevices = bluetoothAdapter.bondedDevices
+
+        for(d: BluetoothDevice in pairedDevices) {
+            // Timber.d("Device: ${d.address} - Target addr $ESP_MAC")
+            if (d.address.equals(ESP_MAC)) {
+                device = d
+                Timber.d("Connecting to found bonded device!")
+                d.connectGatt(MailboxApp.getContext(), true, gattCallback, TRANSPORT_LE)
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
     fun btEnabledConfirmed() {
-        bleScan(ScanType.ACTIVE)
+        //bleScan(ScanType.ACTIVE)
+        checkPermission()
+        connectToDevice()
+
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    fun bleConnect(){
+        checkPermission()
+        connectToDevice()
     }
 
     // Scans for 10 sec, then relaunched 30 sec after
+    @RequiresApi(Build.VERSION_CODES.S)
     fun bleScan(type: ScanType = ScanType.BACKGROUND) {
+        checkPermission()
+        // Timber.d("In scan")
         scanner.let { scanner ->
             if (!scanning) { // Stops scanning after a pre-defined scan period.
                 handler.postDelayed({
@@ -80,8 +141,10 @@ class NativeBluetooth {
     }
 
     private val leScanCallback: ScanCallback = object : ScanCallback() {
+        @RequiresApi(Build.VERSION_CODES.S)
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
+            checkPermission()
             Timber.d("Found some results!")
             // This result contains a lot of interesting data. May want to use it later
             device = result!!.device
@@ -93,6 +156,7 @@ class NativeBluetooth {
             )
         }
 
+        @RequiresApi(Build.VERSION_CODES.S)
         override fun onScanFailed(errorCode: Int) {
             super.onScanFailed(errorCode)
             Timber.d("Scan failed! Retrying!")
@@ -100,13 +164,15 @@ class NativeBluetooth {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     private fun retryConnection() {
         // call again after exponential backoff
         val delay = 200F * 2.0.pow(attempt.getAndIncrement())
 
         try {
             Handler(Looper.myLooper()!!).postDelayed({
-                bleScan(ScanType.ACTIVE)
+                //bleScan(ScanType.ACTIVE)
+                bleConnect()
             }, delay.toLong())
         } catch (nullPointer: NullPointerException) {
             // Might want to try to detect exactly what is throwing null pointer!
@@ -120,8 +186,9 @@ class NativeBluetooth {
     // Connect callback
     private val gattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {
         // Detects and registers changes during the Connection-process for the GATT Server
+        @RequiresApi(Build.VERSION_CODES.S)
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
-
+            checkPermission()
             // We succeeded in whatever we wanted to do
             if (status == GATT_SUCCESS) {
                 localGatt = gatt
@@ -135,7 +202,7 @@ class NativeBluetooth {
                     // Hell yeah connected!
                     STATE_CONNECTED -> {
                         // Set global connection variables
-                        connected = true
+                        if (gatt.device == device) connected = true
                         attempt.set(0)
                         Timber.d("Connected to GATT server!")
                         handleGattConnection(gatt)
@@ -152,12 +219,13 @@ class NativeBluetooth {
                     // We're disconnecting
                     STATE_DISCONNECTED -> {
                         // We disconnected. Close connection!
-                        connected = false
+                        if (gatt.device == device)  connected = false
                         Timber.d("Disconnected from GATT server!")
                         gatt.close()
                     }
                     // We're doing something real weird!
                     else -> {
+                        if (gatt.device == device)  connected = false
                         Timber.d("Unknown connection state: $newState!")
                     }
                 }
@@ -178,7 +246,9 @@ class NativeBluetooth {
             }
         }
 
+        @RequiresApi(Build.VERSION_CODES.S)
         override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
+            checkPermission()
             if (status == GATT_SUCCESS) {
                 // continue
                 val gattServices = gatt!!.services
@@ -205,6 +275,7 @@ class NativeBluetooth {
                     Handler(Looper.getMainLooper()).also {
                         it.post(object : Runnable {
                             override fun run() {
+                                checkPermission()
                                 gatt.readRemoteRssi()
                                 it.postDelayed(this, 5000)
                             }
@@ -220,10 +291,12 @@ class NativeBluetooth {
             }
         }
 
+        @RequiresApi(Build.VERSION_CODES.S)
         override fun onCharacteristicChanged(
             gatt: BluetoothGatt?,
             characteristic: BluetoothGattCharacteristic?
         ) {
+            checkPermission()
             Timber.d("Characteristic " + characteristic!!.uuid + " changed. New value: " + characteristic.value.decodeToString())
             if (characteristic.uuid == CHARACTERISTIC_REAL_UUID) {
                 val valFromSensor = characteristic.value.decodeToString()
@@ -276,7 +349,9 @@ class NativeBluetooth {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     private fun handleGattConnection(gatt: BluetoothGatt) {
+        checkPermission()
         // Need to check bondState!
         when (device.bondState) {
             BOND_NONE -> {
@@ -299,7 +374,9 @@ class NativeBluetooth {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     fun requestDebugData() {
+        checkPermission()
         val debugService = localGatt?.getService(SERVICE_UUID)
         val debugCharacteristic = debugService?.getCharacteristic(
             CHARACTERISTIC_DEBUG_UUID

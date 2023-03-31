@@ -22,7 +22,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import com.robinlunde.mailbox.databinding.ActivityMainBinding
-import com.robinlunde.mailbox.debug.ScanType
 import timber.log.Timber
 
 
@@ -58,7 +57,8 @@ class MainActivity : AppCompatActivity() {
         myActivity = this
     }
 
-    @RequiresApi(Build.VERSION_CODES.S)
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         myActivity = this
         super.onCreate(savedInstanceState)
@@ -72,11 +72,15 @@ class MainActivity : AppCompatActivity() {
                     baseContext,
                     Manifest.permission.ACCESS_BACKGROUND_LOCATION
                 )
+                != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                    baseContext,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                )
                 != PackageManager.PERMISSION_GRANTED
             ) {
                 ActivityCompat.requestPermissions(
                     myActivity,
-                    arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                    arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION, Manifest.permission.BLUETOOTH_CONNECT),
                     PERMISSION_CODE
                 )
             }
@@ -111,6 +115,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Handles clicks on the menu
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Always arrives here first
         return when (item.itemId) {
@@ -131,7 +136,8 @@ class MainActivity : AppCompatActivity() {
                 // MailboxApp.getBTConn().startScan()
                 val cnt = MailboxApp.incrementClickCounter()
                 if (cnt == 1) {
-                    MailboxApp.getBTConn().bleScan(ScanType.ACTIVE)
+                    MailboxApp.getBTConn().bleConnect()
+                    //MailboxApp.getBTConn().bleScan(ScanType.ACTIVE)
                     // Sets clickCounter to 0 in 3 seconds
                     Handler(Looper.myLooper()!!).postDelayed({
                         MailboxApp.setClickCounterZero()
@@ -173,7 +179,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Make sure BT is enabled when we resume app
-    @RequiresApi(Build.VERSION_CODES.S)
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onResume() {
         super.onResume()
         if (promptGivePermission2()) MailboxApp.getUtil().btEnabled()
@@ -181,7 +188,8 @@ class MainActivity : AppCompatActivity() {
 
     // ------------------- BT ---------------------
     // https://stackoverflow.com/questions/70245463/java-lang-securityexception-need-android-permission-bluetooth-connect-permissio
-    @RequiresApi(Build.VERSION_CODES.S)
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun promptGivePermission2(): Boolean {
         val permissionBTLoc =
             ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN)
@@ -199,9 +207,12 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(
                 this,
                 PERMISSIONS_NOTIFICATION,
-                1
+                2
             )
         }
+
+
+
         return true
     }
 

@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class MailboxApp : Application() {
 
-    @RequiresApi(Build.VERSION_CODES.N)
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate() {
         super.onCreate()
         mailboxApp = this

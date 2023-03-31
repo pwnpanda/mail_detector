@@ -26,7 +26,6 @@ import com.robinlunde.mailbox.datamodel.pickupStatus
 import com.robinlunde.mailbox.datamodel.pill.ConcreteGenericType
 import com.robinlunde.mailbox.datamodel.pill.User
 import com.robinlunde.mailbox.debug.DebugFragmentDirections
-import com.robinlunde.mailbox.debug.ScanType
 import com.robinlunde.mailbox.logview.PostViewFragmentDirections
 import com.robinlunde.mailbox.network.*
 import com.robinlunde.mailbox.pills.*
@@ -100,14 +99,12 @@ class Util {
     // Helper-flow for running task periodically
     // https://kotlinlang.org/docs/flow.html#flow-cancellation-basics
     // https://stackoverflow.com/questions/54827455/how-to-implement-timer-with-kotlin-coroutines
-    private fun tickerFlow(period: Duration, initialDelay: Duration = Duration.ZERO) = flow {
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun tickerFlow(period: Duration, initialDelay: Duration = Duration.ZERO, type: String = "BT") = flow {
         delay(initialDelay)
-        var run = -1;
         while (true) {
-            MailboxApp.getBTConn().bleScan(ScanType.BACKGROUND)
-            run++;
-            // Run once every 10 times, which is every 5 minutes.
-            if (run == 0 || run >= 10) {
+            if (type == "BT")   MailboxApp.getBTConn().bleConnect()
+            else {
                 CoroutineScope(Dispatchers.IO).async {
                     Timber.d("Fetching logs periodically and on startup!")
                     val getLogs =
@@ -124,19 +121,20 @@ class Util {
                     Timber.d("MailboxStatus done")
                     emit(myMailboxStatus)
                 }
-                run = 0;
             }
         delay(period)
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     fun startDataRenewer() {
         val appScope = MailboxApp.getAppScope()
         appScope.launch {
-            // Run every 30 seconds, and wait 1 second before starting the first time
-            tickerFlow((30).seconds, 1.seconds).collect { result ->
+            // Run every 5 minutes, and wait 1 second before starting the first time
+            tickerFlow((60 * 5).seconds, 1.seconds, type = "http").collect { result ->
                 newDataReceivedHelper(result)
             }
+            tickerFlow((10).seconds, 1.seconds, type = "BT")
         }
     }
 
@@ -269,6 +267,7 @@ class Util {
         }
 
     // ----------------------------- BT -------------------------------
+    @RequiresApi(Build.VERSION_CODES.S)
     fun btEnabled() {
         Timber.d("Proxied from Util")
 
