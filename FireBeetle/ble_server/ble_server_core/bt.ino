@@ -1,5 +1,3 @@
-
-//-------------------------------------BLE Functions-------------------------------------------------
 // Helper function for finding characteristic type
 characteristic getCharacteristic(BLECharacteristic *blechar){
 	BLEUUID uuid = blechar->getUUID();
@@ -83,14 +81,7 @@ class MyCallbacks: public BLECharacteristicCallbacks {
 						*/
 						Serial.println("Resetting and deep sleeping");
 						detectTime = 0;
-						esp_wifi_stop();
-						esp_bt_controller_disable();
-						esp_bluedroid_disable();
-            // Cancel all wakeup sources
-            esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_ALL);
-            // Activate IO wakeup source
-            setDeepSleepWakeup();
-						esp_deep_sleep_start();	
+            goToSleep();	
 					}
 					return;
 				}
@@ -140,60 +131,80 @@ class MyCallbacks: public BLECharacteristicCallbacks {
 	}
 };
 
+void startup_bt_with_delays(int repeat){
+  Serial.printf("Running with delay 150 for cycle %d in BT!\n", repeat);
+    
+  switch (repeat){
+    
+    case 0:
+      // Handling real data
+      pCharacteristic_real = pService->createCharacteristic(
+        CHARACTERISTIC_REAL_UUID,
+        BLECharacteristic::PROPERTY_READ |
+        BLECharacteristic::PROPERTY_WRITE |
+        BLECharacteristic::PROPERTY_NOTIFY
+        );  
+      break;
+
+    case 1:
+      // Handle debug data
+      pCharacteristic_debug = pService->createCharacteristic(
+        CHARACTERISTIC_DEBUG_UUID,
+        BLECharacteristic::PROPERTY_READ |
+        BLECharacteristic::PROPERTY_WRITE |
+        BLECharacteristic::PROPERTY_NOTIFY
+        );
+      
+      // Set callbacks
+      pCharacteristic_real->setCallbacks(myCallbacks);
+      pCharacteristic_debug->setCallbacks(myCallbacks);
+      
+      // Set values
+      pCharacteristic_debug->setValue("0");
+      pCharacteristic_real->setValue( getTimeAsString(curTime, getCurrent() ) );
+      break;
+
+    case 2:
+      pService->addCharacteristic(pCharacteristic_debug);
+      break;
+
+    case 3:
+      pService->addCharacteristic(pCharacteristic_real);
+      break;
+
+    case 4:
+      // Start Service
+      pService->start();
+      pAdvertising = BLEDevice::getAdvertising();
+      pAdvertising->addServiceUUID(SERVICE_UUID);
+      pAdvertising->setScanResponse(true);
+      pAdvertising->setMinPreferred(0x06);  // functions that help with iPhone connections issue
+      pAdvertising->setMinPreferred(0x12);
+      
+      // Start advertising
+      pAdvertising->start();
+      // BLEDevice::startAdvertising();
+      Serial.println("Characteristic defined! Now you can read it in your phone!");
+      bluetooth = working;
+      break;
+      
+   default:
+      Serial.printf("Repeating time %d - not known case!\n",repeat);
+  }
+}
+
 // Start listening and running bluetooth connections
 void start_bluetooth() {
-
+  Serial.println("BT Init");
 	esp_bt_controller_enable(ESP_BT_MODE_BLE);
 	esp_bluedroid_enable();
 
 	BLEDevice::init("FireBeetle ESP32-E Robin");
 	// Initiate callback class
-	BLECharacteristicCallbacks * myCallbacks = new MyCallbacks();
+	myCallbacks = new MyCallbacks();
 
 	pServer = BLEDevice::createServer();
 	pServer->setCallbacks(new ConnectionCallbacks());
 	pService = pServer->createService(SERVICE_UUID);
-	
-	// Handling real data
-	pCharacteristic_real = pService->createCharacteristic(
-		CHARACTERISTIC_REAL_UUID,
-		BLECharacteristic::PROPERTY_READ |
-		BLECharacteristic::PROPERTY_WRITE |
-		BLECharacteristic::PROPERTY_NOTIFY
-		);
-	delay(150);
-
-	// Handle debug data
-	pCharacteristic_debug = pService->createCharacteristic(
-		CHARACTERISTIC_DEBUG_UUID,
-		BLECharacteristic::PROPERTY_READ |
-		BLECharacteristic::PROPERTY_WRITE |
-		BLECharacteristic::PROPERTY_NOTIFY
-		);
-	
-	// Set callbacks
-	pCharacteristic_real->setCallbacks(myCallbacks);
-	pCharacteristic_debug->setCallbacks(myCallbacks);
-	
-	// Set values
-	pCharacteristic_debug->setValue("0");
-	pCharacteristic_real->setValue( getTimeAsString(curTime, getCurrent() ) );
-	delay(150);
-	pService->addCharacteristic(pCharacteristic_debug);
-	delay(150);
-	pService->addCharacteristic(pCharacteristic_real);
-	delay(150);
-	
-	// Start Service
-	pService->start();
-	pAdvertising = BLEDevice::getAdvertising();
-	pAdvertising->addServiceUUID(SERVICE_UUID);
-	pAdvertising->setScanResponse(true);
-	pAdvertising->setMinPreferred(0x06);  // functions that help with iPhone connections issue
-	pAdvertising->setMinPreferred(0x12);
-	
-	// Start advertising
-	pAdvertising->start();
-	// BLEDevice::startAdvertising();
-	Serial.println("Characteristic defined! Now you can read it in your phone!");
+  Serial.println("BT Init Over");
 }

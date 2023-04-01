@@ -15,6 +15,7 @@
 #include <esp_wifi.h>
 #include <esp_bt_main.h>
 #include <esp_sleep.h>
+#include <neotimer.h>
 
 // #include <ArduinoTrace.h>
 
@@ -33,6 +34,7 @@
 // ----------------------------------------------------------------------------------
 #define uS_TO_S_FACTOR 1000000  // Conversion factor for micro seconds to seconds
 #define TIME_TO_REST_FOR_SEND_SECONDS 30 // Time to rest before retransmitting
+#define TRANSMISSION_TIME_MS 15000 // Time to do transmission before sleeping
 // ----------------------------------------------------------------------------------
 #define GPIO_NUM GPIO_NUM_25   // Which GPIO PIN we are using to wake up
 #define GPIO_LEVEL 0  // If wakeup is on high or low edge (0 means wakeup will trigger when value is ~0)
@@ -42,6 +44,7 @@ BLEService *pService;
 BLEAdvertising *pAdvertising;
 BLECharacteristic *pCharacteristic_real;
 BLECharacteristic *pCharacteristic_debug;
+BLECharacteristicCallbacks * myCallbacks;
 // ----------------------------------------------------------------------------------
 bool connected = false;
 int sleep_length_ms = 5000 * 2;
@@ -55,11 +58,34 @@ enum characteristic {
   c_real, c_debug, unknown
 };
 typedef enum characteristic characteristic;
+
+enum behaviour_enum {
+  transmit, debug_on, sleep_on, undefined, initial
+};
+typedef enum behaviour_enum behaviour_enum;
+behaviour_enum behaviour = undefined;
+
+enum bluetooth_status {
+  started, working, off
+};
+typedef bluetooth_status bluetooth_status;
+bluetooth_status bluetooth = off;
 // ----------------------------------------------------------------------------------
 //const int sensorPin = GPIO_NUM_25;
 const int sensorPin = 25;
 int sensorValue = -1;
 int sensorValueDigital = -1;
+int repeat = 0;
+
+int sleep_interval = TIME_TO_REST_FOR_SEND_SECONDS * uS_TO_S_FACTOR;
+
+const unsigned long wait = 30000; // 30 sec wait timer
+unsigned long lastTrigger = 0; // Holds last reset counter
+behaviour_enum prev_case = initial;
+bool print_new = true;
+
+Neotimer delay1 = Neotimer(TRANSMISSION_TIME_MS); // Timer running for 15 seconds
+Neotimer delay2 = Neotimer(150); // Timer running very short delay for BT
 //------------------------ DECLARATIONS DONE ----------------------------------------
 /* 
  * - Set detectTime upon sensor wakeup
@@ -80,12 +106,12 @@ unsigned long getTimeSincePostArrived(){
 	
 	//  Calculate offset if overflow occurs
 	if (cur_time < detectTime){
-		Serial.printf("Overflow! Time since detection: %d milliseconds - %d seconds!", (ULONG_MAX - detectTime) + cur_time, (ULONG_MAX - detectTime) + cur_time / 1000);
+		Serial.printf("Overflow! Time since detection: %d milliseconds - %d seconds!\n", (ULONG_MAX - detectTime) + cur_time, ((ULONG_MAX - detectTime) + cur_time) / 1000);
 		return (ULONG_MAX - detectTime) + cur_time;
 	}
 
 	// If no overflow, handle normally
-	Serial.printf("Time since detection: %d milliseconds - %d seconds! Detected: %d, Time now: %d", (cur_time - detectTime), (cur_time - detectTime) / 1000, detectTime, cur_time);
+	Serial.printf("Time since detection: %d milliseconds - %d seconds! Detected: %d, Time now: %d\n", (cur_time - detectTime), (cur_time - detectTime) / 1000, detectTime, cur_time);
 	return (cur_time - detectTime);
 }
 
@@ -104,27 +130,13 @@ char *getTimeAsString(char *buf, unsigned long time){
 
 //---------------------------------------Main Functions-------------------------------------------------
 
-// Send info continously for a short interval, then go to long sleep
-// Short interval is small transmission window, long interval is long transmission break
-void sendAndSleep() {
-	// sleep interval and send interval
-	int sleep_interval = TIME_TO_REST_FOR_SEND_SECONDS * uS_TO_S_FACTOR;
-
-	int sleep_length_uS = (sleep_length_ms * 1000);
-
-	int sending_round = 0;
-	int send_interval = sleep_interval / sleep_length_uS;
-	while(sending_round * sleep_length_uS <= send_interval) {
-		// send new value every 5 seconds
-		getTimeAsString(curTime, getTimeSincePostArrived() );
-		setSendValue(pCharacteristic_real, curTime);
-		sending_round++;
-		// Sleep short time until next small transmission window (short sleep - 5 seconds)
-		delay(sleep_length_ms);
-	}
-
-	// sleep for big transmission break (long sleep)
-	esp_sleep_enable_timer_wakeup(sleep_interval);
+// Send info then go to long, timed sleep
+void sendData() {
+  if (bluetooth != working) return;
+  
+  Serial.println("Updating timing information for sending!");
+  getTimeAsString(curTime, getTimeSincePostArrived() );
+  setSendValue(pCharacteristic_real, curTime);
 }
 
 
@@ -147,6 +159,34 @@ void setDeepSleepWakeup(){
   esp_sleep_enable_ext0_wakeup(GPIO_NUM, GPIO_LEVEL);  
 }
 
+void printWakeUpReason(esp_sleep_wakeup_cause_t wakeup_reason){
+    switch(wakeup_reason)
+    {
+      case ESP_SLEEP_WAKEUP_UNDEFINED:    Serial.println("In case of deep sleep: reset was not caused by exit from deep sleep"); break;
+      case ESP_SLEEP_WAKEUP_ALL:          Serial.println("Not a wakeup cause: used to disable all wakeup sources with esp_sleep_disable_wakeup_source"); break;
+      case ESP_SLEEP_WAKEUP_EXT0:         Serial.println("Wakeup caused by external signal using RTC_IO"); break;
+      case ESP_SLEEP_WAKEUP_EXT1:         Serial.println("Wakeup caused by external signal using RTC_CNTL"); break;
+      case ESP_SLEEP_WAKEUP_TIMER:        Serial.println("Wakeup caused by timer"); break;
+      case ESP_SLEEP_WAKEUP_TOUCHPAD:     Serial.println("Wakeup caused by touchpad"); break;
+      case ESP_SLEEP_WAKEUP_ULP:          Serial.println("Wakeup caused by ULP program"); break;
+      case ESP_SLEEP_WAKEUP_GPIO:         Serial.println("Wakeup caused by GPIO (light sleep only)"); break;
+      case ESP_SLEEP_WAKEUP_UART:         Serial.println("Wakeup caused by UART (light sleep only)"); break;
+      default : Serial.printf("Wakeup was not caused by deep sleep: %d\n",wakeup_reason); break;
+    }
+}
+
+ void goToSleep(){
+  esp_wifi_stop();
+  bluetooth = off;
+  esp_bt_controller_disable();
+  esp_bluedroid_disable();
+  // Cancel all wakeup sources
+  esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_ALL);
+  // Activate IO wakeup source
+  setDeepSleepWakeup();
+  esp_deep_sleep_start();
+}
+
 void setup() {
 	Serial.begin(115200);
 
@@ -154,6 +194,9 @@ void setup() {
 
 	Serial.println("Started!");
 
+  delay1.set(TRANSMISSION_TIME_MS);
+  delay2.set(150);
+  
   getSensorData();
    
   setDeepSleepWakeup();
@@ -161,52 +204,105 @@ void setup() {
 	// Detect reason for wakeup
 	esp_sleep_wakeup_cause_t wakeup_reason;
 	wakeup_reason = esp_sleep_get_wakeup_cause();
-	
+  
+  printWakeUpReason(wakeup_reason);
+
+  // Mail already detected, but it registered a new delivery. Retry transmission
+  if(detectTime != 0 && !debug){
+    // Set enum for checking in loop to indicate need to start BT services and sending
+    Serial.println("Mail already detected, but new delivery is registered! Retrying transmission!");
+    behaviour = transmit;
+  }
+
+  
 	// New mail detected
 	if (wakeup_reason == ESP_SLEEP_WAKEUP_EXT0 && detectTime == 0 && !debug){
 		// Set detection timestamp
 		mailDetected();
-		Serial.println(F("Starting BLE work!"));
-		start_bluetooth();
-		// send data for x seconds, then sleep for x seconds
-		sendAndSleep();
+    // Set enum for checking in loop to indicate need to start BT services and sending
+    behaviour = transmit;
+    Serial.println("New mail detected! Turn on BT and transmit!");
 	}
 
 	if (wakeup_reason == ESP_SLEEP_WAKEUP_TIMER && detectTime!= 0 && !debug){
-		sendAndSleep();
-	}
-
-	// Mail already detected, retry transmission
-	if(detectTime != 0 && !debug){
-		Serial.println(F("Starting BLE work!"));
-		start_bluetooth();
-		// send data for x seconds, then sleep for x seconds
-		sendAndSleep();
+		// Set enum for checking in loop to indicate need to start sending
+    behaviour = transmit;
+    Serial.println("Retransmitting data after sleep interval (30 seconds)");
 	}
 
 	// Sleep if nothing to report and we are not debugging
 	if (detectTime == 0 && !debug){
-		esp_deep_sleep_start();
+    // Set enum for going to deep sleep
+    behaviour = sleep_on;
 	}
 
 	// If debug is on, never go to sleep - use loop!
 	if (debug){
-		Serial.println(F("Starting BLE work!"));
-		start_bluetooth();
+    behaviour = debug_on;
 	}
 }
 
-// Only runs if debug mode!
+// Wait 30 sec on startup before sleeping, to enable debug testing
 void loop() {
+  
+  // Only print info first time and when on change
+  if (prev_case == behaviour) print_new = false;
+  prev_case = behaviour;
 
-	if (connected) {
+  if(bluetooth == off){
+    bluetooth = started;
+    Serial.println("Starting BlueTooth!");
+    start_bluetooth();
+    repeat = 0;
+    if (delay2.repeat(5, 150L)){
+      Serial.printf("Run: %d\n", repeat);
+      startup_bt_with_delays(repeat);
+      repeat++;
+    }
+  }
+  
+  // bt_on_and_transmit, transmit, debug, sleep, unknown
+  switch(behaviour){
+    
+    case transmit:
+      if (print_new)  Serial.println("Transmitting data to BT!");
+      // sleep interval for long break (30 sec - updates GATT Characteristic every 15 seconds)
+      if (bluetooth == working){
+        // need to change to this? https://github.com/ben-jacobson/non_blocking_timers/blob/main/examples/non_blocking_timers/non_blocking_timers.ino
+        if (delay1.repeat(2)){
+          Serial.println("Executing");
+          // send data for 30 seconds
+          sendData();
+        }
+      }
+      // sleep for big transmission break (long sleep - 30 sec)
+      esp_sleep_enable_timer_wakeup(sleep_interval);
+      break;
 
-		// When post is detected, get time. Then when sending notification to phone, get current time and deduct previous time	
+    case debug_on:
+      if (print_new)  Serial.println("In debug!");
+      break;
 
-		getTimeAsString(curTime, getTimeSincePostArrived());
-		setSendValue(pCharacteristic_real, curTime);
+    case sleep_on:
+      if (millis() > 30000 ) {  
+        Serial.println("Nothing to do - going to deep sleep");
+        goToSleep();
+      } else {  if (print_new) Serial.println("Waiting 30 sec before going to deep sleep after startup"); }
+      break;
+      
+    case undefined:
+      if (print_new)  Serial.println("No state defined. Continuing without doing anything");
+      break;
 
-		if (debug) {
+    default:
+      if (print_new)  Serial.println("Unknown state and defined behaviour! Ignoring!");
+      break;
+  }
+  
+  unsigned long currentTime = millis();
+  if (currentTime - lastTrigger >= wait){
+    
+  	if (connected && debug) {
 			sleep_counter++;
 			sleep_length_ms = 1000;
 			
@@ -215,17 +311,17 @@ void loop() {
 			char *LDRSensorData = new char [25];
 			snprintf(LDRSensorData, 25, "%f", sensorValue );
 			setSendValue(pCharacteristic_debug, LDRSensorData);
-		}
-	}
-
-	// If we have printed debug info for 30sec, stop it and reset counter
-	if (sleep_counter >= 30){
-		debug = false;
-		sleep_counter = 0;
-		sleep_length_ms = 5000;
-		Serial.println("Reported debug signal for 30 sec. Setting Debug off!");
-	}
-
-	// Sleep for set period
-	delay(sleep_length_ms);
+  	}
+  
+  	// If we have printed debug info for 30sec, stop it and reset counter
+  	if (sleep_counter >= 30){
+  		debug = false;
+  		sleep_counter = 0;
+  		sleep_length_ms = 5000;
+  		Serial.println("Reported debug signal for 30 sec. Setting Debug off and stopping!");
+      lastTrigger = currentTime;
+  	}
+   
+  }
+  //update_timers();
 }
